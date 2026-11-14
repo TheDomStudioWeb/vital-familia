@@ -195,6 +195,7 @@ details summary::-webkit-details-marker{display:none}
   <a href="#familia" data-v="familia"><span class="i">👨‍👩‍👧</span>Familia</a>
 </nav>
 <div id="layer"></div>
+<script src="vendor/capacitor.js"></script>
 <script src="config.js"></script>
 <script>
 "use strict";
@@ -202,7 +203,7 @@ details summary::-webkit-details-marker{display:none}
 const FIREBASE_CONFIG = window.VITAL_FIREBASE_CONFIG || null;
 const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 const APP_URL = "https://vital-familia.web.app/";
-const NP = {};function nplug(n){if(!NATIVE)return null;return NP[n]||(NP[n]=window.Capacitor.registerPlugin(n))}
+const NP = {};function nplug(n){if(!NATIVE)return null;const C=window.Capacitor||{},X=window.capacitorExports||{};const reg=C.registerPlugin||X.registerPlugin;return NP[n]||(NP[n]=reg?reg(n):(C.Plugins||{})[n])}
 /* =========================================================
    VITAL — App de salud y ejercicio familiar
    Todo corre en el dispositivo. Sin cuentas, sin anuncios, sin pagos.
