@@ -116,12 +116,23 @@ Pestaña 🥗 **Comer**, con tres partes:
 - **Plan semanal:** 7 días de desayuno, almuerzo, merienda y cena con comidas argentinas caseras (milanesas al horno, guisos, tartas, tortilla, merluza, wok, locro en invierno, etc.), priorizando verduras y frutas de temporada en Cuyo, máximo 3 comidas con carne roja, al menos pescado una vez y legumbres dos veces. Las porciones se ajustan a la referencia de calorías. Lista de compras por rubro (verdulería, carnicería, lácteos, almacén) para la cantidad de personas elegida, con botón para copiarla a WhatsApp.
 - **Recetas de casa:** se carga la receta para toda la olla (ingredientes en gramos, con medidas caseras de ayuda) y cuántas porciones rinde; Vital calcula todo por porción. Se puede compartir con la familia para que todos la registren.
 
+**Importar receta** (Recetas → Nueva → «📋 Importar desde foto o texto copiado»): mismo sistema que «Ganancias por servicio».
+- Desde una foto: «Copiar el texto para la IA» → en Claude, ChatGPT o Gemini se sube la foto y se pega ese texto → la IA devuelve una tabla (RECETA | nombre | porciones · Ingrediente | Cantidad | Unidad) → se pega en Vital → «Importar».
+- Desde internet o WhatsApp: se copia la lista de ingredientes tal cual («500 g de carne», «2 papas», «1 cda de aceite», «1/2 taza de…») y se pega.
+- Vital reconoce el nombre de la receta, las porciones, cada ingrediente (con sinónimos: nalga, mozzarella, tomate triturado…), convierte medidas caseras a gramos, pasa arroz, fideos y legumbres de crudo a cocido, separa los condimentos (no suman) y avisa qué no reconoció o qué quedó sin cantidad. Después se revisa y se guarda.
+- Es gratis: Vital no usa una IA paga; la IA la pone cada uno con su propia cuenta, solo para el caso de la foto.
+
 **Calidad del plato:** se basa en el plato saludable de las Guías Alimentarias argentinas: suma por verduras y frutas (ideal: medio plato), fibra, proteínas y legumbres; resta por ultraprocesados, azúcar agregada y exceso de sodio. 75+ muy bueno · 55–74 bien · 35–54 mejorable · menos de 35 para de vez en cuando.
 **Calorías de referencia:** Mifflin–St Jeor × actividad según la etapa; con objetivo «bajar de peso», déficit de hasta 15 % (máximo 500 kcal) y nunca por debajo del metabolismo basal ni de 1200 (mujeres) / 1500 (hombres) kcal. Es orientativo y no reemplaza a un nutricionista.
 **Celiaquía:** todo se calcula y se planifica en versión sin TACC (pan, fideos, rebozador, masas, premezcla, salsa de soja), saca la avena, marca «verificar logo» en productos de riesgo (fiambres, quesos rallados, yerba, yogures) y recuerda cocinar aparte para evitar la contaminación cruzada.
 **Diabetes:** muestra hidratos por plato, por comida y del día, prefiere platos con menos de 65 g de hidratos y saca las facturas del plan; la distribución la define su médico.
 **Menores de 18:** no se muestran calorías; solo calidad y variedad.
 Valores nutricionales aproximados por 100 g.
+
+## Actualizaciones
+- Web (iPhone): se actualiza sola para todos después de cada `firebase deploy`.
+- APK (Android): al abrirse, revisa si hay versión nueva en GitHub y muestra «Hay una versión nueva de Vital» con el botón «Descargar actualización»; se instala encima sin perder datos.
+- Pasos para publicar la web desde la PC: `cd C:\Proyectos\vital-familia` → `git pull` → `firebase deploy --only hosting` (si cambiaron las reglas: `firebase deploy --only hosting,firestore:rules`).
 
 ## App para Android (APK) y reloj
 - Se descarga desde GitHub → repo **TheDomStudioWeb/vital-familia** → **Releases** → `Vital.apk` (cada cambio en el código genera una nueva versión sola).

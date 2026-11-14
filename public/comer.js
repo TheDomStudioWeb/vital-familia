@@ -85,7 +85,7 @@ const ALI_RAW = [
  ["avena","Avena","cereal",389,66,17,7,10.6,2,1,{cda:10},""],
  ["harina","Harina de trigo","cereal",364,76,10,1,2.7,2,1,{taza:120},""],
  ["premezcla","Premezcla sin TACC","cereal",360,85,1,1,1,10,0,{taza:120},""],
- ["panrallado","Pan rallado","cereal",395,72,13,5,4.5,730,1,{cda:10},""],
+ ["panrallado","Pan rallado","cereal",395,72,13,5,4.5,730,1,{cda:10,taza:120},""],
  ["rebozador","Rebozador sin TACC","cereal",370,80,6,2,3,400,0,{cda:10},""],
  ["tapaemp","Tapa de empanada","cereal",300,45,7,10,2,600,1,{unidad:30},""],
  ["tapaempst","Tapa de empanada sin TACC","cereal",300,48,3,10,2,500,0,{unidad:30},""],
@@ -97,6 +97,7 @@ const ALI_RAW = [
  ["bizcochitos","Bizcochitos de grasa","ultra",480,55,8,25,2,900,1,{unidad:5},""],
  ["cereales","Cereales azucarados","ultra",380,85,6,2,3,400,1,{taza:30},""],
  ["alfajor","Alfajor","ultra",450,62,5,20,1.5,200,1,{unidad:50},""],
+ ["chorizo","Chorizo","ultra",455,2,24,38,0,1200,2,{unidad:100},""],
  ["salchicha","Salchicha","ultra",270,3,12,23,0,900,2,{unidad:50},""],
  ["hambcong","Hamburguesa congelada","ultra",250,5,15,19,0,700,2,{unidad:80},""],
  ["papasfritas","Papas fritas de paquete","ultra",536,53,7,35,4.4,500,2,{bolsita:40},""],
@@ -330,6 +331,8 @@ function dibReceta(){const p=P();const qq=(RED.q||"").toLowerCase().normalize("N
   sheet(`<h2>${RED.nueva?"Nueva receta":"Editar receta"}</h2>
   <label class="f">Nombre</label><input class="in" id="rn" value="${esc(RED.n)}" placeholder="Ej.: Guiso de la abuela">
   <label class="f">¿Para cuántas porciones es la olla?</label><div class="opts">${[1,2,3,4,5,6,8,10].map(n=>`<button class="opt ${RED.por===n?"on":""}" data-act="rpor" data-v="${n}">${n}</button>`).join("")}</div>
+  ${RED.nueva&&!Object.keys(RED.i).length?`<button class="btn ghost block" style="margin-top:12px" data-act="rimp">📋 Importar desde foto o texto copiado</button>`:""}
+  ${RED.aviso?`<div class="note ${RED.aviso.no.length?"":"green"}" style="margin-top:10px;font-size:13px">✓ Reconocí ${RED.aviso.ok.length} ingrediente${RED.aviso.ok.length===1?"":"s"}.${RED.aviso.no.length?`<br>No reconocí: <b>${esc(RED.aviso.no.join(", "))}</b> — agregalos con el buscador si importan.`:""}${RED.aviso.sinq.length?`<br>Sin cantidad: ${esc(RED.aviso.sinq.join(", "))} — completala abajo.`:""}${RED.aviso.cond.length?`<br><span class="faint">Condimentos (no suman): ${esc(RED.aviso.cond.join(", "))}.</span>`:""}</div>`:""}
   <label class="f">Ingredientes (para toda la receta)</label>
   ${Object.entries(RED.i).map(([k,g])=>`<div class="row between sm" style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span>${esc(ALI[k].n)}</span><span class="row" style="gap:6px"><input class="in" style="width:86px;padding:8px" inputmode="numeric" data-ring="${k}" value="${Math.round(g)}"> g<button class="iconbtn" style="width:30px;height:30px;font-size:12px" data-act="rdel" data-v="${k}">✕</button></span></div>`).join("")||'<p class="xs faint">Todavía sin ingredientes.</p>'}
   <input class="in" id="rq" style="margin-top:10px" placeholder="Agregar ingrediente: papa, carne, aceite…" value="${esc(RED.q)}" autocomplete="off">
@@ -344,6 +347,58 @@ function mostrarLista(){const p=P();const L2=listaCompras(p.plan,p.planPersonas|
   sheet(`<h2>🛒 Lista de compras</h2><p class="xs mute">Para ${p.planPersonas||2} persona${(p.planPersonas||2)>1?"s":""}, 7 días. Cantidades aproximadas.</p>${Object.entries(L2).map(([g,it])=>`<div class="blockt">${g}</div>${it.map(x=>`<div class="row between sm" style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span>${esc(x.n)}</span><b>${esc(x.txt)}</b></div>`).join("")}`).join("")}
   <textarea id="lst" style="position:absolute;left:-9999px">${esc(txt)}</textarea><button class="btn block" style="margin-top:14px" data-act="lcopy">Copiar para WhatsApp</button>`)}
 
+
+/* ---------- Importar receta (foto con IA o texto copiado) ----------
+   Mismo formato que «Ganancias por servicio»: RECETA | nombre | porciones · Ingrediente | Cantidad | Unidad */
+const PROMPT_REC=`Te paso la foto de una receta. Devolvela como una tabla de texto con columnas separadas por barra vertical ( | ).
+Primera línea: RECETA | nombre de la receta | cuántas porciones rinde (un número; si no lo dice, poné ?)
+Después, una línea por ingrediente: Ingrediente | Cantidad | Unidad
+Reglas: las unidades permitidas son g, kg, ml, l, cucharada, cucharadita, taza, unidad y docena. Si dice "a gusto", "c/n" o no trae cantidad, poné ? en la cantidad. "Un tomate" se escribe 1 | unidad. Si la receta usa tazas de ingredientes secos, convertilas a gramos cuando puedas (1 taza de harina = 120 g, de azúcar = 200 g, de arroz = 200 g). Indicá si el ingrediente va crudo o cocido solo cuando la receta lo diga. No inventes cantidades. No agregues explicaciones: solo la tabla, dentro de un bloque de código.`;
+const SINON=[["carne picada|picada","picada"],["nalga|peceto|cuadrada|bola de lomo|carne vacuna|carne magra|bife|carne","carne"],["asado|costilla","asado"],["pechuga|pollo","pechuga"],["muslo|pata y muslo|pata-muslo","muslo"],["cerdo|bondiola|lomo de cerdo","cerdo"],["merluza|pescado|filet","merluza"],["atun|atún","atun"],["jamon|jamón","jamon"],
+ ["huevo","huevo"],["pan rallado|rebozador","panrallado"],["chorizo","chorizo"],["salchicha","salchicha"],["queso rallado|rallado|parmesano|reggianito","rallado"],["muzzarella|mozzarella|muzarela","muzza"],["queso crema|queso untable|queso blanco","untable"],["ricota","ricota"],["queso","queso"],["leche","leche"],["yogur","yogur"],["manteca","manteca"],["crema","manteca"],
+ ["aceite de oliva|oliva","oliva"],["aceite","aceite"],["mayonesa","mayonesa"],["harina de maiz|harina de maíz|polenta","polenta"],["premezcla","premezcla"],["harina","harina"],["pan","pan"],["fideo|spaghetti|tallarin|tallarín|mostachol|codito|tirabuzon","fideos"],["arroz integral","arrozint"],["arroz","arroz"],["avena","avena"],
+ ["lenteja","lentejas"],["poroto|alubia","porotos"],["garbanzo","garbanzos"],["papa","papa"],["batata|boniato","batata"],["choclo|maiz|maíz","choclo"],["zapallito","zapallito"],["zucchini|zuchini","zucchini"],["zapallo|calabaza|anco","zapallo"],["berenjena","berenjena"],["morron|morrón|pimiento|aji|ají","morron"],
+ ["pure de tomate|puré de tomate|tomate triturado|salsa de tomate|tomate perita|extracto de tomate","pure"],["tomate","tomate"],["lechuga|rucula|rúcula","lechuga"],["zanahoria","zanahoria"],["cebolla|verdeo|puerro","cebolla"],["acelga","acelga"],["espinaca","espinaca"],["brocoli|brócoli","brocoli"],["coliflor","coliflor"],["repollo","repollo"],["remolacha","remolacha"],["chaucha","chaucha"],["arveja","arvejas"],["apio","apio"],["champi|hongo","champi"],["ajo","ajo"],["pepino","pepino"],
+ ["banana","banana"],["manzana","manzana"],["pera","pera"],["naranja","naranja"],["limon|limón","limon"],["frutilla","frutilla"],["durazno","durazno"],["palta","palta"],["nuez|nueces","nueces"],["mani|maní","mani"],["chia|chía","chia"],
+ ["azucar|azúcar","azucar"],["dulce de leche","ddl"],["mermelada","mermelada"],["miel","miel"],["salsa de soja|soja","soja"],["caldo","caldo"],["sal","sal"],["tapa de empanada|tapas de empanada","tapaemp"],["tapa de tarta|masa de tarta|tapas de tarta","tapatarta"]];
+const CONDIM=/oregano|orégano|pimienta|comino|pimenton|pimentón|aji molido|ají molido|laurel|perejil|albahaca|nuez moscada|provenzal|condimento|especia|vinagre|agua|polvo de hornear|levadura|esencia|vainilla/i;
+const CRUDO2COC={arroz:2.7,arrozint:2.7,fideos:2.3,lentejas:2.5,porotos:2.5,garbanzos:2.5,polenta:4.5};
+function normTxt(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")}
+function buscarAli(nombre){const n=normTxt(nombre);for(const [pat,id] of SINON){if(new RegExp("\\b("+normTxt(pat)+")").test(n))return id}
+  const exact=Object.values(ALI).find(a=>normTxt(a.n).split(/[ (]/)[0]===n.split(" ")[0]);return exact?exact.id:null}
+function numTxt(s){s=String(s||"").trim().replace(",",".");const fr={"½":.5,"¼":.25,"¾":.75,"⅓":1/3,"⅔":2/3};
+  let m=s.match(/^(\d+(?:\.\d+)?)\s*(?:y\s*)?(\d+)\/(\d+)/);if(m)return +m[1]+m[2]/m[3];m=s.match(/^(\d+)\/(\d+)/);if(m)return m[1]/m[2];
+  m=s.match(/^(\d+(?:\.\d+)?)\s*([½¼¾⅓⅔])/);if(m)return +m[1]+fr[m[2]];if(fr[s[0]])return fr[s[0]];m=s.match(/^\d+(?:\.\d+)?/);if(m)return +m[0];
+  const pal={un:1,una:1,uno:1,medio:.5,media:.5,dos:2,tres:3,cuatro:4,cinco:5,seis:6};const w=normTxt(s).split(" ")[0];return pal[w]||NaN}
+const UNIT_RX=/^(kg|kilos?|g|gr|grs|gramos?|ml|cc|l|lt|litros?|cdas?|cucharadas?|cdtas?|cditas?|cucharaditas?|tazas?|pocillos?|vasos?|unidad(?:es)?|u|docenas?|latas?|paquetes?|dientes?|atados?|planta|rodajas?|fetas?|pizcas?)\b\.?\s*(de\s+)?/i;
+function aGramos(id,cant,u,txt){const a=ALI[id];u=normTxt(u||"");if(isNaN(cant))return null;let g;
+  if(/^(kg|kilo)/.test(u))g=cant*1000;else if(/^(g|gr|gramo)/.test(u))g=cant;else if(/^(l|lt|litro)$/.test(u)||/^litro/.test(u))g=cant*1000;else if(/^(ml|cc)/.test(u))g=cant;
+  else if(/^(cucharadita|cdita|cdta|pizca)/.test(u))g=cant*(/^pizca/.test(u)?1:5);else if(/^(cucharada|cda)/.test(u))g=cant*(a.u.cda||14);
+  else if(/^(taza|pocillo|vaso)/.test(u))g=cant*(a.u.taza||(/^pocillo/.test(u)?100:200));else if(/^docena/.test(u))g=cant*12*(a.u.unidad||50);
+  else if(/^lata/.test(u))g=cant*(a.u.lata||300);else if(/^diente/.test(u))g=cant*5;else if(/^feta/.test(u))g=cant*(a.u.feta||20);
+  else g=cant*(a.u.unidad||Object.values(a.u)[0]||100);
+  if(CRUDO2COC[id]&&!/cocid/.test(normTxt(txt)))g*=CRUDO2COC[id];return Math.round(g)}
+function importarReceta(txt){const out={n:"",por:0,i:{},ok:[],no:[],sinq:[],cond:[]};
+  txt.replace(/```[a-z]*/g,"").split(/\r?\n/).forEach(l0=>{let l=l0.trim().replace(/^[-•*·▪●◦–]\s*/,"").replace(/^\d+[.)]\s+(?=\D)/,"");if(!l)return;
+    let nombre,cant,uni;
+    if(l.includes("|")){const c=l.split("|").map(x=>x.trim());if(/^receta$/i.test(c[0])){out.n=c[1]||out.n;const pr=numTxt(c[2]);if(pr>0)out.por=Math.round(pr);return}if(/^(coccion|cocción|horno|horas)$/i.test(c[0]))return;nombre=c[0];cant=numTxt(c[1]);uni=c[2]||""}
+    else{const mp=l.match(/(\d+)\s*(porciones|personas|raciones|unidades)/i);if(mp&&!out.por&&!/\b(g|kg|gr|gramos)\b/i.test(l)){out.por=+mp[1];return}if(/^(ingredientes|preparaci[oó]n|procedimiento|pasos)\b/i.test(l))return;
+      const m=l.match(/^((?:\d+\/\d+|\d+(?:[.,]\d+)?(?:\s*y\s*\d+\/\d+)?|[½¼¾⅓⅔]|un[ao]?\b|medi[oa]\b|dos\b|tres\b|cuatro\b|cinco\b|seis\b)\s*[½¼¾]?)\s*(.*)$/i);
+      if(!m){if(!out.n&&!out.ok.length&&!out.no.length&&!out.sinq.length&&l.length<70&&!/[:]/.test(l)&&!/\b(a gusto|c\/n|cantidad necesaria)\b/i.test(l)){out.n=l.replace(/[.,]$/,"");return}nombre=l;cant=NaN;uni=""}
+      else{cant=numTxt(m[1]);let rest=m[2];const um=rest.match(UNIT_RX);if(um){uni=um[1];rest=rest.slice(um[0].length)}else uni="unidad";nombre=rest.replace(/^de\s+/i,"")}}
+    nombre=String(nombre||"").replace(/\(.*?\)/g,"").trim();if(!nombre)return;
+    if(CONDIM.test(nombre)){out.cond.push(nombre);return}
+    const id=buscarAli(nombre);if(!id){out.no.push(nombre);return}
+    if(id==="sal"&&isNaN(cant)){out.cond.push(nombre);return}
+    const g=aGramos(id,cant,uni,nombre);if(g==null){out.sinq.push(nombre);return}
+    out.i[id]=(out.i[id]||0)+g;out.ok.push(nombre+" → "+ALI[id].n+" ("+g+" g)")});
+  return out}
+function abrirImportar(){sheet(`<h2>📋 Importar receta</h2>
+  <details class="glass" style="padding:12px 14px;margin:8px 0" open><summary class="sm"><b>Desde una foto (cuaderno, libro, captura)</b> ▾</summary><ol class="steps" style="margin-top:8px"><li>Sacale una foto clara a la receta.</li><li>Abrí tu asistente de IA (Claude, ChatGPT o Gemini), subí la foto y pegale el texto que copiás con este botón: <button class="btn small ghost" data-act="rprompt">Copiar el texto para la IA</button></li><li>Copiá la tabla que te devuelve y pegala abajo.</li></ol></details>
+  <p class="sm mute">O copiá la receta de una página de internet o de WhatsApp (la lista de ingredientes) y pegala abajo.</p>
+  <textarea class="in" id="rimp" rows="8" placeholder="RECETA | Guiso de lentejas | 4&#10;Lentejas | 400 | g&#10;Cebolla | 1 | unidad&#10;&#10;o&#10;&#10;- 500 g de carne picada&#10;- 2 papas&#10;- 1 cda de aceite"></textarea>
+  <div class="row" style="margin-top:10px"><button class="btn ghost" data-act="rpaste">Pegar</button><button class="btn" style="flex:1" data-act="rimpgo">Importar</button></div>
+  <p class="xs faint" style="margin-top:8px">Revisá las cantidades después: una taza no pesa lo mismo con harina que con azúcar.</p>`)}
 /* ---------- Acciones ---------- */
 window.comerAct=function(a,v){const p=P();
   switch(a){
@@ -360,6 +415,11 @@ window.comerAct=function(a,v){const p=P();
   case "plista":mostrarLista();return true;
   case "lcopy":{const t=$("#lst").value;try{navigator.clipboard.writeText(t).then(()=>toast("Lista copiada ✓"),()=>toast("No se pudo copiar"))}catch(e){toast("No se pudo copiar")}return true}
   case "rnew":abrirReceta(null);return true;
+  case "rimp":leerReceta();abrirImportar();return true;
+  case "rprompt":try{navigator.clipboard.writeText(PROMPT_REC).then(()=>toast("Texto copiado: pegalo en tu IA junto con la foto"),()=>toast("No se pudo copiar"))}catch(e){toast("No se pudo copiar")}return true;
+  case "rpaste":try{navigator.clipboard.readText().then(t=>{$("#rimp").value=t},()=>toast("Mantené apretado el cuadro y elegí «Pegar»"))}catch(e){toast("Mantené apretado el cuadro y elegí «Pegar»")}return true;
+  case "rimpgo":{const r=importarReceta($("#rimp").value);if(!r.ok.length&&!r.no.length){toast("No encontré ingredientes en el texto");return true}
+    if(r.n)RED.n=r.n;if(r.por)RED.por=r.por;for(const [k,g] of Object.entries(r.i))RED.i[k]=(RED.i[k]||0)+g;RED.aviso=r;dibReceta();return true}
   case "redit":abrirReceta(v);return true;
   case "rpor":leerReceta();RED.por=+v;dibReceta();return true;
   case "radd":{leerReceta();const a=ALI[v];RED.i[v]=(RED.i[v]||0)+(Object.values(a.u)[0]||100);RED.q="";dibReceta();return true}
