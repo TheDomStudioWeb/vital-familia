@@ -110,6 +110,16 @@ Quejas generales del rubro: muros de pago, publicidad en medio del entrenamiento
 7. Abrir `https://vital-familia.web.app`, entrar con Google, crear el grupo familiar y mandar la invitación.
 Plan gratuito (Spark): alcanza de sobra para 30–40 personas.
 
+## App para Android (APK) y reloj
+- Se descarga desde GitHub → repo **TheDomStudioWeb/vital-familia** → **Releases** → `Vital.apk` (cada cambio en el código genera una nueva versión sola).
+- Entra con Google de forma nativa (misma cuenta y mismos datos que la web).
+- **Perfil y ajustes → Reloj y Health Connect → Conectar:** pide permiso para leer pasos, pulso, pulso en reposo, sueño, peso, presión, glucosa, calorías y actividades. Vital solo lee: no escribe nada.
+- Qué hace con eso: pasos del día y de la semana (anillo con ⌚), horas de sueño precargadas en el check-in, pulso en reposo (si sube 7 lpm sobre el promedio, baja la intensidad), actividades del reloj (caminatas, bici, etc.) que suman a los minutos y al reto familiar, y el pulso promedio y máximo de cada entrenamiento hecho en Vital. Si el pulso de una semana fue muy alto, no propone subir de etapa.
+- Se actualiza al abrir la app (cada 10 minutos como mucho) o con «Sincronizar ahora».
+- Cómo conectar cada reloj: Samsung Health → Configuración → Health Connect; Garmin Connect → Más → Configuración → Aplicaciones conectadas → Health Connect; genéricos: buscar Health Connect en su app o usar Gadgetbridge.
+- iPhone: sigue usando la web https://vital-familia.web.app con carga manual.
+- La llave de firma (vital.keystore) y su clave están guardadas fuera del repo: sin ellas no se puede actualizar la app instalada.
+
 ## Hoja de ruta acordada
 1. Firebase + prueba con 2 teléfonos (Google, grupo familiar, invitación).
 2. APK con Capacitor + Health Connect: Samsung (Samsung Health), Motorola (Health Connect del sistema), Garmin (activar Health Connect en Garmin Connect), relojes genéricos chinos (según su app; alternativa Gadgetbridge o el podómetro del teléfono). iPhone sigue con la versión web.
