@@ -200,6 +200,7 @@ details summary::-webkit-details-marker{display:none}
 <script src="config.js"></script>
 <script src="version.js"></script>
 <script src="comer.js"></script>
+<script src="actividad.js"></script>
 <script>
 "use strict";
 /* >>> Para activar la nube familiar, pegá acá la configuración de tu proyecto Firebase (Configuración del proyecto → Tus apps → Web). Con null, Vital funciona en modo local. <<< */
@@ -506,6 +507,7 @@ function vHoy(){
     :`<h2>¿Cómo amaneciste?</h2><p class="mute sm">Respondé 6 preguntas (30 segundos) y Vital calcula tu preparación y adapta el entrenamiento de hoy.</p><button class="btn block" data-act="checkin">Hacer check-in del día</button>`}
   </section>
   ${learnCards(p)}
+  ${typeof tarjetaPropia==="function"?tarjetaPropia(p):""}
   <section class="glass org2">
     <div class="row between"><h2 style="margin:0">Anillos del día</h2><span class="xs faint">tocá + para sumar</span></div>
     <div class="grid3" style="margin-top:12px;text-align:center">
@@ -516,8 +518,8 @@ function vHoy(){
   </section>
   ${typeof resumenDia==="function"?(()=>{const r=resumenDia(p);return `<a href="#comer" class="glass org1" style="display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit">${ring(r.q/100,colorCal(r.q),62,7,`<b class="sm">${r.n?r.q:"–"}</b>`)}<span style="flex:1"><b>🥗 Comer</b><br><span class="xs mute">${r.n?"Calidad de lo que comiste hoy: "+etiquetaQ(r.q).toLowerCase()+" · "+r.vf+" g de frutas y verduras":"Anotá tus comidas y mirá la calidad de tu plato"}</span></span><span class="faint">›</span></a>`})():""}
   <section class="glass org3">
-    <div class="row between"><h2 style="margin:0">Para hoy</h2>${md?`<span class="pill" style="color:${md.c}">${md.n}</span>`:""}</div>
-    ${(d.ext||[]).length?`<p class="note green" style="margin-top:10px">⌚ Tu reloj registró: ${d.ext.map(x=>x.min+" min de "+esc(x.name)).join(", ")}.</p>`:""}
+    <div class="row between"><h2 style="margin:0">${(p.sports||[]).length?"Rutina de Vital <span class=\"xs mute\" style=\"font-weight:500\">(opcional)</span>":"Para hoy"}</h2>${md?`<span class="pill" style="color:${md.c}">${md.n}</span>`:""}</div>
+    ${(d.ext||[]).length?`<div class="note green" style="margin-top:10px">⌚ Tu reloj registró: ${d.ext.map(x=>x.min+" min de "+esc(x.name)).join(", ")}.<div class="row wrap" style="gap:6px;margin-top:8px">${d.ext.map(x=>`<button class="chip" data-act="aext" data-v="${esc(x.id)}">Completar ${esc(x.name)}</button>`).join("")}</div><span class="xs mute">Completar = decir qué deporte fue y con qué intensidad.</span></div>`:""}
     ${d.workouts.length?`<p class="note green" style="margin-top:10px">✓ Ya entrenaste hoy: ${d.workouts.map(w=>w.min+" min ("+esc(w.name)+")").join(", ")}. ¡Bien ahí!</p>`:""}
     <p class="mute sm" style="margin-top:8px">${rd?"Rutina armada según tu preparación, tus músculos recuperados, tu objetivo («"+GOALS[p.goal]+"») y lo que tenés en casa.":"Hacé el check-in para que la rutina se adapte a cómo estás hoy."}</p>
     <button class="btn block" data-act="suggest">✨ Ver mi entrenamiento de ${p.minutes} min</button>
@@ -537,7 +539,9 @@ let focusSel="completo", minSel=null;
 function vEntrenar(){
   const p=P();minSel=minSel||p.minutes;
   const cats=Object.entries(CAT);
-  return `<section><h1>Entrenar</h1><p class="mute">Rutinas que se arman solas según cómo estás, o elegí ejercicios de la biblioteca.</p></section>
+  return `<section><h1>Entrenar</h1><p class="mute">Registrá lo que hacés por tu cuenta, o usá rutinas que se arman solas según cómo estás.</p></section>
+  <section class="glass org3"><div class="row" style="gap:12px"><span style="font-size:30px">🏅</span><div style="flex:1"><b>¿Gimnasio, fútbol, running, pole, vóley…?</b><p class="xs mute" style="margin:2px 0 0">Registrá tu actividad: suma minutos, cuenta para tu etapa y para la recuperación muscular.</p></div></div><button class="btn block" style="margin-top:10px" data-act="aadd">＋ Registrar actividad</button>
+  ${(p.sports||[]).length?`<div class="row wrap" style="gap:6px;margin-top:10px">${p.sports.filter(k=>DEP[k]).map(k=>`<button class="chip" data-act="acomp" data-v="${k}">${DEP[k][1]} Complemento para ${esc(DEP[k][0].split(" ")[0].toLowerCase())}</button>`).join("")}</div>`:""}</section>
   <section class="glass org1">
     <h2>Armar rutina</h2>
     <label class="f">Enfoque</label>
@@ -568,7 +572,7 @@ let libCat="fuerza";
 function exRow(e,sub){const p=P();const blocked=e.a.some(x=>p.limits.includes(x));
   return `<button class="ex" data-act="exinfo" data-v="${e.id}"><span class="ico">${e.i}</span><span class="t"><b>${esc(e.n)}</b><span>${sub||((e.m.map(m=>MUS[m]).join(" · ")||"Relajación")+" · nivel "+e.l+(e.e!=="ninguno"?" · "+EQUIP[e.e]:""))}</span>${blocked?`<span style="color:var(--warn)"> · ⚠ revisá tu limitación</span>`:""}</span><span class="faint">›</span></button>`}
 function historyCard(p){const all=[];Object.entries(L(p.id).days).forEach(([k,d])=>d.workouts.forEach(w=>all.push({k,...w})));all.sort((a,b)=>b.ts-a.ts);
-  return `<section class="glass org1"><h2>Historial</h2>${all.length?all.slice(0,8).map(w=>`<div class="row between sm" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span>${esc(w.name)}<br><span class="xs faint">${w.k.split("-").reverse().join("/")} · esfuerzo ${w.rpe}/10${w.hrAvg?` · ♥ ${w.hrAvg} prom, ${w.hrMax} máx`:""}</span></span><b>${w.min} min</b></div>`).join(""):`<p class="mute sm">Todavía no hay entrenamientos. El primero es el más importante.</p>`}</section>`}
+  return `<section class="glass org1"><h2>Historial</h2>${all.length?all.slice(0,8).map(w=>`<div class="row between sm" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span>${w.src==="act"&&DEP[w.dep]?DEP[w.dep][1]+" ":""}${esc(w.name)}${w.km?" · "+w.km+" km":""}${w.nota?`<br><span class="xs mute">${esc(w.nota)}</span>`:""}<br><span class="xs faint">${w.k.split("-").reverse().join("/")} · esfuerzo ${w.rpe}/10${w.hrAvg?` · ♥ ${w.hrAvg} prom, ${w.hrMax} máx`:""}</span></span><b>${w.min} min</b></div>`).join(""):`<p class="mute sm">Todavía no hay entrenamientos. El primero es el más importante.</p>`}</section>`}
 
 let metricTab="peso";
 const MET={peso:{n:"Peso",u:"kg",c:"#5eead4"},presion:{n:"Presión",u:"mmHg",c:"#fda4af"},fc:{n:"Pulso en reposo",u:"lpm",c:"#fdba74"},glucosa:{n:"Glucosa",u:"mg/dL",c:"#c4b5fd"},cintura:{n:"Cintura",u:"cm",c:"#a3e635"},sueno:{n:"Sueño",u:"h",c:"#7dd3fc"}};
@@ -642,7 +646,7 @@ function vPerfil(){const p=P();
   return `<section><h1>Perfil y ajustes</h1></section>
   <section class="glass org1"><div class="fam"><span class="av" style="width:56px;height:56px;font-size:30px;background:${p.color}33">${p.emoji}</span><div style="flex:1"><h2 style="margin:0">${esc(p.name)}</h2><div class="sm mute">${age(p)} años · ${p.height||"?"} cm · ${GOALS[p.goal]}</div></div><button class="btn small ghost" data-act="editprofile">Editar</button></div>
   <div class="grid2" style="margin-top:12px"><div class="stat"><span class="xs mute">Nivel</span><b>${["","Inicial","Intermedio","Avanzado"][p.level]}</b></div><div class="stat"><span class="xs mute">Rutina</span><b>${p.minutes} min</b></div></div>
-  <p class="sm" style="margin-top:10px"><span class="mute">En casa:</span> ${p.equipment.length?p.equipment.map(x=>EQUIP[x]).join(", "):"solo peso corporal"}<br><span class="mute">Cuidar:</span> ${p.limits.length?p.limits.map(x=>LIMITS[x]).join(", "):"nada en especial"}${(p.cond||[]).length?`<br><span class="mute">Condiciones:</span> ${p.cond.map(x=>COND[x]).join(", ")}`:""}</p>
+  <p class="sm" style="margin-top:10px"><span class="mute">En casa:</span> ${p.equipment.length?p.equipment.map(x=>EQUIP[x]).join(", "):"solo peso corporal"}<br>${(p.sports||[]).length?`<span class="mute">Actividades:</span> ${p.sports.filter(k=>DEP[k]).map(k=>DEP[k][1]+" "+DEP[k][0]).join(", ")}<br>`:""}<span class="mute">Cuidar:</span> ${p.limits.length?p.limits.map(x=>LIMITS[x]).join(", "):"nada en especial"}${(p.cond||[]).length?`<br><span class="mute">Condiciones:</span> ${p.cond.map(x=>COND[x]).join(", ")}`:""}</p>
   ${p.parqFlag?`<p class="note">Marcaste alguna respuesta del cuestionario de salud. Antes de entrenar intenso, consultá a tu médico. La intensidad máxima queda en «Constante».</p>`:""}</section>
   ${NATIVE?`<section class="glass org1"><h2>⌚ Reloj y Health Connect</h2>${S.settings.hc?`<p class="sm">Conectado. Vital lee pasos, pulso, sueño, peso, presión, glucosa y actividades de tu reloj.${HCLAST?`<br><span class="xs faint">Última lectura: ${new Date(HCLAST).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})}</span>`:""}</p><div class="grid2"><button class="btn small" data-act="hcsync">Sincronizar ahora</button><button class="btn small ghost" data-act="hcsettings">Permisos</button></div>`:`<p class="sm mute">Conectá Health Connect para que Vital lea solo los datos de tu reloj o del teléfono.</p><button class="btn block" data-act="hcconnect">Conectar</button>`}
     <details style="margin-top:10px"><summary class="sm mute">Cómo conectar mi reloj ▾</summary><p class="xs mute" style="margin-top:8px"><b>Samsung:</b> Samsung Health → ⋮ → Configuración → Health Connect → activar.<br><b>Garmin:</b> Garmin Connect → Más → Configuración → Aplicaciones conectadas → Health Connect → activar todo.<br><b>Relojes genéricos:</b> buscá «Health Connect» en la configuración de su app; si no aparece, usá Gadgetbridge o el podómetro del teléfono.<br>Los datos del reloj llegan cuando se sincroniza con su app; puede demorar unos minutos.</p></details></section>`:""}
@@ -716,6 +720,7 @@ function vEvolucion(){const p=P();const M=ensureModel(p);const s=STAGES[p.stage-
     <div class="grid2"><div class="stat"><span class="xs mute">Esta semana</span><b>${w0.days}/${s.days} días</b></div><div class="stat"><span class="xs mute">Semana pasada</span><b>${w1.days}/${s.days} días</b></div></div>
     ${p.stage<6?`<p class="xs faint" style="margin-top:10px">Para pasar a «${STAGES[p.stage].n}»: ${s.days} días activos por semana, dos semanas seguidas, con un esfuerzo promedio de 7,5 o menos. Lo revisa solo cada lunes.</p>`:`<p class="xs faint" style="margin-top:10px">Etapa máxima. Ahora el objetivo es sostenerla.</p>`}</section>
   <section class="glass org2"><h2>Minutos por semana</h2><div class="bars">${weeks.map(w=>`<div class="bc ${w.m>=(p.weeklyGoal||150)?"hit":""}"><span>${w.m||""}</span><i style="height:${Math.max(3,w.m/mx*80)}px"></i>${Number(w.k.slice(8))}/${Number(w.k.slice(5,7))}</div>`).join("")}</div><p class="xs faint" style="margin-top:8px">En verde: semanas que llegaron a la meta de ${p.weeklyGoal||150} min.</p></section>
+  ${typeof resumenDeportes==="function"?resumenDeportes(p):""}
   <section class="glass org3"><div class="row between"><h2 style="margin:0">Chequeos</h2><button class="btn small ghost" data-act="tests">Medir</button></div>${tests||`<p class="sm mute" style="margin-top:10px">Todavía no hiciste el chequeo. Son 3 pruebas cortas que muestran tu punto de partida.</p>`}</section>
   <section class="glass org1"><h2>Lo que Vital aprendió de vos</h2>
     ${exs.length?exs.map(([id,v])=>`<div class="row between sm" style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span>${EXM[id].i} ${esc(EXM[id].n)}</span><span>${v.reps?(v.first&&v.reps!==v.first?`<span class="faint">${v.first} → </span>`:"")+"<b>"+v.reps+"</b> reps":"<b>"+v.secs+"</b> s"}</span></div>`).join(""):`<p class="sm mute">Después de tus primeros entrenamientos acá vas a ver tu medida justa en cada ejercicio y cómo crece.</p>`}
@@ -817,10 +822,10 @@ async function hcSync(force){const H=nplug("Health");if(!H||!S.settings.hc||HCBU
   await safe(async()=>{const r=await H.readSamples({dataType:"restingHeartRate",startDate:iso(dayStart(addDays(TODAY(),-6))),endDate:iso(now),limit:50});(r.samples||[]).forEach(s=>{const k=dkey(new Date(s.startDate));const id="rhr"+k;if(!has("fc",id)&&!M.some(m=>m.t==="fc"&&m.k===k))M.push({id:uid(),t:"fc",v:Math.round(s.value),k,ts:Date.parse(s.startDate),hc:id})})});
   for(const [dt,t] of [["weight","peso"],["bloodGlucose","glucosa"],["bloodPressure","presion"]])await safe(async()=>{const r=await H.readSamples({dataType:dt,startDate:iso(dayStart(addDays(TODAY(),-30))),endDate:iso(now),limit:200});(r.samples||[]).forEach(s=>{const id=s.platformId||(dt+s.startDate);if(has(t,id))return;const m={id:uid(),t,v:Math.round((t==="peso"?s.value:s.systolic||s.value)*10)/10,k:dkey(new Date(s.startDate)),ts:Date.parse(s.startDate),hc:id};if(t==="presion"){m.v=Math.round(s.systolic||s.value);m.v2=Math.round(s.diastolic||0);if(!m.v2)return}M.push(m);if(t==="peso")p.weight=m.v})});
   await safe(async()=>{const y=dayStart(TODAY());y.setHours(-6);const r=await H.readSamples({dataType:"sleep",startDate:iso(y),endDate:iso(now),limit:50});let min=0;(r.samples||[]).forEach(s=>{if(!s.sleepState||["asleep","light","deep","rem"].includes(s.sleepState)||s.stages)min+=s.value||((Date.parse(s.endDate)-Date.parse(s.startDate))/6e4)});if(min>60)D(pid).sleepHc=Math.round(min/6)/10});
-  await safe(async()=>{const r=await H.queryWorkouts({startDate:iso(dayStart(addDays(TODAY(),-6))),endDate:iso(now),limit:50});(r.workouts||[]).forEach(w=>{if(/vital/i.test(w.sourceName||""))return;const k=dkey(new Date(w.startDate));const d=D(pid,k);d.ext=d.ext||[];const id=w.platformId||w.startDate;if(d.ext.some(x=>x.id===id))return;const min=Math.round((Date.parse(w.endDate)-Date.parse(w.startDate))/6e4);if(min<5)return;d.ext.push({id,name:WK_ES[w.workoutType]||"actividad",min,kcal:Math.round(w.totalEnergyBurned||0)})})});
+  await safe(async()=>{const r=await H.queryWorkouts({startDate:iso(dayStart(addDays(TODAY(),-6))),endDate:iso(now),limit:50});(r.workouts||[]).forEach(w=>{if(/vital/i.test(w.sourceName||""))return;const k=dkey(new Date(w.startDate));const d=D(pid,k);d.ext=d.ext||[];const id=w.platformId||w.startDate;if(d.ext.some(x=>x.id===id)||(d.extLinked||[]).includes(id))return;const st=Date.parse(w.startDate);if(d.workouts.some(v=>v.src==="act"&&v.start&&Math.abs(v.start-st)<45*6e4))return;const min=Math.round((Date.parse(w.endDate)-Date.parse(w.startDate))/6e4);if(min<5)return;d.ext.push({id,name:WK_ES[w.workoutType]||"actividad",min,start:st,kcal:Math.round(w.totalEnergyBurned||0)})})});
   // pulso durante los entrenamientos hechos en Vital
   for(const k of [TODAY(),addDays(TODAY(),-1),addDays(TODAY(),-2)]){const d=L(pid).days[k];if(!d)continue;for(const w of d.workouts){if(w.hrAvg||Date.now()-w.ts<3*60e3)continue;
-    await safe(async()=>{const r=await H.readSamples({dataType:"heartRate",startDate:iso(new Date(w.ts-w.min*60e3-60e3)),endDate:iso(new Date(w.ts+60e3)),limit:3000});const v=(r.samples||[]).map(s=>s.value).filter(x=>x>30&&x<230);if(v.length>=3){w.hrAvg=Math.round(avg(v));w.hrMax=Math.round(Math.max(...v))}})}}
+    await safe(async()=>{const r=await H.readSamples({dataType:"heartRate",startDate:iso(new Date((w.start||w.ts-w.min*60e3)-60e3)),endDate:iso(new Date(w.ts+60e3)),limit:3000});const v=(r.samples||[]).map(s=>s.value).filter(x=>x>30&&x<230);if(v.length>=3){w.hrAvg=Math.round(avg(v));w.hrMax=Math.round(Math.max(...v))}})}}
   M.sort((a,b)=>a.k<b.k?-1:a.k>b.k?1:a.ts-b.ts);HCLAST=Date.now();HCBUSY=false;save();if(["hoy","salud","perfil","entrenar"].includes(current)&&!$("#layer").innerHTML)render()}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")hcSync(false)});
 
@@ -832,7 +837,7 @@ function closeSheet(){if(!PL)killMuneco();$("#layer").innerHTML="";if(sheetClose
 /* Onboarding / editar perfil */
 let draft=null;
 function openOnboarding(first,edit){
-  draft=edit?JSON.parse(JSON.stringify(P())):{id:CLOUD.user?CLOUD.user.uid:uid(),name:CLOUD.user&&CLOUD.user.displayName?CLOUD.user.displayName.split(" ")[0]:"",emoji:EMOJIS[S.profiles.length%EMOJIS.length],color:COLORS[S.profiles.length%COLORS.length],birthYear:"",sex:"",height:"",weight:"",level:1,goal:"salud",equipment:["silla"],limits:[],cond:[],minutes:20,weeklyGoal:150,stepsGoal:7000,waterGoal:8,parq:{}};
+  draft=edit?JSON.parse(JSON.stringify(P())):{id:CLOUD.user?CLOUD.user.uid:uid(),name:CLOUD.user&&CLOUD.user.displayName?CLOUD.user.displayName.split(" ")[0]:"",emoji:EMOJIS[S.profiles.length%EMOJIS.length],color:COLORS[S.profiles.length%COLORS.length],birthYear:"",sex:"",height:"",weight:"",level:1,goal:"salud",equipment:["silla"],limits:[],cond:[],sports:[],minutes:20,weeklyGoal:150,stepsGoal:7000,waterGoal:8,parq:{}};
   draft._first=first;draft._edit=!!edit;draft._step=0;drawOnb();
 }
 function drawOnb(){const d=draft;const st=d._step;let h="";
@@ -848,6 +853,8 @@ function drawOnb(){const d=draft;const st=d._step;let h="";
     <label class="f">¿Qué buscás principalmente?</label><div class="opts">${Object.entries(GOALS).map(([k,n])=>`<button class="opt ${d.goal===k?"on":""}" data-act="o-goal" data-v="${k}">${n}</button>`).join("")}</div>
     <label class="f">¿Cómo está tu actividad hoy?</label><div class="opts">${[[1,"Poco o nada"],[2,"Me muevo seguido"],[3,"Entreno hace tiempo"]].map(([k,n])=>`<button class="opt ${d.level===k?"on":""}" data-act="o-level" data-v="${k}">${n}</button>`).join("")}</div>
     ${d._edit?"":`<p class="note green" style="margin-top:12px">Arrancás en la <b>Etapa ${({1:1,2:3,3:5})[d.level]} · ${STAGES[({1:1,2:3,3:5})[d.level]-1].n}</b>: ${STAGES[({1:1,2:3,3:5})[d.level]-1].min} min, ${STAGES[({1:1,2:3,3:5})[d.level]-1].days} días por semana. Vital te va a ir subiendo a medida que avances.</p>`}
+    <label class="f">¿Ya hacés alguna actividad? (opcional, podés elegir varias)</label><div class="opts">${Object.entries(DEP).filter(([k])=>k!=="otro").map(([k,x])=>`<button class="opt ${(d.sports||[]).includes(k)?"on":""}" data-act="o-sport" data-v="${k}">${x[1]} ${x[0]}</button>`).join("")}</div>
+    ${(d.sports||[]).length?`<p class="note green" style="margin-top:8px">Perfecto: registrás lo que ya hacés y las rutinas de Vital quedan como complemento opcional.</p>`:""}
     <label class="f">Meta de pasos diarios</label><div class="opts">${[5000,7000,8000,10000].map(m=>`<button class="opt ${d.stepsGoal===m?"on":""}" data-act="o-steps" data-v="${m}">${m.toLocaleString("es-AR")}</button>`).join("")}</div>`;
   if(st===2)h=`<h2>Tu casa y tu cuerpo</h2>${dots}
     <label class="f">¿Qué tenés para entrenar? (el peso corporal siempre está)</label><div class="opts">${Object.entries(EQUIP).map(([k,n])=>`<button class="opt ${d.equipment.includes(k)?"on":""}" data-act="o-eq" data-v="${k}">${n}</button>`).join("")}</div>
@@ -960,6 +967,7 @@ document.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");i
   if(a==="scrim"&&ev.target!==b)return;
   const p=S.profiles.length?P():null;
   if(p&&window.comerAct&&window.comerAct(a,v))return;
+  if(window.actAct&&window.actAct(a,v))return;
   switch(a){
   case "scrim":case "close":closeSheet();break;
   case "switch":if(CLOUD.on){sheet(`<h2>${p.emoji} ${esc(p.name)}</h2><p class="sm mute">${esc(CLOUD.user.email||"")}</p><button class="ex" data-act="goperfil"><span class="ico">⚙️</span><span class="t"><b>Perfil y ajustes</b><span>Datos, voz, modo liviano, cuenta</span></span>›</button><button class="ex" data-act="logout"><span class="ico">🚪</span><span class="t"><b>Cerrar sesión</b><span>Para que entre otra persona en este teléfono</span></span>›</button>`);break}

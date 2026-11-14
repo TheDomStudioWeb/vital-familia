@@ -75,6 +75,16 @@ En el alta: diabetes, uso de insulina, celiaquía, presión alta.
 - **Celiaquía:** se guarda para el módulo de alimentación (sin TACC).
 Siempre aclara que orienta y no reemplaza la indicación médica.
 
+## Para quien ya entrena (gimnasio, deportes, clases)
+- En el alta (o editando el perfil) se eligen las **actividades habituales**: gimnasio/pesas, funcional/crossfit, running, caminata, ciclismo, spinning, natación, fútbol, vóley, básquet, tenis/pádel, hockey, rugby, pole dance, baile/zumba, yoga, pilates, boxeo/artes marciales, senderismo, escalada.
+- **Registrar actividad** (en Hoy o en Entrenar): deporte, día (hoy o ayer), hora de inicio, duración, intensidad (suave, moderada, intensa, al máximo), en gimnasio qué grupos trabajó, distancia si corresponde y una nota. No hace falta hacer las rutinas de Vital.
+- Lo registrado **suma igual** que una rutina de Vital: minutos de la semana y del reto familiar, días activos para subir de etapa, racha, logros, carga para la preparación del día siguiente y recuperación de los músculos que se usan en ese deporte. Muestra un gasto calórico estimado (adultos).
+- Tarjeta **«Tu entrenamiento»** en Hoy: consejo según la preparación del día (empujar, normal, bajar un cambio o descansar) y aviso si los músculos de su deporte todavía no se recuperaron.
+- **Complementos opcionales por deporte** (10 a 15 min): prevención y fuerza específica, por ejemplo isquios, glúteos y equilibrio para fútbol; tobillos, glúteos y core para running; hombros, core y espalda para pole dance; movilidad para gimnasio.
+- Si el reloj registró una actividad, aparece «Completar»: se elige el deporte y la intensidad y queda como una sola actividad (no se cuenta dos veces). El pulso del reloj se asocia a esa actividad.
+- En **Evolución**: «Tus actividades» con minutos, veces y kilómetros por deporte en las últimas 4 semanas.
+- Las rutinas de Vital quedan como «Rutina de Vital (opcional)».
+
 ## Rutinas rápidas
 Pausa activa (8 min), Equilibrio (10), En familia (15, sin impacto), Antes de dormir (7) y **Snack de movimiento** (3 min, para cortar las horas sentado 2 o 3 veces por día).
 
