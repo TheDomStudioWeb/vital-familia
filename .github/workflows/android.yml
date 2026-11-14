@@ -1,0 +1,67 @@
+name: APK Android
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Dependencias
+        run: npm ci
+
+      - name: Sincronizar la web con Android
+        run: npx cap sync android
+
+      - name: Archivos privados (secretos)
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+          VITAL_KEYSTORE_BASE64: ${{ secrets.VITAL_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$GOOGLE_SERVICES_JSON" ]; then echo "::error::Falta el secreto GOOGLE_SERVICES_JSON"; exit 1; fi
+          if [ -z "$VITAL_KEYSTORE_BASE64" ]; then echo "::error::Falta el secreto VITAL_KEYSTORE_BASE64"; exit 1; fi
+          printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
+          echo "$VITAL_KEYSTORE_BASE64" | base64 -d > android/app/vital.keystore
+
+      - name: Compilar APK firmado
+        env:
+          VITAL_KEYSTORE_PASSWORD: ${{ secrets.VITAL_KEYSTORE_PASSWORD }}
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+          cp app/build/outputs/apk/release/app-release.apk ../Vital.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Vital-apk
+          path: Vital.apk
+
+      - name: Publicar en Releases (enlace fijo para descargar en el teléfono)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-${{ github.run_number }}
+          name: Vital ${{ github.run_number }}
+          make_latest: true
+          files: Vital.apk
+          body: |
+            APK de Vital (compilación ${{ github.run_number }}).
+            Descargá **Vital.apk** desde el teléfono e instalala.

@@ -1,0 +1,10 @@
+{
+  "appId": "com.thedomstudio.vital",
+  "appName": "Vital",
+  "webDir": "public",
+  "android": { "backgroundColor": "#07131a" },
+  "plugins": {
+    "FirebaseAuthentication": { "skipNativeAuth": true, "providers": ["google.com"] },
+    "SplashScreen": { "backgroundColor": "#07131a" }
+  }
+}
