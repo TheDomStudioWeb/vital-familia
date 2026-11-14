@@ -749,11 +749,11 @@ async function cloudInit(){const base="vendor/";
   firebase.auth().onAuthStateChanged(async u=>{CLOUD.user=u;if(CLOUD.unsub){CLOUD.unsub();CLOUD.unsub=null}
     if(u){try{await cloudLoad(u);CLOUD.err=null}catch(e){CLOUD.err=(e&&(e.code||e.message))||String(e);console.warn(e);toast("No se pudo leer la nube: "+CLOUD.err)}}else{S=blank()}
     CLOUD.ready=true;closeSheet();render();setTimeout(()=>hcSync(true),1500);if(u&&S.profiles.length&&!P().familyId)setTimeout(openFamilySetup,400)})}
-async function cloudLoad(u){const ref=CLOUD.db.collection("users").doc(u.uid);const snap=await ref.get();const keep=S.settings;S=blank();S.settings=Object.assign(S.settings,keep);CLOUD.synced={};
+async function cloudLoad(u){CLOUD.daysOk=false;const ref=CLOUD.db.collection("users").doc(u.uid);const snap=await ref.get();const keep=S.settings;S=blank();S.settings=Object.assign(S.settings,keep);CLOUD.synced={};
   if(snap.exists){const d=snap.data();const p=d.profile;p.id=u.uid;S.profiles=[p];S.activeId=u.uid;S.settings=Object.assign(S.settings,d.settings||{});S.logs[u.uid]={days:{},metrics:d.metrics||[]};
-    const ds=await ref.collection("days").orderBy(firebase.firestore.FieldPath.documentId(),"desc").limit(200).get();ds.forEach(x=>{S.logs[u.uid].days[x.id]=x.data();CLOUD.synced[x.id]=JSON.stringify(x.data())});
-    CLOUD.fid=p.familyId||null;if(CLOUD.fid)famListen()}}
-function cloudSave(){const p=P();if(!p||!CLOUD.user)return;const db=CLOUD.db,id=CLOUD.user.uid;const ref=db.collection("users").doc(id);const b=db.batch();const clean=o=>JSON.parse(JSON.stringify(o));
+    const ds=await ref.collection("days").where(firebase.firestore.FieldPath.documentId(),">=",addDays(TODAY(),-400)).get();ds.forEach(x=>{if(x.id.startsWith("_"))return;S.logs[u.uid].days[x.id]=x.data();CLOUD.synced[x.id]=JSON.stringify(x.data())});CLOUD.daysOk=true;
+    CLOUD.fid=p.familyId||null;if(CLOUD.fid)famListen()}else CLOUD.daysOk=true}
+function cloudSave(){const p=P();if(!p||!CLOUD.user)return;if(!CLOUD.daysOk){toast("No guardo hasta poder leer tus datos de la nube");return}const db=CLOUD.db,id=CLOUD.user.uid;const ref=db.collection("users").doc(id);const b=db.batch();const clean=o=>JSON.parse(JSON.stringify(o));
   b.set(ref,clean({profile:p,settings:S.settings,metrics:L(p.id).metrics,updated:Date.now(),email:CLOUD.user.email||""}));
   Object.entries(L(p.id).days).forEach(([k,d])=>{const j=JSON.stringify(d);if(CLOUD.synced[k]!==j){b.set(ref.collection("days").doc(k),clean(d));CLOUD.synced[k]=j}});
   if(CLOUD.fid)b.set(db.collection("families").doc(CLOUD.fid).collection("members").doc(id),pub(p));
