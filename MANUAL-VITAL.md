@@ -110,6 +110,19 @@ Quejas generales del rubro: muros de pago, publicidad en medio del entrenamiento
 7. Abrir `https://vital-familia.web.app`, entrar con Google, crear el grupo familiar y mandar la invitación.
 Plan gratuito (Spark): alcanza de sobra para 30–40 personas.
 
+## Comer (alimentación)
+Pestaña 🥗 **Comer**, con tres partes:
+- **Hoy:** anillos de calidad del día (0–100), calorías de referencia (solo adultos y con peso y altura cargados) y gramos de frutas y verduras (meta 400 g). Botón «Registrar comida»: elegís la comida del día (desayuno, almuerzo, merienda, cena, colación), buscás un plato, una receta de casa o un alimento suelto, elegís la porción y ves calidad, calorías, hidratos (en gramos y en porciones de 15 g), proteínas, grasas, fibra y sodio, con consejos para mejorar el plato. «Del plan de hoy» anota con un toque el almuerzo o la cena planificados. Gráfico de calidad de la semana.
+- **Plan semanal:** 7 días de desayuno, almuerzo, merienda y cena con comidas argentinas caseras (milanesas al horno, guisos, tartas, tortilla, merluza, wok, locro en invierno, etc.), priorizando verduras y frutas de temporada en Cuyo, máximo 3 comidas con carne roja, al menos pescado una vez y legumbres dos veces. Las porciones se ajustan a la referencia de calorías. Lista de compras por rubro (verdulería, carnicería, lácteos, almacén) para la cantidad de personas elegida, con botón para copiarla a WhatsApp.
+- **Recetas de casa:** se carga la receta para toda la olla (ingredientes en gramos, con medidas caseras de ayuda) y cuántas porciones rinde; Vital calcula todo por porción. Se puede compartir con la familia para que todos la registren.
+
+**Calidad del plato:** se basa en el plato saludable de las Guías Alimentarias argentinas: suma por verduras y frutas (ideal: medio plato), fibra, proteínas y legumbres; resta por ultraprocesados, azúcar agregada y exceso de sodio. 75+ muy bueno · 55–74 bien · 35–54 mejorable · menos de 35 para de vez en cuando.
+**Calorías de referencia:** Mifflin–St Jeor × actividad según la etapa; con objetivo «bajar de peso», déficit de hasta 15 % (máximo 500 kcal) y nunca por debajo del metabolismo basal ni de 1200 (mujeres) / 1500 (hombres) kcal. Es orientativo y no reemplaza a un nutricionista.
+**Celiaquía:** todo se calcula y se planifica en versión sin TACC (pan, fideos, rebozador, masas, premezcla, salsa de soja), saca la avena, marca «verificar logo» en productos de riesgo (fiambres, quesos rallados, yerba, yogures) y recuerda cocinar aparte para evitar la contaminación cruzada.
+**Diabetes:** muestra hidratos por plato, por comida y del día, prefiere platos con menos de 65 g de hidratos y saca las facturas del plan; la distribución la define su médico.
+**Menores de 18:** no se muestran calorías; solo calidad y variedad.
+Valores nutricionales aproximados por 100 g.
+
 ## App para Android (APK) y reloj
 - Se descarga desde GitHub → repo **TheDomStudioWeb/vital-familia** → **Releases** → `Vital.apk` (cada cambio en el código genera una nueva versión sola).
 - Entra con Google de forma nativa (misma cuenta y mismos datos que la web).

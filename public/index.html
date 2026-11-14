@@ -102,8 +102,8 @@ input[type=range]{width:100%;accent-color:var(--mint)}
 .ex .t span{font-size:12.5px;color:var(--mute)}
 .blockt{font-size:12px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--mint);margin:14px 2px 8px}
 /* ===== Navegación inferior (muesca luminosa) ===== */
-nav.tab{position:fixed;z-index:20;left:50%;transform:translateX(-50%);bottom:calc(12px + var(--safe-b));width:min(500px,calc(100% - 24px));display:grid;grid-template-columns:repeat(5,1fr);padding:8px 6px;border-radius:30px;background:rgba(10,30,38,.55);border:1px solid var(--line);backdrop-filter:blur(26px) saturate(160%);-webkit-backdrop-filter:blur(26px) saturate(160%);box-shadow:0 16px 40px rgba(0,0,0,.45)}
-nav.tab a{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;color:var(--mute);text-decoration:none;font-size:11px;font-weight:700}
+nav.tab{position:fixed;z-index:20;left:50%;transform:translateX(-50%);bottom:calc(12px + var(--safe-b));width:min(500px,calc(100% - 24px));display:grid;grid-template-columns:repeat(6,1fr);padding:8px 4px;border-radius:30px;background:rgba(10,30,38,.55);border:1px solid var(--line);backdrop-filter:blur(26px) saturate(160%);-webkit-backdrop-filter:blur(26px) saturate(160%);box-shadow:0 16px 40px rgba(0,0,0,.45)}
+nav.tab a{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;color:var(--mute);text-decoration:none;font-size:10.5px;font-weight:700;letter-spacing:-.2px}
 nav.tab a .i{font-size:20px;filter:grayscale(.6);transition:transform .25s,filter .25s}
 nav.tab a.on{color:var(--ink)}
 nav.tab a.on .i{transform:translateY(-2px) scale(1.12);filter:none}
@@ -190,6 +190,7 @@ details summary::-webkit-details-marker{display:none}
   <span class="beam" id="beam"></span><span class="notch" id="notch"></span>
   <a href="#hoy" data-v="hoy"><span class="i">🌿</span>Hoy</a>
   <a href="#entrenar" data-v="entrenar"><span class="i">💪</span>Entrenar</a>
+  <a href="#comer" data-v="comer"><span class="i">🥗</span>Comer</a>
   <a href="#evolucion" data-v="evolucion"><span class="i">📈</span>Evolución</a>
   <a href="#salud" data-v="salud"><span class="i">🫀</span>Salud</a>
   <a href="#familia" data-v="familia"><span class="i">👨‍👩‍👧</span>Familia</a>
@@ -197,6 +198,7 @@ details summary::-webkit-details-marker{display:none}
 <div id="layer"></div>
 <script src="vendor/capacitor.js"></script>
 <script src="config.js"></script>
+<script src="comer.js"></script>
 <script>
 "use strict";
 /* >>> Para activar la nube familiar, pegá acá la configuración de tu proyecto Firebase (Configuración del proyecto → Tus apps → Web). Con null, Vital funciona en modo local. <<< */
@@ -471,8 +473,8 @@ function render(){
   $("#tab").style.display="";$("#who").style.visibility="";
   const p=P();S.activeId=p.id;
   $("#who").innerHTML=`<span class="av" style="background:${p.color}33">${p.emoji}</span><b>${esc(p.name)}</b><span class="faint">▾</span>`;
-  const v=(location.hash||"#hoy").slice(1);current=["hoy","entrenar","evolucion","salud","familia","perfil"].includes(v)?v:"hoy";
-  const html={hoy:vHoy,entrenar:vEntrenar,evolucion:vEvolucion,salud:vSalud,familia:vFamilia,perfil:vPerfil}[current]();
+  const v=(location.hash||"#hoy").slice(1);current=["hoy","entrenar","comer","evolucion","salud","familia","perfil"].includes(v)?v:"hoy";
+  const html={hoy:vHoy,entrenar:vEntrenar,comer:typeof vComer==="function"?vComer:vHoy,evolucion:vEvolucion,salud:vSalud,familia:vFamilia,perfil:vPerfil}[current]();
   $("#view").innerHTML=html;moveNotch();animateRings();
 }
 function moveNotch(){const a=document.querySelector(`nav.tab a[data-v="${current}"]`);document.querySelectorAll("nav.tab a").forEach(x=>x.classList.toggle("on",x===a));if(!a)return;const r=a.getBoundingClientRect(),n=$("#tab").getBoundingClientRect();$("#notch").style.left=(r.left-n.left+r.width/2-17)+"px";$("#beam").style.left=(r.left-n.left+r.width/2-32)+"px"}
@@ -510,6 +512,7 @@ function vHoy(){
       <div>${ring(d.water/(p.waterGoal||8),"#7dd3fc",92,10,`<b>${d.water}</b><div class="xs mute">/${p.waterGoal||8} vasos</div>`)}<div class="sm" style="margin:6px 0">Agua</div><button class="btn small ghost" data-act="water">+1 vaso</button></div>
     </div>
   </section>
+  ${typeof resumenDia==="function"?(()=>{const r=resumenDia(p);return `<a href="#comer" class="glass org1" style="display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit">${ring(r.q/100,colorCal(r.q),62,7,`<b class="sm">${r.n?r.q:"–"}</b>`)}<span style="flex:1"><b>🥗 Comer</b><br><span class="xs mute">${r.n?"Calidad de lo que comiste hoy: "+etiquetaQ(r.q).toLowerCase()+" · "+r.vf+" g de frutas y verduras":"Anotá tus comidas y mirá la calidad de tu plato"}</span></span><span class="faint">›</span></a>`})():""}
   <section class="glass org3">
     <div class="row between"><h2 style="margin:0">Para hoy</h2>${md?`<span class="pill" style="color:${md.c}">${md.n}</span>`:""}</div>
     ${(d.ext||[]).length?`<p class="note green" style="margin-top:10px">⌚ Tu reloj registró: ${d.ext.map(x=>x.min+" min de "+esc(x.name)).join(", ")}.</p>`:""}
@@ -768,7 +771,7 @@ async function cloudTest(){const out=[];const db=CLOUD.db,id=CLOUD.user&&CLOUD.u
   await t("Leer tus días",async()=>{const q=await db.collection("users").doc(id).collection("days").get({source:"server"});out.push("   ("+q.size+" días guardados)")});
   sheet(`<h2>Prueba de conexión</h2><p class="xs mute">Proyecto: ${esc(FIREBASE_CONFIG.projectId)} · Usuario: ${esc(CLOUD.user.email||id)}</p><pre style="white-space:pre-wrap;font-size:13px;line-height:1.5;background:rgba(0,0,0,.25);padding:12px;border-radius:14px">${esc(out.join("\n"))}</pre><button class="btn block" data-act="close">Cerrar</button>`)}
 function pub(p){let tot=0;Object.values(L(p.id).days).forEach(d=>tot+=d.workouts.length);return {name:p.name,emoji:p.emoji,color:p.color,stage:p.stage,weekKey:startOfWeek(TODAY()),weekMin:weeklyMin(p.id),weekGoal:p.weeklyGoal||150,weekDays:weekStats(p.id,startOfWeek(TODAY())).days,streak:streak(p.id),badges:Object.keys(ensureModel(p).badges).length,workouts:tot,last:Date.now()}}
-function famListen(){if(CLOUD.unsub)CLOUD.unsub();CLOUD.unsub=CLOUD.db.collection("families").doc(CLOUD.fid).collection("members").onSnapshot(s=>{CLOUD.fam=s.docs.map(d=>({id:d.id,...d.data()}));if(current==="familia")render()},()=>{})}
+function famListen(){try{famRecetasListen()}catch(e){}if(CLOUD.unsub)CLOUD.unsub();CLOUD.unsub=CLOUD.db.collection("families").doc(CLOUD.fid).collection("members").onSnapshot(s=>{CLOUD.fam=s.docs.map(d=>({id:d.id,...d.data()}));if(current==="familia")render()},()=>{})}
 function showLogin(){if($("#layer .sheet"))return;sheet(`<div style="text-align:center;padding:10px 0"><div class="brand" style="justify-content:center;font-size:28px"><div class="logo" style="width:56px;height:56px"></div></div><h1 style="margin-top:14px">Vital</h1><p class="mute">Salud y movimiento en familia.<br>Gratis, sin anuncios.</p>
   <button class="btn block" style="margin-top:16px" data-act="login">Entrar con Google</button>${ANDROID_WEB?`<a class="btn ghost block" style="margin-top:10px;text-decoration:none" href="${APK_URL}">📲 Mejor, descargar la app para Android</a>`:""}<p class="xs faint" style="margin-top:12px">Tus datos de salud son privados. A tu familia solo le llega tu actividad: minutos, racha, etapa y logros.</p></div>`);const x=$(".sheet .x");if(x)x.remove()}
 async function login(){
@@ -946,6 +949,7 @@ function savePlayer(){const p=P();const d=D(p.id);const mus={};
 document.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");if(!b)return;const a=b.dataset.act,v=b.dataset.v;
   if(a==="scrim"&&ev.target!==b)return;
   const p=S.profiles.length?P():null;
+  if(p&&window.comerAct&&window.comerAct(a,v))return;
   switch(a){
   case "scrim":case "close":closeSheet();break;
   case "switch":if(CLOUD.on){sheet(`<h2>${p.emoji} ${esc(p.name)}</h2><p class="sm mute">${esc(CLOUD.user.email||"")}</p><button class="ex" data-act="goperfil"><span class="ico">⚙️</span><span class="t"><b>Perfil y ajustes</b><span>Datos, voz, modo liviano, cuenta</span></span>›</button><button class="ex" data-act="logout"><span class="ico">🚪</span><span class="t"><b>Cerrar sesión</b><span>Para que entre otra persona en este teléfono</span></span>›</button>`);break}

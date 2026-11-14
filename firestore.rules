@@ -31,6 +31,12 @@ service cloud.firestore {
           && request.resource.data.members.size() <= 40 )
       );
 
+      // Recetas compartidas por la familia
+      match /recipes/{rid} {
+        allow read, write: if request.auth != null
+          && request.auth.uid in get(/databases/$(database)/documents/families/$(fid)).data.members;
+      }
+
       // Resumen público de actividad (sin datos de salud)
       match /members/{uid} {
         allow read: if request.auth != null
