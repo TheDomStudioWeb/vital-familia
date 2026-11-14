@@ -150,9 +150,9 @@ function Mannequin(canvas,THREE){
     const span=Math.max(sz.y*1.05,sz.x*.9*(W()/H()<1?1.2:1),sz.z*.9,1.0);dist=span/(2*Math.tan(15*D2R))*1.18;
     chair.visible=!!a.chair;wall.visible=!!a.wall;if(a.chair===true)chair.position.set(0,0,-.36);if(a.chair==="side"){chair.position.set(.42,0,0);chair.rotation.y=Math.PI/2}else chair.rotation.y=0;
     if(a.wall){wall.position.set(0,.9,-.33)}}
-  function poseAt(a,time){const n=a.k.length-1;const f=((time%a.dur)/a.dur)*n;const i=Math.floor(f);let t=f-i;t=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;return lerpPose(a.k[i],a.k[Math.min(i+1,n)],t)}
+  function poseAt(a,time){const n=a.k.length-1;const f=((Math.max(0,time)%a.dur)/a.dur)*n;const i=Math.min(n,Math.max(0,Math.floor(f)));let t=f-i;t=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;return lerpPose(a.k[i],a.k[Math.min(i+1,n)],t)}
   function applyBlend(p){if(p._a&&p._b&&p._a.level&&p._b.level&&(p._a.level[0]!==p._b.level[0]||p._a.level[1]!==p._b.level[1])){apply(Object.assign({},p,{level:p._a.level}));const ra=B.root.rotation.x,ya=B.root.position.y;apply(Object.assign({},p,{level:p._b.level}));const rb=B.root.rotation.x,yb=B.root.position.y;B.root.rotation.x=ra+(rb-ra)*p._t;B.root.position.y=ya+(yb-ya)*p._t;root.updateMatrixWorld(true)}else apply(p)}
-  function loop(now){raf=requestAnimationFrame(loop);if(!cur)return;const a=ANIM[cur];const tt=(now-t0)/1000;applyBlend(poseAt(a,tt));
+  function loop(now){raf=requestAnimationFrame(loop);if(!cur)return;const a=ANIM[cur];if(!a)return;const tt=Math.max(0,(now-t0)/1000);applyBlend(poseAt(a,tt));
     const sw=Math.sin(tt*.35)*.12;const v=viewDir.clone().applyAxisAngle(new THREE.Vector3(0,1,0),sw);cam.position.copy(center).addScaledVector(v,dist);cam.lookAt(center);
     shadow.position.x=B.root.position.x;shadow.position.z=(a.k[0].root[0]?.0:0);const sc=1.2;shadow.scale.set(sc*(a.k[0].root[0]?1.3:0.9),sc*(a.k[0].root[0]?1.6:0.9),1);
     if(W()!==ren.domElement.width/ren.getPixelRatio()||H()!==ren.domElement.height/ren.getPixelRatio()){ren.setSize(W(),H(),false);cam.aspect=W()/H();cam.updateProjectionMatrix()}

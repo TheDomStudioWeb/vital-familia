@@ -406,7 +406,7 @@ function buildSession(pid,opt={}){
   const last=lastPerf(pid);
   const warmN=minutes<=15?2:3, coolN=minutes<=15?2:3;
   const warm=pick(EX.filter(e=>(e.c==="cal"||e.c==="mov")&&ok(e)),warmN,used);
-  blocks.push({n:"Entrada en calor",items:warm.map(e=>({id:e.id,sets:1,secs:40,rest:5}))});
+  blocks.push({n:"Entrada en calor",items:warm.map(e=>({id:e.id,sets:1,secs:e.u==="seg"?40:0,reps:e.u==="reps"?10:0,rest:5}))});
   if(mode==="recuperar"){
     const mob=pick(EX.filter(e=>(e.c==="mov"||e.c==="equi")&&ok(e)),3,used);
     blocks.push({n:"Movilidad y equilibrio",items:mob.map(e=>({id:e.id,sets:1,secs:e.u==="seg"?45:0,reps:e.u==="reps"?10:0,rest:10}))});
@@ -447,7 +447,7 @@ function buildSession(pid,opt={}){
         blocks.push({n:mode==="empujar"?"Intervalos":"Cardio",items:cx.map(e=>({id:e.id,sets:rounds,secs:mode==="suave"?Math.max(30,rx.cardioSecs-10):rx.cardioSecs,rest:rx.cardioRest}))})}}
   }
   const cool=pick(EX.filter(e=>e.c==="estir"&&ok(e)),coolN,used);
-  blocks.push({n:"Vuelta a la calma",items:cool.map(e=>({id:e.id,sets:1,secs:e.p==="resp"?60:40,rest:5}))});
+  blocks.push({n:"Vuelta a la calma",items:cool.map(e=>({id:e.id,sets:1,secs:e.u==="seg"?(e.p==="resp"?60:40):0,reps:e.u==="reps"?10:0,rest:5}))});
   const est=Math.round(blocks.reduce((a,b)=>a+b.items.reduce((x,it)=>x+it.sets*((it.secs||it.reps*3.2)+it.rest),0),0)/60);
   return {mode,minutes:est,focus,blocks,created:Date.now()};
 }
@@ -650,6 +650,7 @@ function vPerfil(){const p=P();
   ${p.parqFlag?`<p class="note">Marcaste alguna respuesta del cuestionario de salud. Antes de entrenar intenso, consultá a tu médico. La intensidad máxima queda en «Constante».</p>`:""}</section>
   ${NATIVE?`<section class="glass org1"><h2>⌚ Reloj y Health Connect</h2>${S.settings.hc?`<p class="sm">Conectado. Vital lee pasos, pulso, sueño, peso, presión, glucosa y actividades de tu reloj.${HCLAST?`<br><span class="xs faint">Última lectura: ${new Date(HCLAST).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})}</span>`:""}</p><div class="grid2"><button class="btn small" data-act="hcsync">Sincronizar ahora</button><button class="btn small ghost" data-act="hcsettings">Permisos</button></div>`:`<p class="sm mute">Conectá Health Connect para que Vital lea solo los datos de tu reloj o del teléfono.</p><button class="btn block" data-act="hcconnect">Conectar</button>`}
     <details style="margin-top:10px"><summary class="sm mute">Cómo conectar mi reloj ▾</summary><p class="xs mute" style="margin-top:8px"><b>Samsung:</b> Samsung Health → ⋮ → Configuración → Health Connect → activar.<br><b>Garmin:</b> Garmin Connect → Más → Configuración → Aplicaciones conectadas → Health Connect → activar todo.<br><b>Relojes genéricos:</b> buscá «Health Connect» en la configuración de su app; si no aparece, usá Gadgetbridge o el podómetro del teléfono.<br>Los datos del reloj llegan cuando se sincroniza con su app; puede demorar unos minutos.</p></details></section>`:""}
+  <a class="glass org1" href="${NATIVE?APP_URL+"manual-vital.pdf":"manual-vital.pdf"}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit"><span style="font-size:28px">📘</span><span style="flex:1"><b>Manual de uso</b><br><span class="xs mute">Todo explicado paso a paso, con imágenes (PDF)</span></span><span class="faint">›</span></a>
   <section class="glass org2"><h2>Ajustes</h2>
     ${toggle("voice","Voz guía durante el entrenamiento")}${toggle("muneco","Muñeco 3D que muestra cada ejercicio")}${toggle("beep","Sonido al terminar cada tramo")}${toggle("lite","Modo liviano (sin efectos de cristal, para teléfonos lentos)")}</section>
   ${CLOUD.on?`<section class="glass org3"><h2>Cuenta</h2><p class="sm">${esc(CLOUD.user&&CLOUD.user.email)}<br><span class="mute">Grupo:</span> ${esc(p.familyName||"sin grupo")}${p.familyCode?" · código "+esc(p.familyCode):""}</p><p class="xs faint">Tus datos se guardan en la nube y funcionan sin conexión: se sincronizan cuando vuelve.</p>
