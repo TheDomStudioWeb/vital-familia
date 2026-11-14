@@ -640,7 +640,9 @@ function vPerfil(){const p=P();
     <details style="margin-top:10px"><summary class="sm mute">Cómo conectar mi reloj ▾</summary><p class="xs mute" style="margin-top:8px"><b>Samsung:</b> Samsung Health → ⋮ → Configuración → Health Connect → activar.<br><b>Garmin:</b> Garmin Connect → Más → Configuración → Aplicaciones conectadas → Health Connect → activar todo.<br><b>Relojes genéricos:</b> buscá «Health Connect» en la configuración de su app; si no aparece, usá Gadgetbridge o el podómetro del teléfono.<br>Los datos del reloj llegan cuando se sincroniza con su app; puede demorar unos minutos.</p></details></section>`:""}
   <section class="glass org2"><h2>Ajustes</h2>
     ${toggle("voice","Voz guía durante el entrenamiento")}${toggle("muneco","Muñeco 3D que muestra cada ejercicio")}${toggle("beep","Sonido al terminar cada tramo")}${toggle("lite","Modo liviano (sin efectos de cristal, para teléfonos lentos)")}</section>
-  ${CLOUD.on?`<section class="glass org3"><h2>Cuenta</h2><p class="sm">${esc(CLOUD.user&&CLOUD.user.email)}<br><span class="mute">Grupo:</span> ${esc(p.familyName||"sin grupo")}${p.familyCode?" · código "+esc(p.familyCode):""}</p><p class="xs faint">Tus datos se guardan en la nube y funcionan sin conexión: se sincronizan cuando vuelve.</p><div class="grid2"><button class="btn ghost small" data-act="famsetup">Cambiar de grupo</button><button class="btn ghost small" data-act="logout">Cerrar sesión</button></div></section>`:`
+  ${CLOUD.on?`<section class="glass org3"><h2>Cuenta</h2><p class="sm">${esc(CLOUD.user&&CLOUD.user.email)}<br><span class="mute">Grupo:</span> ${esc(p.familyName||"sin grupo")}${p.familyCode?" · código "+esc(p.familyCode):""}</p><p class="xs faint">Tus datos se guardan en la nube y funcionan sin conexión: se sincronizan cuando vuelve.</p>
+    <p class="sm">Estado de la nube: ${CLOUD.err?`<b style="color:var(--bad)">con error (${esc(CLOUD.err)})</b>`:`<b style="color:var(--ok)">${CLOUD.lastOk?"guardado ✓ "+new Date(CLOUD.lastOk).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"}):"conectado"}</b>`}</p>
+    <button class="btn small ghost block" style="margin-bottom:10px" data-act="cloudtest">Probar conexión con la nube</button><div class="grid2"><button class="btn ghost small" data-act="famsetup">Cambiar de grupo</button><button class="btn ghost small" data-act="logout">Cerrar sesión</button></div></section>`:`
   <section class="glass org3"><h2>Copia de seguridad</h2><p class="sm mute">Tus datos viven en este dispositivo. Guardá una copia para pasarlos a otro teléfono o no perderlos si se borra el navegador.</p>
     <div class="grid2"><button class="btn ghost small" data-act="export">Exportar copia</button><button class="btn ghost small" data-act="import">Importar copia</button></div></section>
   <section class="glass org1"><h2>Zona de cuidado</h2><button class="btn ghost small" data-act="delprofile">Borrar este perfil</button></section>`}`}
@@ -745,7 +747,7 @@ async function cloudInit(){const base="vendor/";
   firebase.initializeApp(FIREBASE_CONFIG);CLOUD.db=firebase.firestore();try{await CLOUD.db.enablePersistence({synchronizeTabs:true})}catch(e){}
   CLOUD.on=true;firebase.auth().getRedirectResult().catch(e=>toast("No se pudo entrar: "+(e.code||"")));
   firebase.auth().onAuthStateChanged(async u=>{CLOUD.user=u;if(CLOUD.unsub){CLOUD.unsub();CLOUD.unsub=null}
-    if(u){try{await cloudLoad(u)}catch(e){toast("Sin conexión: se usan los datos guardados")}}else{S=blank()}
+    if(u){try{await cloudLoad(u);CLOUD.err=null}catch(e){CLOUD.err=(e&&(e.code||e.message))||String(e);console.warn(e);toast("No se pudo leer la nube: "+CLOUD.err)}}else{S=blank()}
     CLOUD.ready=true;closeSheet();render();setTimeout(()=>hcSync(true),1500);if(u&&S.profiles.length&&!P().familyId)setTimeout(openFamilySetup,400)})}
 async function cloudLoad(u){const ref=CLOUD.db.collection("users").doc(u.uid);const snap=await ref.get();const keep=S.settings;S=blank();S.settings=Object.assign(S.settings,keep);CLOUD.synced={};
   if(snap.exists){const d=snap.data();const p=d.profile;p.id=u.uid;S.profiles=[p];S.activeId=u.uid;S.settings=Object.assign(S.settings,d.settings||{});S.logs[u.uid]={days:{},metrics:d.metrics||[]};
@@ -755,7 +757,13 @@ function cloudSave(){const p=P();if(!p||!CLOUD.user)return;const db=CLOUD.db,id=
   b.set(ref,clean({profile:p,settings:S.settings,metrics:L(p.id).metrics,updated:Date.now(),email:CLOUD.user.email||""}));
   Object.entries(L(p.id).days).forEach(([k,d])=>{const j=JSON.stringify(d);if(CLOUD.synced[k]!==j){b.set(ref.collection("days").doc(k),clean(d));CLOUD.synced[k]=j}});
   if(CLOUD.fid)b.set(db.collection("families").doc(CLOUD.fid).collection("members").doc(id),pub(p));
-  b.commit().catch(e=>{console.warn(e);toast("Se sincroniza cuando vuelva la conexión")})}
+  b.commit().then(()=>{CLOUD.err=null;CLOUD.lastOk=Date.now()}).catch(e=>{console.warn(e);CLOUD.err=(e&&(e.code||e.message))||String(e);toast("No se pudo guardar en la nube: "+CLOUD.err)})}
+async function cloudTest(){const out=[];const db=CLOUD.db,id=CLOUD.user&&CLOUD.user.uid;if(!db||!id){toast("No hay sesión iniciada");return}
+  const t=async(n,f)=>{try{await f();out.push("✓ "+n)}catch(e){out.push("✗ "+n+": "+((e&&(e.code||e.message))||e))}};
+  await t("Leer tu perfil",async()=>{const s=await db.collection("users").doc(id).get({source:"server"});out.push(s.exists?"   (perfil encontrado en la nube)":"   (todavía no hay perfil guardado en la nube)")});
+  await t("Guardar una prueba",async()=>{await db.collection("users").doc(id).collection("days").doc("_prueba").set({ok:Date.now()});await db.collection("users").doc(id).collection("days").doc("_prueba").delete()});
+  await t("Leer tus días",async()=>{const q=await db.collection("users").doc(id).collection("days").get({source:"server"});out.push("   ("+q.size+" días guardados)")});
+  sheet(`<h2>Prueba de conexión</h2><p class="xs mute">Proyecto: ${esc(FIREBASE_CONFIG.projectId)} · Usuario: ${esc(CLOUD.user.email||id)}</p><pre style="white-space:pre-wrap;font-size:13px;line-height:1.5;background:rgba(0,0,0,.25);padding:12px;border-radius:14px">${esc(out.join("\n"))}</pre><button class="btn block" data-act="close">Cerrar</button>`)}
 function pub(p){let tot=0;Object.values(L(p.id).days).forEach(d=>tot+=d.workouts.length);return {name:p.name,emoji:p.emoji,color:p.color,stage:p.stage,weekKey:startOfWeek(TODAY()),weekMin:weeklyMin(p.id),weekGoal:p.weeklyGoal||150,weekDays:weekStats(p.id,startOfWeek(TODAY())).days,streak:streak(p.id),badges:Object.keys(ensureModel(p).badges).length,workouts:tot,last:Date.now()}}
 function famListen(){if(CLOUD.unsub)CLOUD.unsub();CLOUD.unsub=CLOUD.db.collection("families").doc(CLOUD.fid).collection("members").onSnapshot(s=>{CLOUD.fam=s.docs.map(d=>({id:d.id,...d.data()}));if(current==="familia")render()},()=>{})}
 function showLogin(){if($("#layer .sheet"))return;sheet(`<div style="text-align:center;padding:10px 0"><div class="brand" style="justify-content:center;font-size:28px"><div class="logo" style="width:56px;height:56px"></div></div><h1 style="margin-top:14px">Vital</h1><p class="mute">Salud y movimiento en familia.<br>Gratis, sin anuncios.</p>
@@ -1014,6 +1022,7 @@ document.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");i
   case "hcconnect":hcConnect();break;
   case "hcsync":hcSync(true).then(()=>toast("Datos del reloj actualizados ⌚"));break;
   case "hcsettings":try{nplug("Health").openHealthConnectSettings()}catch(e){}break;
+  case "cloudtest":cloudTest();break;
   case "goperfil":closeSheet();location.hash="#perfil";break;
   case "prop-yes":{const m=ensureModel(p);const up=m.proposal.t==="up";applyStage(p,m.proposal.to);m.proposal=null;if(up)award(p,"etapa");save();render();toast(up?"⛰️ ¡Etapa "+p.stage+"!":"Etapa "+p.stage+": paso a paso");break}
   case "prop-no":ensureModel(p).proposal=null;save();render();break;
