@@ -203,6 +203,8 @@ details summary::-webkit-details-marker{display:none}
 const FIREBASE_CONFIG = window.VITAL_FIREBASE_CONFIG || null;
 const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 const APP_URL = "https://vital-familia.web.app/";
+const APK_URL = "https://github.com/TheDomStudioWeb/vital-familia/releases/latest/download/Vital.apk";
+const ANDROID_WEB = !NATIVE && /android/i.test(navigator.userAgent);
 const NP = {};function nplug(n){if(!NATIVE)return null;const C=window.Capacitor||{},X=window.capacitorExports||{};const reg=C.registerPlugin||X.registerPlugin;return NP[n]||(NP[n]=reg?reg(n):(C.Plugins||{})[n])}
 /* =========================================================
    VITAL — App de salud y ejercicio familiar
@@ -489,6 +491,7 @@ function vHoy(){
   const week=names.map((n,i)=>{const k=addDays(ws,i);const dd=L(p.id).days[k];const done=dd&&(dd.workouts.length||dd.activeMin>=20);return `<div class="d ${done?"done":""} ${k===TODAY()?"today":""}">${n}<b>${Number(k.slice(8))}</b></div>`}).join("");
   const rec=recovery(p.id);
   return `
+  ${ANDROID_WEB&&!S.settings.noApkBanner?`<section class="glass org3" style="border-color:var(--mint)"><div class="row" style="gap:12px"><span style="font-size:30px">📲</span><div style="flex:1"><b>Instalá la app de Vital</b><p class="xs mute" style="margin:2px 0 0">Lee tu reloj y tus pasos solo. Mismos datos, misma cuenta.</p></div></div><div class="row" style="margin-top:10px"><button class="btn small ghost" data-act="noapk">Ahora no</button><a class="btn small" style="flex:1;text-decoration:none" href="${APK_URL}">Descargar la app</a></div></section>`:""}
   <section><h1>${greet()}, ${esc(p.name)}</h1><p class="mute">${new Date().toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"})}</p></section>
   <section class="glass org1">
     ${rd?`<div class="row" style="gap:16px">
@@ -624,12 +627,12 @@ function vFamiliaNube(){const p=P();
   if(!p.familyId)return `<section><h1>Familia</h1></section><section class="glass org1"><h2>Todavía no estás en un grupo</h2><p class="sm mute">Creá el grupo familiar o unite con el código que te pasaron.</p><button class="btn block" data-act="famsetup">Crear o unirme</button></section>`;
   const wk=startOfWeek(TODAY());const fam=CLOUD.fam.length?CLOUD.fam:[{id:p.id,...pub(p)}];const act=fam.map(m=>({...m,wm:m.weekKey===wk?m.weekMin:0,wd:m.weekKey===wk?m.weekDays:0}));
   const tot=act.reduce((a,m)=>a+m.wm,0),goal=act.reduce((a,m)=>a+(m.weekGoal||150),0);act.sort((a,b)=>b.wm/(b.weekGoal||150)-a.wm/(a.weekGoal||150));
-  const inv=`¡Sumate a Vital, la app de salud y movimiento de la familia! Entrá a ${NATIVE?APP_URL:location.origin+location.pathname} con tu cuenta de Google y poné el código ${p.familyCode}`;
+  const inv=`¡Sumate a Vital, la app de salud y movimiento de la familia! 💪\n\n📱 Android: descargá la app acá 👉 ${APK_URL}\n(abrí el archivo y aceptá «instalar apps desconocidas»)\n\n🍎 iPhone: entrá acá 👉 ${APP_URL}\n\nEntrá con tu cuenta de Google y poné el código de la familia: ${p.familyCode}`;
   return `<section><h1>${esc(p.familyName||"Familia")}</h1><p class="mute">${act.length} integrante${act.length>1?"s":""}. Solo se comparte actividad; la salud de cada uno es privada.</p></section>
   <section class="glass org1"><h2>Reto familiar de la semana</h2><div class="row" style="gap:16px">${ring(tot/goal,"#fdba74",110,12,`<b>${Math.round(tot/goal*100)}%</b>`)}<div style="flex:1"><p class="sm">Entre todos llevan <b>${tot}</b> de <b>${goal}</b> minutos.</p><p class="xs mute">Cada uno aporta según su etapa: el que arranca suma igual que el que entrena hace años.</p></div></div></section>
   ${act.map((m,i)=>`<section class="glass org${i%3+1}"><div class="fam"><span class="av" style="width:46px;height:46px;font-size:25px;background:${m.color||"#5eead4"}33">${m.emoji||"🙂"}</span><div style="flex:1"><b>${esc(m.name)}</b> ${m.id===p.id?'<span class="pill">vos</span>':""}<div class="xs mute">Etapa ${m.stage||1} · ${STAGES[(m.stage||1)-1].n} · 🔥 ${m.streak||0} · 🏅 ${m.badges||0}</div></div><b class="sm">${m.wd||0} días</b></div>
     <div class="bar" style="margin:10px 0 4px"><i style="width:${clamp(m.wm/(m.weekGoal||150)*100,2,100)}%;background:linear-gradient(90deg,${m.color||"#5eead4"},#fff)"></i></div><div class="xs mute">${m.wm} / ${m.weekGoal||150} min esta semana</div></section>`).join("")}
-  <section class="glass org2"><h2>Invitar</h2><p class="sm">Código del grupo: <b style="font-size:20px;letter-spacing:3px">${esc(p.familyCode)}</b></p><textarea class="in" rows="3" readonly id="inv">${esc(inv)}</textarea><button class="btn block" style="margin-top:10px" data-act="copyinv">Copiar invitación</button><p class="xs faint" style="margin-top:8px">Mandala por WhatsApp. Hasta 40 integrantes.</p></section>`}
+  <section class="glass org2"><h2>Invitar</h2><p class="sm">Código del grupo: <b style="font-size:20px;letter-spacing:3px">${esc(p.familyCode)}</b></p><textarea class="in" rows="7" readonly id="inv">${esc(inv)}</textarea><button class="btn block" style="margin-top:10px" data-act="copyinv">Copiar invitación</button><p class="xs faint" style="margin-top:8px">Mandala por WhatsApp. Hasta 40 integrantes.</p></section>`}
 function vPerfil(){const p=P();
   return `<section><h1>Perfil y ajustes</h1></section>
   <section class="glass org1"><div class="fam"><span class="av" style="width:56px;height:56px;font-size:30px;background:${p.color}33">${p.emoji}</span><div style="flex:1"><h2 style="margin:0">${esc(p.name)}</h2><div class="sm mute">${age(p)} años · ${p.height||"?"} cm · ${GOALS[p.goal]}</div></div><button class="btn small ghost" data-act="editprofile">Editar</button></div>
@@ -767,7 +770,7 @@ async function cloudTest(){const out=[];const db=CLOUD.db,id=CLOUD.user&&CLOUD.u
 function pub(p){let tot=0;Object.values(L(p.id).days).forEach(d=>tot+=d.workouts.length);return {name:p.name,emoji:p.emoji,color:p.color,stage:p.stage,weekKey:startOfWeek(TODAY()),weekMin:weeklyMin(p.id),weekGoal:p.weeklyGoal||150,weekDays:weekStats(p.id,startOfWeek(TODAY())).days,streak:streak(p.id),badges:Object.keys(ensureModel(p).badges).length,workouts:tot,last:Date.now()}}
 function famListen(){if(CLOUD.unsub)CLOUD.unsub();CLOUD.unsub=CLOUD.db.collection("families").doc(CLOUD.fid).collection("members").onSnapshot(s=>{CLOUD.fam=s.docs.map(d=>({id:d.id,...d.data()}));if(current==="familia")render()},()=>{})}
 function showLogin(){if($("#layer .sheet"))return;sheet(`<div style="text-align:center;padding:10px 0"><div class="brand" style="justify-content:center;font-size:28px"><div class="logo" style="width:56px;height:56px"></div></div><h1 style="margin-top:14px">Vital</h1><p class="mute">Salud y movimiento en familia.<br>Gratis, sin anuncios.</p>
-  <button class="btn block" style="margin-top:16px" data-act="login">Entrar con Google</button><p class="xs faint" style="margin-top:12px">Tus datos de salud son privados. A tu familia solo le llega tu actividad: minutos, racha, etapa y logros.</p></div>`);const x=$(".sheet .x");if(x)x.remove()}
+  <button class="btn block" style="margin-top:16px" data-act="login">Entrar con Google</button>${ANDROID_WEB?`<a class="btn ghost block" style="margin-top:10px;text-decoration:none" href="${APK_URL}">📲 Mejor, descargar la app para Android</a>`:""}<p class="xs faint" style="margin-top:12px">Tus datos de salud son privados. A tu familia solo le llega tu actividad: minutos, racha, etapa y logros.</p></div>`);const x=$(".sheet .x");if(x)x.remove()}
 async function login(){
   if(NATIVE){try{const r=await nplug("FirebaseAuthentication").signInWithGoogle();const tok=r&&r.credential&&r.credential.idToken;if(!tok)throw new Error("Google no devolvió el token");await firebase.auth().signInWithCredential(firebase.auth.GoogleAuthProvider.credential(tok))}catch(e){toast("No se pudo entrar: "+((e&&e.message)||e))}return}
   const prov=new firebase.auth.GoogleAuthProvider();const standalone=matchMedia("(display-mode: standalone)").matches;
@@ -1023,6 +1026,7 @@ document.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");i
   case "hcsync":hcSync(true).then(()=>toast("Datos del reloj actualizados ⌚"));break;
   case "hcsettings":try{nplug("Health").openHealthConnectSettings()}catch(e){}break;
   case "cloudtest":cloudTest();break;
+  case "noapk":S.settings.noApkBanner=true;save();render();break;
   case "goperfil":closeSheet();location.hash="#perfil";break;
   case "prop-yes":{const m=ensureModel(p);const up=m.proposal.t==="up";applyStage(p,m.proposal.to);m.proposal=null;if(up)award(p,"etapa");save();render();toast(up?"⛰️ ¡Etapa "+p.stage+"!":"Etapa "+p.stage+": paso a paso");break}
   case "prop-no":ensureModel(p).proposal=null;save();render();break;
