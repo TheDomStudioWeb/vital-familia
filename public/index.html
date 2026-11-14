@@ -198,6 +198,7 @@ details summary::-webkit-details-marker{display:none}
 <div id="layer"></div>
 <script src="vendor/capacitor.js"></script>
 <script src="config.js"></script>
+<script src="version.js"></script>
 <script src="comer.js"></script>
 <script>
 "use strict";
@@ -493,6 +494,7 @@ function vHoy(){
   const week=names.map((n,i)=>{const k=addDays(ws,i);const dd=L(p.id).days[k];const done=dd&&(dd.workouts.length||dd.activeMin>=20);return `<div class="d ${done?"done":""} ${k===TODAY()?"today":""}">${n}<b>${Number(k.slice(8))}</b></div>`}).join("");
   const rec=recovery(p.id);
   return `
+  ${NATIVE&&UPD.nuevo?`<section class="glass org3" style="border-color:var(--lime)"><div class="row" style="gap:12px"><span style="font-size:30px">⬆️</span><div style="flex:1"><b>Hay una versión nueva de Vital</b><p class="xs mute" style="margin:2px 0 0">Versión ${UPD.nuevo} (tenés la ${window.VITAL_BUILD}). Se instala encima: no perdés nada.</p></div></div><a class="btn small block" style="margin-top:10px;text-decoration:none" href="${APK_URL}">Descargar actualización</a></section>`:""}
   ${ANDROID_WEB&&!S.settings.noApkBanner?`<section class="glass org3" style="border-color:var(--mint)"><div class="row" style="gap:12px"><span style="font-size:30px">📲</span><div style="flex:1"><b>Instalá la app de Vital</b><p class="xs mute" style="margin:2px 0 0">Lee tu reloj y tus pasos solo. Mismos datos, misma cuenta.</p></div></div><div class="row" style="margin-top:10px"><button class="btn small ghost" data-act="noapk">Ahora no</button><a class="btn small" style="flex:1;text-decoration:none" href="${APK_URL}">Descargar la app</a></div></section>`:""}
   <section><h1>${greet()}, ${esc(p.name)}</h1><p class="mute">${new Date().toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"})}</p></section>
   <section class="glass org1">
@@ -789,6 +791,14 @@ async function famJoin(){const p=P();const code=$("#fcode").value.trim().toUpper
   try{const c=await db.collection("codes").doc(code).get();if(!c.exists){toast("Código no encontrado");return}const fid=c.data().fid;
     await db.collection("families").doc(fid).update({members:firebase.firestore.FieldValue.arrayUnion(id)});const f=await db.collection("families").doc(fid).get();
     Object.assign(p,{familyId:fid,familyName:f.data().name,familyCode:code});CLOUD.fid=fid;famListen();save();closeSheet();location.hash="#familia";render();toast("¡Bienvenido a "+f.data().name+"!")}catch(e){toast("No se pudo unir: revisá el código o la conexión")}}
+
+/* ---------- Aviso de actualización del APK ---------- */
+const UPD={nuevo:0,chk:0};
+async function checkUpdate(){if(!NATIVE||!window.VITAL_BUILD||Date.now()-UPD.chk<3*36e5)return;UPD.chk=Date.now();
+  try{const r=await fetch("https://api.github.com/repos/TheDomStudioWeb/vital-familia/releases/latest",{headers:{Accept:"application/vnd.github+json"}});if(!r.ok)return;const j=await r.json();const n=parseInt(String(j.tag_name||"").replace(/\D/g,""));
+    if(n>window.VITAL_BUILD){const avisar=UPD.nuevo!==n;UPD.nuevo=n;if(current==="hoy"&&!$("#layer").innerHTML)render();if(avisar)toast("⬆️ Hay una versión nueva de Vital")}}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate()});
+setTimeout(checkUpdate,4000);
 
 /* =========================================================
    RELOJ / HEALTH CONNECT (solo en el APK)

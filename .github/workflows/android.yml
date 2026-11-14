@@ -28,6 +28,9 @@ jobs:
       - name: Dependencias
         run: npm ci
 
+      - name: Número de versión para el aviso de actualización
+        run: echo "window.VITAL_BUILD=${{ github.run_number }};" > public/version.js
+
       - name: Sincronizar la web con Android
         run: npx cap sync android
 
