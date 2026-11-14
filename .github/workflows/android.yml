@@ -36,10 +36,13 @@ jobs:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
           VITAL_KEYSTORE_BASE64: ${{ secrets.VITAL_KEYSTORE_BASE64 }}
         run: |
-          if [ -z "$GOOGLE_SERVICES_JSON" ]; then echo "::error::Falta el secreto GOOGLE_SERVICES_JSON"; exit 1; fi
-          if [ -z "$VITAL_KEYSTORE_BASE64" ]; then echo "::error::Falta el secreto VITAL_KEYSTORE_BASE64"; exit 1; fi
-          printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
-          echo "$VITAL_KEYSTORE_BASE64" | base64 -d > android/app/vital.keystore
+          if [ -z "$GOOGLE_SERVICES_JSON" ] || [ -z "$VITAL_KEYSTORE_BASE64" ]; then
+            echo "::warning::Faltan secretos: se compila una versión de prueba sin firma (sin login de Google)."
+            echo "PRUEBA=1" >> $GITHUB_ENV
+          else
+            printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
+            echo "$VITAL_KEYSTORE_BASE64" | base64 -d > android/app/vital.keystore
+          fi
 
       - name: Compilar APK firmado
         env:
@@ -47,8 +50,13 @@ jobs:
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon --stacktrace
-          cp app/build/outputs/apk/release/app-release.apk ../Vital.apk
+          if [ "$PRUEBA" = "1" ]; then
+            ./gradlew assembleDebug --no-daemon --stacktrace
+            cp app/build/outputs/apk/debug/app-debug.apk ../Vital.apk
+          else
+            ./gradlew assembleRelease --no-daemon --stacktrace
+            cp app/build/outputs/apk/release/app-release.apk ../Vital.apk
+          fi
 
       - uses: actions/upload-artifact@v4
         with:
@@ -56,6 +64,7 @@ jobs:
           path: Vital.apk
 
       - name: Publicar en Releases (enlace fijo para descargar en el teléfono)
+        if: env.PRUEBA != '1'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: apk-${{ github.run_number }}
