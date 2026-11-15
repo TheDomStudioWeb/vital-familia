@@ -199,8 +199,11 @@ details summary::-webkit-details-marker{display:none}
 <script src="vendor/capacitor.js"></script>
 <script src="config.js"></script>
 <script src="version.js"></script>
+<script src="i18n.js"></script>
+<script src="i18n-dic.js"></script>
 <script src="comer.js"></script>
 <script src="actividad.js"></script>
+<script src="comer2.js"></script>
 <script>
 "use strict";
 /* >>> Para activar la nube familiar, pegá acá la configuración de tu proyecto Firebase (Configuración del proyecto → Tus apps → Web). Con null, Vital funciona en modo local. <<< */
@@ -293,9 +296,12 @@ const CAT = {cal:"Calentamiento",mov:"Movilidad",fuerza:"Fuerza",cardio:"Cardio"
 const GOALS = {salud:"Salud general",fuerza:"Ganar fuerza",peso:"Bajar de peso",movilidad:"Movilidad y dolor",resistencia:"Resistencia"};
 const EQUIP = {silla:"Silla",mancuernas:"Mancuernas",banda:"Banda elástica",barra:"Barra de dominadas",colchoneta:"Colchoneta"};
 const COND = {diabetes:"Diabetes",insulina:"Uso insulina",celiaquia:"Celiaquía",hta:"Presión alta"};
-const LIMITS = {rodilla:"Rodillas",espalda:"Espalda baja",hombro:"Hombros",muneca:"Muñecas",cardio:"Corazón / presión",embarazo:"Embarazo"};
+const LIMITS = {rodilla:"Rodillas",espalda:"Espalda baja",hombro:"Hombros",codo:"Codos",muneca:"Muñecas",cuello:"Cuello",cadera:"Cadera",tobillo:"Tobillos / pies",cardio:"Corazón / presión",embarazo:"Embarazo"};
 // clave interna de muñeca sin ñ para evitar líos
 EX.forEach(e=>{e.a=e.a.map(x=>x==="muñeca"?"muneca":x)});
+// articulaciones: qué ejercicios cargan cada una
+{const J={codo:["flexion","flexion-rodillas","flexion-inclinada","fondos-silla","press-hombro","dominada","burpee"],cuello:["nadador","dominada"],cadera:["zancada-atras","bulgara","sentadilla-salto","pm-una-pierna","reloj","escaladores","rodillas-arriba"],tobillo:["sentadilla-salto","jumping","rodillas-arriba","burpee","escaladores","talones","una-pierna","reloj","subida-escalon","zancada-atras"]};
+ Object.entries(J).forEach(([k,ids])=>ids.forEach(id=>{const e=EX.find(x=>x.id===id);if(e&&!e.a.includes(k))e.a.push(k)}))}
 const MODES = {
   empujar:{n:"Para empujar",c:"#4ade80",d:"Estás recuperado. Buen día para subir la intensidad."},
   constante:{n:"Constante",c:"#5eead4",d:"Día normal: entrenamiento completo a ritmo cómodo."},
@@ -646,7 +652,7 @@ function vPerfil(){const p=P();
   return `<section><h1>Perfil y ajustes</h1></section>
   <section class="glass org1"><div class="fam"><span class="av" style="width:56px;height:56px;font-size:30px;background:${p.color}33">${p.emoji}</span><div style="flex:1"><h2 style="margin:0">${esc(p.name)}</h2><div class="sm mute">${age(p)} años · ${p.height||"?"} cm · ${GOALS[p.goal]}</div></div><button class="btn small ghost" data-act="editprofile">Editar</button></div>
   <div class="grid2" style="margin-top:12px"><div class="stat"><span class="xs mute">Nivel</span><b>${["","Inicial","Intermedio","Avanzado"][p.level]}</b></div><div class="stat"><span class="xs mute">Rutina</span><b>${p.minutes} min</b></div></div>
-  <p class="sm" style="margin-top:10px"><span class="mute">En casa:</span> ${p.equipment.length?p.equipment.map(x=>EQUIP[x]).join(", "):"solo peso corporal"}<br>${(p.sports||[]).length?`<span class="mute">Actividades:</span> ${p.sports.filter(k=>DEP[k]).map(k=>DEP[k][1]+" "+DEP[k][0]).join(", ")}<br>`:""}<span class="mute">Cuidar:</span> ${p.limits.length?p.limits.map(x=>LIMITS[x]).join(", "):"nada en especial"}${(p.cond||[]).length?`<br><span class="mute">Condiciones:</span> ${p.cond.map(x=>COND[x]).join(", ")}`:""}</p>
+  <p class="sm" style="margin-top:10px"><span class="mute">En casa:</span> ${p.equipment.length?p.equipment.map(x=>EQUIP[x]).join(", "):"solo peso corporal"}<br>${(p.sports||[]).length?`<span class="mute">Actividades:</span> ${p.sports.filter(k=>DEP[k]).map(k=>DEP[k][1]+" "+DEP[k][0]).join(", ")}<br>`:""}<span class="mute">Cuidar:</span> ${p.limits.length?p.limits.map(x=>LIMITS[x]).join(", "):"nada en especial"}${(p.cond||[]).length?`<br><span class="mute">Condiciones:</span> ${p.cond.map(x=>COND[x]).join(", ")}`:""}${p.dieta&&window.DIETAS?`<br><span class="mute">Alimentación:</span> 🌱 ${DIETAS[p.dieta]}`:""}</p>
   ${p.parqFlag?`<p class="note">Marcaste alguna respuesta del cuestionario de salud. Antes de entrenar intenso, consultá a tu médico. La intensidad máxima queda en «Constante».</p>`:""}</section>
   ${NATIVE?`<section class="glass org1"><h2>⌚ Reloj y Health Connect</h2>${S.settings.hc?`<p class="sm">Conectado. Vital lee pasos, pulso, oxígeno, sueño, peso, presión, glucosa y actividades de tu reloj.${HCLAST?`<br><span class="xs faint">Última lectura: ${new Date(HCLAST).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})}</span>`:""}</p>${(()=>{const d=L(P().id).days[TODAY()]||{},hr=d.hr,ox=d.spo2,hm=t=>new Date(t).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});
     return hr||ox?`<div class="grid2" style="margin:10px 0">${hr?`<div class="glass" style="padding:12px"><div class="xs faint">❤️ PULSO</div><div style="font-size:24px;font-weight:700">${hr.last} <span class="xs">lpm</span></div><div class="xs faint">a las ${hm(hr.ts)} · hoy ${hr.min}–${hr.max}</div></div>`:""}${ox?`<div class="glass" style="padding:12px"><div class="xs faint">🫁 OXÍGENO</div><div style="font-size:24px;font-weight:700">${ox.v}<span class="xs">%</span></div><div class="xs faint">a las ${hm(ox.ts)}</div></div>`:""}</div>`:`<p class="xs faint" style="margin:8px 0">Todavía no llegó pulso ni oxígeno del reloj hoy.</p>`})()}
@@ -655,6 +661,7 @@ function vPerfil(){const p=P();
   <a class="glass org1" href="${NATIVE?APP_URL+"manual-vital.pdf":"manual-vital.pdf"}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit"><span style="font-size:28px">📘</span><span style="flex:1"><b>Manual de uso</b><br><span class="xs mute">Todo explicado paso a paso, con imágenes (PDF)</span></span><span class="faint">›</span></a>
   <section class="glass org2"><h2>Ajustes</h2>
     ${toggle("voice","Voz guía durante el entrenamiento")}${toggle("muneco","Muñeco 3D que muestra cada ejercicio")}${toggle("beep","Sonido al terminar cada tramo")}${toggle("lite","Modo liviano (sin efectos de cristal, para teléfonos lentos)")}</section>
+  ${window.locSection?locSection():""}
   ${CLOUD.on?`<section class="glass org3"><h2>Cuenta</h2><p class="sm">${esc(CLOUD.user&&CLOUD.user.email)}<br><span class="mute">Grupo:</span> ${esc(p.familyName||"sin grupo")}${p.familyCode?" · código "+esc(p.familyCode):""}</p><p class="xs faint">Tus datos se guardan en la nube y funcionan sin conexión: se sincronizan cuando vuelve.</p>
     <p class="sm">Estado de la nube: ${CLOUD.err?`<b style="color:var(--bad)">con error (${esc(CLOUD.err)})</b>`:`<b style="color:var(--ok)">${CLOUD.lastOk?"guardado ✓ "+new Date(CLOUD.lastOk).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"}):"conectado"}</b>`}</p>
     <button class="btn small ghost block" style="margin-bottom:10px" data-act="cloudtest">Probar conexión con la nube</button><div class="grid2"><button class="btn ghost small" data-act="famsetup">Cambiar de grupo</button><button class="btn ghost small" data-act="logout">Cerrar sesión</button></div></section>`:`
@@ -857,7 +864,7 @@ function openOnboarding(first,edit){
 }
 function drawOnb(){const d=draft;const st=d._step;let h="";
   const dots=`<div class="row" style="gap:6px;margin-bottom:12px">${[0,1,2,3].map(i=>`<span style="height:5px;flex:1;border-radius:9px;background:${i<=st?"var(--mint)":"rgba(255,255,255,.15)"}"></span>`).join("")}</div>`;
-  if(st===0)h=`${d._first?`<h1>Bienvenidos a Vital</h1><p class="mute">Salud y ejercicio para toda la familia. Gratis, sin anuncios y sin cuentas: tus datos quedan en tu teléfono.</p>`:`<h1>${d._edit?"Editar perfil":"Nuevo integrante"}</h1>`}${dots}
+  if(st===0)h=`${d._first?`${window.locChips?locChips():""}<h1>Bienvenidos a Vital</h1><p class="mute">Salud y ejercicio para toda la familia. Gratis, sin anuncios y sin cuentas: tus datos quedan en tu teléfono.</p>`:`<h1>${d._edit?"Editar perfil":"Nuevo integrante"}</h1>`}${dots}
     <label class="f">Nombre</label><input class="in" id="o-name" value="${esc(d.name)}" placeholder="Ej.: Daniel" autocomplete="off">
     <label class="f">Elegí un ícono</label><div class="opts">${EMOJIS.map(e=>`<button class="opt ${d.emoji===e?"on":""}" data-act="o-emoji" data-v="${e}" style="font-size:20px;padding:8px 10px">${e}</button>`).join("")}</div>
     <div class="grid2"><div><label class="f">Año de nacimiento</label><input class="in" id="o-year" inputmode="numeric" value="${esc(d.birthYear)}" placeholder="1985"></div>
@@ -876,7 +883,9 @@ function drawOnb(){const d=draft;const st=d._step;let h="";
     <label class="f">¿Algo que haya que cuidar?</label><div class="opts">${Object.entries(LIMITS).map(([k,n])=>`<button class="opt ${d.limits.includes(k)?"on":""}" data-act="o-lim" data-v="${k}">${n}</button>`).join("")}</div>
     <p class="xs faint" style="margin-top:10px">Vital saca automáticamente los ejercicios que cargan esas zonas y te muestra alternativas.</p>
     <label class="f">Condiciones de salud (opcional, queda privado)</label><div class="opts">${Object.entries(COND).map(([k,n])=>`<button class="opt ${(d.cond||[]).includes(k)?"on":""}" data-act="o-cond" data-v="${k}">${n}</button>`).join("")}</div>
-    <p class="xs faint" style="margin-top:8px">Con diabetes, Vital te pide medir la glucosa antes de entrenar. Con presión alta, cuida la intensidad.</p>`;
+    <p class="xs faint" style="margin-top:8px">Con diabetes, Vital te pide medir la glucosa antes de entrenar. Con presión alta, cuida la intensidad.</p>
+    <label class="f">¿Cómo comés?</label><div class="opts">${Object.entries(window.DIETAS||{}).map(([k,n])=>`<button class="opt ${(d.dieta||"")===k?"on":""}" data-act="o-dieta" data-v="${k}">${k?"🌱 ":""}${n}</button>`).join("")}</div>
+    <p class="xs faint" style="margin-top:8px">El plan de comidas y las sugerencias se arman según tu forma de comer.</p>`;
   if(st===3){const qs=[["corazon","¿Algún médico te dijo que tenés un problema cardíaco o de presión?"],["pecho","¿Sentís dolor en el pecho al hacer actividad física?"],["mareo","¿Perdiste el equilibrio por mareos o te desmayaste en el último año?"],["hueso","¿Tenés un problema de huesos o articulaciones que empeore con el ejercicio?"],["medica","¿Tomás medicación para la presión o el corazón?"]];
     h=`<h2>Chequeo rápido de seguridad</h2>${dots}<p class="sm mute">Basado en el cuestionario PAR-Q. Si respondés «sí» a algo, no pasa nada: Vital cuida la intensidad y te recomienda consultar.</p>
     ${qs.map(([k,q])=>`<div style="margin:12px 0"><p class="sm" style="margin-bottom:6px">${q}</p><div class="opts"><button class="opt ${d.parq[k]===false?"on":""}" data-act="o-parq" data-v="${k}:0">No</button><button class="opt ${d.parq[k]===true?"on":""}" data-act="o-parq" data-v="${k}:1">Sí</button></div></div>`).join("")}`}
@@ -943,7 +952,7 @@ function startPlayer(s){PL={s,steps:flatten(s),i:0,t:0,run:false,start:Date.now(
   try{PL.ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}
   try{navigator.wakeLock&&navigator.wakeLock.request("screen").then(w=>PL.wake=w).catch(()=>{})}catch(e){}
   closeSheet();enterStep()}
-function say(t){if(!S.settings.voice)return;try{const u=new SpeechSynthesisUtterance(t);u.lang="es-AR";u.rate=1.02;const v=speechSynthesis.getVoices().find(v=>/^es/.test(v.lang));if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function say(t){if(!S.settings.voice)return;try{const u=new SpeechSynthesisUtterance(t);const EN=window.LOC&&LOC.lang==="en";if(window.T)u.text=T(t);u.lang=EN?"en-US":window.LOC&&LOC.lang==="es"?"es-ES":"es-AR";u.rate=1.02;const v=speechSynthesis.getVoices().find(v=>EN?/^en/.test(v.lang):/^es/.test(v.lang));if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 function beep(f=880,d=.15){if(!S.settings.beep||!PL||!PL.ac)return;try{const o=PL.ac.createOscillator(),g=PL.ac.createGain();o.frequency.value=f;o.connect(g);g.connect(PL.ac.destination);g.gain.setValueAtTime(.18,PL.ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,PL.ac.currentTime+d);o.start();o.stop(PL.ac.currentTime+d)}catch(e){}}
 function enterStep(){clearInterval(PL.timer);const st=PL.steps[PL.i];if(!st){finishPlayer();return}
   if(st.kind==="rest"){PL.t=st.secs;PL.run=true;say("Descanso. "+(st.next?"Después: "+EXM[st.next.id].n:""))}
@@ -997,6 +1006,7 @@ document.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");i
   case "o-steps":draft.stepsGoal=+v;drawOnb();break;
   case "o-eq":{const s=new Set(draft.equipment);s.has(v)?s.delete(v):s.add(v);draft.equipment=[...s];drawOnb();break}
   case "o-lim":{const s=new Set(draft.limits);s.has(v)?s.delete(v):s.add(v);draft.limits=[...s];drawOnb();break}
+  case "o-dieta":draft.dieta=v||"";drawOnb();break;
   case "o-cond":{const s=new Set(draft.cond||[]);s.has(v)?s.delete(v):s.add(v);if(v==="insulina"&&s.has("insulina"))s.add("diabetes");draft.cond=[...s];drawOnb();break}
   case "o-parq":{const [k,x]=v.split(":");draft.parq[k]=x==="1";drawOnb();break}
   case "o-back":readOnbInputs();draft._step--;drawOnb();break;

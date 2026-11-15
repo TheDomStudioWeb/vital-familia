@@ -139,6 +139,23 @@ Pestaña 🥗 **Comer**, con tres partes:
 **Menores de 18:** no se muestran calorías; solo calidad y variedad.
 Valores nutricionales aproximados por 100 g.
 
+## Novedades de noviembre 2026 (pedidos de usuarios nuevos)
+- **Alimentación vegetariana y vegana.** Se elige en el perfil («¿Cómo comés?»: Como de todo / Vegetariana / Vegana). El plan semanal solo usa platos aptos; Vital decide solo si un plato es apto mirando sus ingredientes (carne o pescado → no vegetariano; huevo, lácteos, miel o manteca → no vegano). Hay platos nuevos: guiso de lentejas vegano, hamburguesas de lentejas, wok de tofu, boloñesa de soja, quinoa, paella de verduras, gazpacho, pisto, desayunos con bebida vegetal, hummus o pasta de maní. Plan vegano: avisa que la vitamina B12 va como suplemento. En chicos, adolescentes o embarazo recomienda armarlo con nutricionista.
+- **Dolores y articulaciones.** «¿Algo que haya que cuidar?» y el «¿Dónde?» del check-in suman Codos, Cuello, Cadera y Tobillos / pies (además de rodillas, espalda baja, hombros y muñecas). Vital saca los ejercicios que cargan esa zona.
+- **País e idioma.** En Perfil → «Idioma y país». Idiomas: Español de Argentina (con vos), Español con tú (para España, Canadá y otros) e Inglés. Países: Argentina, España, Canadá u otro. Con España o Canadá: los alimentos se llaman como allá (patata, plátano, aguacate, calabacín, judías verdes…), no aparecen productos que casi no se consiguen (mate, bizcochitos), y las temporadas de frutas y verduras se corren 6 meses (verano en julio). La primera vez lo detecta solo por el idioma y la zona horaria del teléfono; también se cambia desde la pantalla de bienvenida. La voz guía habla en el idioma elegido.
+- **Registrar comida más rápido** (tres botones arriba de «Registrar comida»):
+  - 📸 **Foto del plato:** sacás la foto, copiás el texto para la IA (Claude, ChatGPT o Gemini), pegás la tabla que devuelve y Vital calcula calorías, hidratos y calidad. Antes de agregar se pueden corregir los gramos.
+  - ▥ **Código de barras:** foto del código o escribir los números. Busca el producto en Open Food Facts (base libre). Si no está, se carga una vez a mano y queda guardado en el teléfono.
+  - ✍️ **Cargar a mano:** datos de la tabla nutricional del envase (por 100 g) y cuánto pesa una porción.
+- **Ayuno intermitente** (tarjeta «⏱ Ayuno» en Comer → Hoy): 12, 14 o 16 horas, con anillo que avanza, hora de inicio y de fin, e historial. No se ofrece a menores, en embarazo ni con bajo peso; con diabetes o insulina pide confirmar que lo indicó el médico. Si registrás una comida durante el ayuno, se cierra solo.
+
+### Frases para Claudio (novedades)
+- «Para comer vegetariano: Perfil → Editar → paso 3 → ¿Cómo comés? → Vegetariana. Después rehacé el plan en Comer → Plan semanal.»
+- «Para usar Vital en España o Canadá: Perfil → Idioma y país.»
+- «Para registrar un plato con foto: Comer → Registrar comida → Foto del plato.»
+- «Para escanear un paquete: Comer → Registrar comida → Código de barras.»
+- «El ayuno está en Comer → Hoy → Ayuno. Es opcional.»
+
 ## Actualizaciones
 - Web (iPhone): se actualiza sola para todos después de cada `firebase deploy`.
 - APK (Android): al abrirse, revisa si hay versión nueva en GitHub y muestra «Hay una versión nueva de Vital» con el botón «Descargar actualización»; se instala encima sin perder datos.
