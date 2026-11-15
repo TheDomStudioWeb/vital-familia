@@ -148,6 +148,7 @@ Valores nutricionales aproximados por 100 g.
   - ▥ **Código de barras:** foto del código o escribir los números. Busca el producto en Open Food Facts (base libre). Si no está, se carga una vez a mano y queda guardado en el teléfono.
   - ✍️ **Cargar a mano:** datos de la tabla nutricional del envase (por 100 g) y cuánto pesa una porción.
 - **Pastas frescas y rellenas** como ingredientes: ñoquis, ravioles (de ricota y verdura o de carne/pollo), agnolotis, sorrentinos, capeletis, canelones, tallarines al huevo y lasaña, con versión sin TACC para ñoquis y ravioles. Se cargan por peso fresco, como vienen en el paquete. También se reconocen al importar una receta o una foto del plato. Platos nuevos: ñoquis con salsa de tomate y ravioles con fileto.
+- **Receta desde la foto de un plato:** Comer → Recetas → Nueva → Importar → «Desde la foto de un plato que cocinaste». La IA estima un plato servido, Vital lo multiplica por las porciones que elegís para la olla (al cambiar las porciones, las cantidades se ajustan solas) y queda guardada como receta de casa. También desde «Foto del plato» al registrar la comida: botón «Guardar también como receta de casa».
 - **Ayuno intermitente** (tarjeta «⏱ Ayuno» en Comer → Hoy): 12, 14 o 16 horas, con anillo que avanza, hora de inicio y de fin, e historial. No se ofrece a menores, en embarazo ni con bajo peso; con diabetes o insulina pide confirmar que lo indicó el médico. Si registrás una comida durante el ayuno, se cierra solo.
 
 ### Frases para Claudio (novedades)

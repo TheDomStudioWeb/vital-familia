@@ -207,14 +207,15 @@ Primera línea: RECETA | nombre del plato | 1
 Después, una línea por ingrediente: Ingrediente | gramos | g
 Reglas: usá estos nombres siempre que se pueda: ${lista}. Estimá los gramos como están servidos (peso cocido: escribí "arroz cocido", "fideos cocidos"). Incluí el aceite, la manteca, las salsas y los aderezos que se vean o que se suelan usar. No agregues explicaciones: solo la tabla, dentro de un bloque de código.`}
 let FOTO=null;
-function abrirFoto(){sheet(`<h2>📸 Foto del plato</h2>
+let FMODO="dia";
+function abrirFoto(modo){if(modo)FMODO=modo;const rec=FMODO==="receta";sheet(`<h2>📸 ${rec?"Receta desde la foto de un plato":"Foto del plato"}</h2>${rec?`<p class="sm mute">Ideal para las fotos de comidas que ya cocinaste: la IA estima un plato servido y después elegís cuántas porciones salen de la olla.</p>`:""}
   <ol class="steps"><li>Sacale una foto al plato desde arriba, con buena luz (si podés, con un cubierto al lado para que se entienda el tamaño).</li>
   <li>Abrí tu asistente de IA (Claude, ChatGPT o Gemini), subí la foto y pegale el texto de este botón: <button class="btn small ghost" data-act="c2-fprompt">Copiar el texto para la IA</button></li>
   <li>Copiá la tabla que te devuelve y pegala acá abajo.</li></ol>
   <textarea class="in" id="c2-ftxt" rows="7" placeholder="RECETA | Milanesa con puré | 1&#10;Carne vacuna magra | 150 | g&#10;Papa | 200 | g&#10;Aceite | 10 | g"></textarea>
   <div class="row" style="margin-top:10px"><button class="btn ghost" data-act="c2-fpaste">Pegar</button><button class="btn" style="flex:1" data-act="c2-fcalc">Calcular</button></div>
   <p class="xs faint" style="margin-top:8px">La IA estima a ojo: en el paso siguiente podés corregir los gramos. Si lo pesás, mejor.</p>
-  <div class="row" style="margin-top:8px"><button class="btn ghost" data-act="fadd">Volver</button></div>`)}
+  <div class="row" style="margin-top:8px"><button class="btn ghost" data-act="${rec?"rimp":"fadd"}">Volver</button></div>`)}
 function dibFoto(){const p=P();const ing=FOTO.i;const ad=adaptar(ing,p);const t=nutri(ad.ing);const q=calidad(t,"a");
   sheet(`<h2>${esc(FOTO.n||"Mi plato")}</h2><p class="xs mute">${COMIDAS[FSEL.meal]} · revisá y corregí los gramos</p>
   <label class="f">Nombre</label><input class="in" id="c2-fn" value="${esc(FOTO.n||"")}" placeholder="Mi plato" autocomplete="off">
@@ -223,7 +224,15 @@ function dibFoto(){const p=P();const ing=FOTO.i;const ad=adaptar(ing,p);const t=
   <div class="grid3" style="margin-top:14px;text-align:center"><div class="stat"><span class="xs mute">Calidad</span><b style="color:${colorCal(q.s)}">${q.s}</b><span class="xs">${etiquetaQ(q.s)}</span></div>${esMenor(p)?"":`<div class="stat"><span class="xs mute">Calorías</span><b>${Math.round(t.kcal)}</b><span class="xs">kcal</span></div>`}<div class="stat"><span class="xs mute">Hidratos</span><b>${Math.round(t.hc)} g</b><span class="xs">${Math.round(t.hc/15*10)/10} porc. de 15 g</span></div></div>
   <p class="xs mute" style="margin-top:10px">Proteínas ${Math.round(t.p)} g · Grasas ${Math.round(t.gr)} g · Fibra ${Math.round(t.fib*10)/10} g · Sodio ${Math.round(t.na)} mg</p>
   ${q.tips.slice(0,2).map(x=>`<p class="sm">💡 ${esc(x)}</p>`).join("")}
-  <div class="row" style="margin-top:14px"><button class="btn ghost" data-act="c2-foto">Volver</button><button class="btn" style="flex:1" data-act="c2-fsave">Agregar</button></div>`)}
+  <div class="row" style="margin-top:14px"><button class="btn ghost" data-act="c2-foto">Volver</button><button class="btn" style="flex:1" data-act="c2-fsave">Agregar</button></div>
+  <button class="btn ghost block" style="margin-top:10px" data-act="c2-frec">💾 Guardar también como receta de casa</button>`)}
+function fotoAReceta(){const por=4;const i={};for(const [k,g] of Object.entries(FOTO.i))i[k]=Math.round(g*por);
+  RED={id:uid(),n:FOTO.n||"",por,i,share:!!(typeof CLOUD!=="undefined"&&CLOUD.on&&CLOUD.fid),q:"",nueva:true,foto:true};dibReceta();
+  const sh=document.querySelector("#layer .sheet h2");if(sh&&!document.querySelector(".c2-fnota")){const n=document.createElement("p");n.className="note c2-fnota";n.style.marginTop="8px";n.textContent="Armada desde la foto de un plato: elegí cuántas porciones salen de la olla y las cantidades se ajustan solas.";sh.after(n)}}
+const _abrImp=abrirImportar;
+abrirImportar=function(){_abrImp();const sh=document.querySelector("#layer .sheet h2");if(!sh)return;const d=document.createElement("button");d.className="glass";d.dataset.act="c2-frecini";
+  d.style.cssText="display:flex;gap:12px;align-items:center;width:100%;padding:14px;border-radius:18px;margin:8px 0;color:inherit;border:1px solid rgba(255,255,255,.12);text-align:left";
+  d.innerHTML='<span style="font-size:26px">📸</span><span><b class="sm">Desde la foto de un plato que cocinaste</b><br><span class="xs mute">La IA reconoce el plato y vos elegís las porciones de la olla</span></span>';sh.after(d)};
 function leerFoto(){document.querySelectorAll("[data-c2g]").forEach(i=>{const v=parseFloat(i.value);if(v>0)FOTO.i[i.dataset.c2g]=v});const n=$("#c2-fn");if(n)FOTO.n=n.value.trim()}
 function itemLibre(n,ing,p){const ad=adaptar(ing,p);const t=nutri(ad.ing);const q=calidad(t,"a");
   return {id:uid(),src:"foto",ref:"",f:1,n:n||"Mi plato",i:ing,kcal:Math.round(t.kcal),hc:Math.round(t.hc),p:Math.round(t.p),gr:Math.round(t.gr),fib:Math.round(t.fib*10)/10,na:Math.round(t.na),q:q.s,vf:Math.round((t.grupos.verd||0)+(t.grupos.fruta||0)),tacc:t.tacc,ts:Date.now()}}
@@ -274,11 +283,16 @@ vComer=function(){const p=P();let h=_vComer();
 const _ca=window.comerAct;
 window.comerAct=function(a,v){const p=P();
   switch(a){
-  case "c2-foto":FOTO=null;abrirFoto();return true;
+  case "c2-foto":FOTO=null;abrirFoto(v==="receta"?"receta":FMODO);return true;
+  case "fadd":FMODO="dia";return _ca(a,v);
+  case "c2-frecini":FOTO=null;abrirFoto("receta");return true;
+  case "c2-frec":leerFoto();fotoAReceta();return true;
+  case "rpor":if(RED&&RED.foto){leerReceta();const n=+v,o=Math.max(1,RED.por);for(const k in RED.i)RED.i[k]=Math.round(RED.i[k]/o*n);RED.por=n;dibReceta();
+    const sh=document.querySelector("#layer .sheet h2");if(sh){const x=document.createElement("p");x.className="note c2-fnota";x.style.marginTop="8px";x.textContent="Cantidades ajustadas para "+n+" porciones.";sh.after(x)}return true}return _ca(a,v);
   case "c2-fprompt":{const t=promptPlato();try{navigator.clipboard.writeText(t).then(()=>toast("Texto copiado: pegalo en tu IA junto con la foto"),()=>toast("No se pudo copiar"))}catch(e){toast("No se pudo copiar")}return true}
   case "c2-fpaste":try{navigator.clipboard.readText().then(t=>{$("#c2-ftxt").value=t},()=>toast("Mantené apretado el cuadro y elegí «Pegar»"))}catch(e){toast("Mantené apretado el cuadro y elegí «Pegar»")}return true;
   case "c2-fcalc":{const r=importarReceta(($("#c2-ftxt")||{}).value||"");if(!Object.keys(r.i).length){toast("No encontré ingredientes: pegá la tabla que te dio la IA");return true}
-    const por=Math.max(1,r.por||1);const i={};for(const [k,g] of Object.entries(r.i))i[k]=g/por;FOTO={n:r.n,i,no:r.no.concat(r.sinq)};dibFoto();return true}
+    const por=Math.max(1,r.por||1);const i={};for(const [k,g] of Object.entries(r.i))i[k]=g/por;FOTO={n:r.n,i,no:r.no.concat(r.sinq)};if(FMODO==="receta"){fotoAReceta();if(FOTO.no.length)toast("No reconocí: "+FOTO.no.join(", "));return true}dibFoto();return true}
   case "c2-fdel":leerFoto();delete FOTO.i[v];if(!Object.keys(FOTO.i).length){abrirFoto();return true}dibFoto();return true;
   case "c2-fsave":{leerFoto();const it=itemLibre(FOTO.n,FOTO.i,p);it.meal=FSEL.meal;diaComida(p).push(it);if(p.ayuno&&it.kcal>15)terminarAyuno(p,true);save();closeSheet();comerTab="hoy";if(current!=="comer")location.hash="#comer";else render();toast("Anotado · calidad "+it.q);return true}
   case "c2-cod":abrirCodigo();return true;
