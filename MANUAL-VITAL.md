@@ -159,6 +159,14 @@ Valores nutricionales aproximados por 100 g.
 - «Para escanear un paquete: Comer → Registrar comida → Código de barras.»
 - «El ayuno está en Comer → Hoy → Ayuno. Es opcional.»
 
+## Planes y cobro (desde noviembre 2026)
+- Cada cuenta nueva tiene **14 días de prueba gratis**. Después, un plan por familia: **anual $100.000** (2 meses gratis) o **mensual $10.000** con débito automático por Mercado Pago.
+- El plan del que creó el grupo familiar cubre a toda la familia, hasta 6 personas. Los demás se suman con el código del grupo.
+- El estado se ve en **Perfil → ⭐ Tu plan**. Cuando vence, Vital muestra la pantalla de planes; los datos quedan guardados y vuelven al pagar.
+- Después de pagar, el plan se activa solo. Si no, botón **«Ya pagué: verificar»**.
+- La familia de Daniel tiene **cortesía** (sin vencimiento). Daniel administra todo desde **Perfil → 🛠 Panel de administrador**: buscar por mail, dar cortesía, sumar 1 mes o 1 año, o cortar el acceso.
+- Frases para Claudio: «Para pagar Vital: cuando termina la prueba aparece la pantalla de planes, o desde Perfil → Tu plan → Ver planes.» · «Si ya pagaste y no se activó, tocá Ya pagué: verificar.» · «Para que te cubra el plan de tu familia, pedí el código del grupo y tocá Unirme.»
+
 ## Actualizaciones
 - Web (iPhone): se actualiza sola para todos después de cada `firebase deploy`.
 - APK (Android): al abrirse, revisa si hay versión nueva en GitHub y muestra «Hay una versión nueva de Vital» con el botón «Descargar actualización»; se instala encima sin perder datos.

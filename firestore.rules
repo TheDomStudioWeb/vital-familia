@@ -2,11 +2,48 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ---------- Licencias ----------
+    function lic(uid) { return /databases/$(database)/documents/licencias/$(uid); }
+    function esAdmin() { return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    function vigente(d) { return d.get('plan','') == 'cortesia' || (d.get('vence', null) is timestamp && d.vence > request.time); }
+    // La familia cubre si el que la creó tiene plan vigente (hasta 6 miembros; la cortesía no tiene tope)
+    function porFamilia(d) {
+      let fid = d.get('familia', '');
+      let fref = /databases/$(database)/documents/families/$(fid);
+      return fid is string && fid != '' && exists(fref)
+        && request.auth.uid in get(fref).data.members
+        && exists(lic(get(fref).data.owner))
+        && ( get(lic(get(fref).data.owner)).data.plan == 'cortesia'
+             || ( vigente(get(lic(get(fref).data.owner)).data) && get(fref).data.members.size() <= 6 ) );
+    }
+    function cubierto() {
+      return request.auth != null && exists(lic(request.auth.uid))
+        && ( vigente(get(lic(request.auth.uid)).data) || porFamilia(get(lic(request.auth.uid)).data) );
+    }
+
+    match /licencias/{lid} {
+      allow get: if request.auth != null && (request.auth.uid == lid || esAdmin());
+      allow list: if esAdmin();
+      // Cada cuenta nueva puede crearse su prueba gratis de 14 días (una sola vez)
+      allow create: if request.auth != null && request.auth.uid == lid
+        && request.resource.data.plan == 'prueba'
+        && request.resource.data.vence is timestamp
+        && request.resource.data.vence <= request.time + duration.value(15, 'd')
+        && request.resource.data.keys().hasOnly(['plan','vence','email','nombre','creado','familia']);
+      // El usuario solo puede actualizar su familia, mail y nombre; el resto lo cambia el administrador o el cobrador
+      allow update: if (request.auth != null && request.auth.uid == lid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['familia','email','nombre'])) || esAdmin();
+      allow delete: if esAdmin();
+    }
+    match /admins/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+    }
+
     // Datos privados de cada persona: solo su dueño
     match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read, write: if request.auth != null && request.auth.uid == uid && cubierto();
       match /days/{day} {
-        allow read, write: if request.auth != null && request.auth.uid == uid;
+        allow read, write: if request.auth != null && request.auth.uid == uid && cubierto();
       }
     }
 
@@ -33,7 +70,7 @@ service cloud.firestore {
 
       // Recetas compartidas por la familia
       match /recipes/{rid} {
-        allow read, write: if request.auth != null
+        allow read, write: if request.auth != null && cubierto()
           && request.auth.uid in get(/databases/$(database)/documents/families/$(fid)).data.members;
       }
 
@@ -41,7 +78,7 @@ service cloud.firestore {
       match /members/{uid} {
         allow read: if request.auth != null
           && request.auth.uid in get(/databases/$(database)/documents/families/$(fid)).data.members;
-        allow write: if request.auth != null && request.auth.uid == uid
+        allow write: if request.auth != null && request.auth.uid == uid && cubierto()
           && request.auth.uid in get(/databases/$(database)/documents/families/$(fid)).data.members;
       }
     }
