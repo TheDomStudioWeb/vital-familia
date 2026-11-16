@@ -42,6 +42,54 @@ const LC=window.LOC||{lang:"es-AR",pais:"AR",norte:false,nombres:"ar"};
  ["lasana","Masa de lasaña cocida","cereal",150,29,5.5,1,1.5,5,1,{plancha:40}]
 ].forEach(a=>{ALI[a[0]]={id:a[0],n:a[1],c:a[2],kcal:a[3],hc:a[4],p:a[5],g:a[6],fib:a[7],na:a[8],tacc:a[9],u:a[10],s:a[11]}});
 
+/* ---------- Cortes de carne (Argentina, España, Italia) ----------
+   Por 100 g crudos, como se compran (con hueso cuando el corte lo trae).
+   Valores aproximados de tablas de composición (ARGENFOODS / USDA). */
+const CORTES=[
+ // vacunos
+ ["lomo","Lomo (filet)",140,21,6,{porción:180}],
+ ["bifeangosto","Bife angosto / bife de chorizo",180,20.5,11,{unidad:250}],
+ ["bifeancho","Bife ancho / ojo de bife",230,18.5,17,{unidad:250}],
+ ["costeleta","Costeleta / T-bone (con hueso)",180,15.5,13,{unidad:350}],
+ ["cuadril","Cuadril",160,20.5,8.5,{porción:180}],
+ ["colita","Colita de cuadril",150,20.5,7.5,{porción:180}],
+ ["tapacuadril","Tapa de cuadril (picaña)",215,19,15,{porción:180}],
+ ["tapanalga","Tapa de nalga",165,21,9,{porción:180}],
+ ["roastbeef","Roast beef",200,19,13,{porción:180}],
+ ["paleta","Paleta / palomita",160,20,8.5,{porción:180}],
+ ["carnaza","Carnaza",145,21,6.5,{porción:180}],
+ ["osobuco","Osobuco (con hueso)",115,15,5.5,{rodaja:300}],
+ ["vacio","Vacío",230,18,17,{porción:250}],
+ ["matambre","Matambre",230,19,17,{porción:200}],
+ ["entrana","Entraña",220,18,16,{porción:200}],
+ ["tapaasado","Tapa de asado",220,18,16,{porción:200}],
+ ["falda","Falda (con hueso)",250,15,21,{porción:250}],
+ ["rabo","Rabo (cola, con hueso)",190,14,15,{porción:300}],
+ ["picadacomun","Carne picada común",260,17,21,{porción:120}],
+ ["lengua","Lengua",220,15,17,{porción:150}],
+ ["higado","Hígado",135,20,3.6,{porción:150},3.9],
+ ["mondongo","Mondongo (callos)",85,12,3.7,{porción:200}],
+ ["molleja","Molleja",230,12,20,{porción:150}],
+ ["chinchulin","Chinchulines",300,12,28,{porción:150}],
+ ["morcilla","Morcilla",380,14,34,{unidad:100},1.3,680],
+ // cerdo
+ ["solomillocerdo","Solomillo de cerdo (filet)",120,21,3.5,{porción:180}],
+ ["bondiola","Bondiola (presa, coppa)",230,17,18,{porción:200}],
+ ["carre","Carré / costeleta de cerdo (con hueso)",190,19,12,{unidad:200}],
+ ["pechito","Pechito / costillas de cerdo",280,16,23,{porción:300}],
+ ["matambrecerdo","Matambre de cerdo",210,18,15,{porción:200}],
+ ["panceta","Panceta / bacon / guanciale",460,14,44,{feta:15},0,1600],
+ ["jamoncrudo","Jamón crudo / serrano / prosciutto",250,28,15,{feta:15},0,2300],
+ ["salame","Salame / salami",400,22,33,{feta:10},1,1800],
+ // otros
+ ["cordero","Cordero",230,17,18,{porción:250}],
+ ["chivito","Chivito",145,20,6,{porción:250}],
+ ["pollopiel","Pollo con piel (presas)",215,18,15,{porción:250}],
+ ["alitas","Alitas de pollo",200,18,14,{unidad:40}],
+ ["conejo","Conejo",135,21,5.5,{porción:200}]
+];
+CORTES.forEach(([id,n,kcal,pr,g,u,hc,na])=>{ALI[id]={id,n,c:["panceta","jamoncrudo","salame","morcilla"].includes(id)?"ultra":"prot",kcal,hc:hc||0,p:pr,g,fib:0,na:na||60,tacc:["salame","morcilla"].includes(id)?2:0,u}});
+
 /* ---------- Platos nuevos ----------
    x: países donde NO se muestran en el plan · solo: únicos países */
 [
@@ -66,6 +114,7 @@ const LC=window.LOC||{lang:"es-AR",pais:"AR",norte:false,nombres:"ar"};
  {id:"tostadas-mani",n:"Tostadas con pasta de maní y banana",t:"d",i:{panint:60,pmani:16,banana:100,cafe:200}},
  {id:"avena-arce",n:"Avena con leche, arándanos y jarabe de arce",t:"d",i:{avena:40,leche:200,arandanos:60,arce:10},solo:["CA"]},
  {id:"col-hummus",n:"Bastones de zanahoria con hummus",t:"c",i:{zanahoria:100,hummus:40}},
+ {id:"osobuco-risotto",n:"Osobuco braseado con risotto",t:"a",r:1,s:"4-9",i:{osobuco:350,arroz:150,cebolla:40,zanahoria:30,pure:60,manteca:8,rallado:10,vino:30}},
  {id:"noquis-fileto",n:"Ñoquis con salsa de tomate",t:"a",i:{noquis:250,pure:100,cebolla:30,aceite:5,rallado:5}},
  {id:"ravioles-fileto",n:"Ravioles de verdura con salsa fileto y ensalada",t:"a",i:{ravioles:170,pure:100,cebolla:30,aceite:5,rallado:5,lechuga:50,tomate:80}},
  {id:"col-aceitunas",n:"Tomates cherry con aceitunas",t:"c",i:{tomate:120,aceitunas:20}}
@@ -75,7 +124,7 @@ Object.assign(SINTACC,{noquis:"noquisst",ravioles:"raviolesst",raviolescarne:"ra
 if(PLATOM.facturas)PLATOM.facturas.noveg=1;   // facturas: llevan grasa animal o manteca
 
 /* ---------- Dieta ---------- */
-const CARNE=new Set(["pechuga","muslo","carne","asado","picada","cerdo","merluza","atun","jamon","chorizo","salchicha","hambcong","salmon","pavo","raviolescarne","sorrentinos","capeletis"]);
+const CARNE=new Set(["pechuga","muslo","carne","asado","picada","cerdo","merluza","atun","jamon","chorizo","salchicha","hambcong","salmon","pavo","raviolescarne","sorrentinos","capeletis",...CORTES.map(c=>c[0])]);
 const ANIMAL=new Set(["huevo","queso","muzza","rallado","untable","ricota","leche","lechedesc","yogur","manteca","mayonesa","miel","ddl","facturas","bizcochitos","alfajor","galledulce","caldo","noquis","noquisst","ravioles","raviolesst","agnolotis","canelones","tallarines","lasana"]);
 function dietaDe(ing){const ks=Object.keys(ing);if(ks.some(k=>CARNE.has(k)))return "omni";if(ks.some(k=>ANIMAL.has(k)))return "veggie";return "vegano"}
 function apto(pl,p){const d=(p&&p.dieta)||"";const dd=dietaDe(pl.i);
@@ -86,11 +135,11 @@ const DIETAS={"":"Como de todo",veggie:"Vegetariana",vegano:"Vegana"};window.DIE
 function conPlatos(lista,fn){const bak=PLATOS.slice();PLATOS.length=0;PLATOS.push(...lista);try{return fn()}finally{PLATOS.length=0;PLATOS.push(...bak)}}
 
 /* ---------- Nombres por país e idioma ---------- */
-const N_ES={zapallo:"Calabaza",zapallito:"Calabacín redondo",zucchini:"Calabacín",morron:"Pimiento",chaucha:"Judías verdes",arvejas:"Guisantes",papa:"Patata",batata:"Boniato",choclo:"Maíz dulce",porotos:"Alubias cocidas",banana:"Plátano",frutilla:"Fresas",durazno:"Melocotón",damasco:"Albaricoque",palta:"Aguacate",
+const N_ES={lomo:"Solomillo de ternera",bifeangosto:"Lomo bajo / entrecot",bifeancho:"Lomo alto / entrecot de lomo alto",costeleta:"Chuleta / chuletón (con hueso)",cuadril:"Cadera",colita:"Rabillo de cadera",tapacuadril:"Picaña",tapanalga:"Tapa (babilla)",roastbeef:"Aguja",paleta:"Espaldilla / llana",carnaza:"Morcillo de paleta",osobuco:"Morcillo / jarrete en rodajas (ossobuco)",vacio:"Vacío (falda)",matambre:"Matambre (falda fina)",entrana:"Entraña",tapaasado:"Tapa de costillar",falda:"Pecho (con hueso)",rabo:"Rabo de toro / de ternera",picadacomun:"Carne picada (mezcla)",mondongo:"Callos",molleja:"Mollejas",chinchulin:"Chinchulines (tripas)",solomillocerdo:"Solomillo de cerdo",bondiola:"Presa / aguja de cerdo",carre:"Chuleta de cerdo",pechito:"Costillas de cerdo",matambrecerdo:"Falda de cerdo",panceta:"Panceta / beicon / guanciale",jamoncrudo:"Jamón serrano / prosciutto",salame:"Salchichón / salami",chivito:"Cabrito",zapallo:"Calabaza",zapallito:"Calabacín redondo",zucchini:"Calabacín",morron:"Pimiento",chaucha:"Judías verdes",arvejas:"Guisantes",papa:"Patata",batata:"Boniato",choclo:"Maíz dulce",porotos:"Alubias cocidas",banana:"Plátano",frutilla:"Fresas",durazno:"Melocotón",damasco:"Albaricoque",palta:"Aguacate",
  carne:"Ternera magra (filete)",asado:"Costillas de ternera",picada:"Carne picada",jamon:"Jamón york",queso:"Queso tierno",muzza:"Mozzarella",untable:"Queso crema light",ricota:"Requesón",pan:"Pan de barra",tapaemp:"Masa de empanadilla",tapaempst:"Masa de empanadilla sin gluten",tapatarta:"Masa quebrada",tapatartast:"Masa quebrada sin gluten",
  fideos:"Pasta cocida",fideosst:"Pasta sin gluten cocida",panst:"Pan sin gluten",premezcla:"Harina sin gluten",rebozador:"Pan rallado sin gluten",galleagua:"Galletas saladas",galledulce:"Galletas",facturas:"Bollería",gaseosa:"Refresco",jugo:"Zumo de caja",caldo:"Pastilla de caldo",sojast:"Salsa de soja sin gluten",pure:"Tomate triturado",manteca:"Mantequilla",mani:"Cacahuetes",pmani:"Crema de cacahuete",cereales:"Cereales azucarados",hambcong:"Hamburguesa congelada",papasfritas:"Patatas fritas de bolsa",ddl:"Dulce de leche",
  pechuga:"Pollo (pechuga sin piel)",noquis:"Ñoquis de patata",noquisst:"Ñoquis sin gluten",ravioles:"Raviolis de ricota y verdura",raviolescarne:"Raviolis de carne o pollo",raviolesst:"Raviolis sin gluten",agnolotis:"Agnolotti de ricota",capeletis:"Tortellini de carne o pollo",canelones:"Canelones de verdura (sin salsa)",lasana:"Placas de lasaña cocidas",muslo:"Pollo (muslo sin piel)",pst:"Soja texturizada (hidratada)",arce:"Sirope de arce",cafe:"Café o té",repollo:"Col / repollo",champi:"Champiñones",lechedesc:"Leche desnatada",cerdo:"Lomo de cerdo"};
-const N_EN={tomate:"Tomato",lechuga:"Lettuce",zanahoria:"Carrot",cebolla:"Onion",zapallo:"Pumpkin / squash",zapallito:"Round zucchini",zucchini:"Zucchini",berenjena:"Eggplant",morron:"Bell pepper",acelga:"Swiss chard",espinaca:"Spinach",brocoli:"Broccoli",coliflor:"Cauliflower",repollo:"Cabbage",remolacha:"Beet",pepino:"Cucumber",chaucha:"Green beans",arvejas:"Peas",puerro:"Leek",apio:"Celery",champi:"Mushrooms",ajo:"Garlic",
+const N_EN={lomo:"Beef tenderloin (filet mignon)",bifeangosto:"Strip loin / sirloin steak",bifeancho:"Ribeye",costeleta:"T-bone (bone-in)",cuadril:"Rump",colita:"Tri-tip",tapacuadril:"Picanha (rump cap)",tapanalga:"Top round cap",roastbeef:"Chuck roll",paleta:"Shoulder clod",carnaza:"Shoulder shank meat",osobuco:"Beef shank, cross-cut (osso buco)",vacio:"Flank / bavette",matambre:"Matambre (thin flank)",entrana:"Skirt steak",tapaasado:"Rib cap",falda:"Brisket (bone-in)",rabo:"Oxtail",picadacomun:"Regular ground beef",lengua:"Beef tongue",higado:"Beef liver",mondongo:"Tripe",molleja:"Sweetbreads",chinchulin:"Chitterlings",morcilla:"Blood sausage",solomillocerdo:"Pork tenderloin",bondiola:"Pork collar (coppa)",carre:"Pork chop (bone-in)",pechito:"Pork ribs",matambrecerdo:"Pork flank",panceta:"Pancetta / bacon / guanciale",jamoncrudo:"Cured ham (prosciutto)",salame:"Salami",cordero:"Lamb",chivito:"Young goat (kid)",pollopiel:"Chicken pieces with skin",alitas:"Chicken wings",conejo:"Rabbit",tomate:"Tomato",lechuga:"Lettuce",zanahoria:"Carrot",cebolla:"Onion",zapallo:"Pumpkin / squash",zapallito:"Round zucchini",zucchini:"Zucchini",berenjena:"Eggplant",morron:"Bell pepper",acelga:"Swiss chard",espinaca:"Spinach",brocoli:"Broccoli",coliflor:"Cauliflower",repollo:"Cabbage",remolacha:"Beet",pepino:"Cucumber",chaucha:"Green beans",arvejas:"Peas",puerro:"Leek",apio:"Celery",champi:"Mushrooms",ajo:"Garlic",
  papa:"Potato",batata:"Sweet potato",choclo:"Corn (kernels)",lentejas:"Lentils (cooked)",porotos:"Beans (cooked)",garbanzos:"Chickpeas (cooked)",banana:"Banana",manzana:"Apple",pera:"Pear",naranja:"Orange",mandarina:"Mandarin",pomelo:"Grapefruit",limon:"Lemon",kiwi:"Kiwi",frutilla:"Strawberries",durazno:"Peach",ciruela:"Plum",damasco:"Apricot",uva:"Grapes",sandia:"Watermelon",melon:"Melon",higo:"Fig",membrillo:"Quince",palta:"Avocado",
  huevo:"Egg",pechuga:"Chicken breast (skinless)",muslo:"Chicken thigh (skinless)",carne:"Lean beef",asado:"Beef short ribs",picada:"Ground beef",cerdo:"Pork loin",merluza:"Hake / white fish",atun:"Tuna in water",jamon:"Cooked ham",queso:"Soft cheese",muzza:"Mozzarella",rallado:"Grated cheese",untable:"Light cream cheese",ricota:"Ricotta",leche:"Whole milk",lechedesc:"Skim milk",yogur:"Plain yogurt",
  pan:"White bread",panint:"Whole wheat bread",panst:"Gluten-free bread",panhamb:"Burger bun",fideos:"Pasta (cooked)",fideosst:"Gluten-free pasta (cooked)",arroz:"White rice (cooked)",arrozint:"Brown rice (cooked)",polenta:"Polenta (cooked)",avena:"Oats",harina:"Wheat flour",premezcla:"Gluten-free flour mix",panrallado:"Breadcrumbs",rebozador:"Gluten-free breadcrumbs",tapaemp:"Empanada dough",tapaempst:"Gluten-free empanada dough",tapatarta:"Pie crust",tapatartast:"Gluten-free pie crust",
@@ -100,10 +149,10 @@ const N_EN={tomate:"Tomato",lechuga:"Lettuce",zanahoria:"Carrot",cebolla:"Onion"
 const P_ES={"mila-ens":"Filete empanado al horno con ensalada mixta","mila-pollo":"Pollo empanado al horno con puré de calabaza","guiso-lentejas":"Lentejas estofadas","locro":"Locro (guiso de maíz, calabaza y alubias)","pollo-horno":"Pollo al horno con patatas y boniato","tarta-acelga":"Quiche de acelgas y huevo con ensalada","tarta-zapallito":"Quiche de calabacín","fideos-tuco":"Pasta con boloñesa",
  "bife-ens":"Filete de ternera con ensalada mixta","empanadas":"Empanadillas de carne al horno (2)","pizza":"Pizza casera de mozzarella (2 porciones)","ens-completa":"Ensalada completa con atún, huevo y maíz","zapallitos-rellenos":"Calabacines rellenos","revuelto-zapallitos":"Revuelto de calabacín","polenta":"Polenta con tomate y queso","asado":"Costillas a la brasa con ensalada","pastel-papa":"Pastel de patata y carne","tortilla":"Tortilla de patatas con ensalada","garbanzos":"Potaje de garbanzos con verduras","cerdo-batatas":"Lomo de cerdo con boniato al horno","merluza-pure":"Merluza al horno con puré y ensalada",
  "yogur-avena":"Yogur con avena y plátano","licuado":"Batido de plátano con leche","tostadas-palta":"Tostadas con aguacate y huevo","facturas":"Café con leche y bollería (2)","col-frutos":"Puñado de frutos secos",
- "mila-berenjena":"Berenjenas empanadas al horno con ensalada","fideos-soja":"Pasta con boloñesa de soja","ens-garbanzos":"Ensalada de garbanzos, tomate y aguacate","pastel-lentejas":"Pastel de patata y lentejas","empanadas-verdura":"Empanadillas de verdura al horno (2)","salmon-verd":"Salmón al horno con patatas y brócoli","tostadas-mani":"Tostadas con crema de cacahuete y plátano","avena-arce":"Avena con leche, arándanos y sirope de arce","noquis-fileto":"Ñoquis de patata con salsa de tomate","ravioles-fileto":"Raviolis de verdura con salsa de tomate y ensalada"};
+ "mila-berenjena":"Berenjenas empanadas al horno con ensalada","fideos-soja":"Pasta con boloñesa de soja","ens-garbanzos":"Ensalada de garbanzos, tomate y aguacate","pastel-lentejas":"Pastel de patata y lentejas","empanadas-verdura":"Empanadillas de verdura al horno (2)","salmon-verd":"Salmón al horno con patatas y brócoli","tostadas-mani":"Tostadas con crema de cacahuete y plátano","avena-arce":"Avena con leche, arándanos y sirope de arce","noquis-fileto":"Ñoquis de patata con salsa de tomate","osobuco-risotto":"Ossobuco de ternera con risotto","ravioles-fileto":"Raviolis de verdura con salsa de tomate y ensalada"};
 const P_EN={"mila-ens":"Baked breaded beef with mixed salad","mila-pollo":"Baked breaded chicken with mashed squash","guiso-lentejas":"Lentil stew","locro":"Locro (corn, squash and bean stew)","pollo-horno":"Roast chicken with potatoes and sweet potatoes","tarta-acelga":"Chard and egg pie with salad","tarta-zapallito":"Zucchini pie","fideos-tuco":"Pasta with meat sauce","arroz-pollo":"Chicken and vegetable rice","merluza-pure":"Baked hake with mashed potatoes and salad","bife-ens":"Steak with mixed salad","empanadas":"Baked beef empanadas (2)","pizza":"Homemade mozzarella pizza (2 slices)","ens-completa":"Tuna, egg and corn salad","zapallitos-rellenos":"Stuffed zucchini","hamb-casera":"Homemade burger with salad","sopa-verduras":"Vegetable soup with egg","revuelto-zapallitos":"Zucchini scramble","polenta":"Polenta with tomato sauce and cheese","asado":"Barbecued ribs with salad","wok":"Chicken and vegetable stir-fry with rice","pastel-papa":"Shepherd's pie","tortilla":"Spanish potato omelette with salad","garbanzos":"Chickpea and vegetable stew","berenjenas":"Baked eggplant with cheese and rice","cerdo-batatas":"Pork loin with roasted sweet potatoes","lentejas-ens":"Warm lentil and vegetable salad","merluza-verduras":"Hake with steamed vegetables",
  "mate-pan":"Mate with toast and cream cheese","cafe-tostadas":"Coffee with milk and toast with jam","yogur-avena":"Yogurt with oats and banana","yogur-fruta":"Yogurt with seasonal fruit and walnuts","licuado":"Banana milkshake","tostadas-palta":"Avocado toast with egg","mate-fruta":"Mate with seasonal fruit","facturas":"Coffee with milk and pastries (2)","col-fruta":"Seasonal fruit","col-frutos":"Handful of nuts","col-yogur":"Plain yogurt",
- "lentejas-veg":"Vegan lentil stew","mila-berenjena":"Baked breaded eggplant with salad","hamb-lentejas":"Lentil burgers with salad","wok-tofu":"Tofu and vegetable stir-fry with rice","fideos-soja":"Pasta with soy bolognese","ens-garbanzos":"Chickpea, tomato and avocado salad","quinoa-verd":"Quinoa with sautéed vegetables and egg","pastel-lentejas":"Potato and lentil pie","empanadas-verdura":"Baked vegetable empanadas (2)","paella-verd":"Vegetable paella","gazpacho":"Gazpacho with toast and boiled egg","pisto":"Pisto (Spanish ratatouille) with egg","salmon-verd":"Baked salmon with potatoes and broccoli","pavo-arroz":"Grilled turkey with rice and salad","tofu-ens":"Quinoa, tofu and vegetable salad","avena-veg":"Oats with plant milk and fruit","tostadas-hummus":"Toast with hummus and tomato","yogurveg-frutos":"Plant yogurt with blueberries and walnuts","tostadas-mani":"Peanut butter and banana toast","avena-arce":"Oats with milk, blueberries and maple syrup","col-hummus":"Carrot sticks with hummus","col-aceitunas":"Cherry tomatoes with olives","noquis-fileto":"Gnocchi with tomato sauce","ravioles-fileto":"Vegetable ravioli with tomato sauce and salad"};
+ "lentejas-veg":"Vegan lentil stew","mila-berenjena":"Baked breaded eggplant with salad","hamb-lentejas":"Lentil burgers with salad","wok-tofu":"Tofu and vegetable stir-fry with rice","fideos-soja":"Pasta with soy bolognese","ens-garbanzos":"Chickpea, tomato and avocado salad","quinoa-verd":"Quinoa with sautéed vegetables and egg","pastel-lentejas":"Potato and lentil pie","empanadas-verdura":"Baked vegetable empanadas (2)","paella-verd":"Vegetable paella","gazpacho":"Gazpacho with toast and boiled egg","pisto":"Pisto (Spanish ratatouille) with egg","salmon-verd":"Baked salmon with potatoes and broccoli","pavo-arroz":"Grilled turkey with rice and salad","tofu-ens":"Quinoa, tofu and vegetable salad","avena-veg":"Oats with plant milk and fruit","tostadas-hummus":"Toast with hummus and tomato","yogurveg-frutos":"Plant yogurt with blueberries and walnuts","tostadas-mani":"Peanut butter and banana toast","avena-arce":"Oats with milk, blueberries and maple syrup","col-hummus":"Carrot sticks with hummus","col-aceitunas":"Cherry tomatoes with olives","noquis-fileto":"Gnocchi with tomato sauce","osobuco-risotto":"Braised osso buco with risotto","ravioles-fileto":"Vegetable ravioli with tomato sauce and salad"};
 Object.values(ALI).forEach(a=>{a.n0=a.n;a.nEN=N_EN[a.id]||a.n});
 Object.values(PLATOM).forEach(x=>{x.n0=x.n});
 if(LC.nombres==="es"){for(const [k,n] of Object.entries(N_ES))if(ALI[k])ALI[k].n=n;for(const [k,n] of Object.entries(P_ES))if(PLATOM[k])PLATOM[k].n=n;
@@ -115,6 +164,22 @@ function aliVisible(a){return LC.pais==="AR"||!SOLO_AR.has(a.id)}
 
 /* ---------- Sinónimos para importar (España, Canadá, inglés y nuevos) ---------- */
 SINON.unshift(
+ ["solomillo de cerdo|filet de cerdo|lomito de cerdo|pork tenderloin|filetto di maiale","solomillocerdo"],["bondiola|presa iberica|presa de cerdo|aguja de cerdo|coppa|capocollo|pork collar|pork shoulder","bondiola"],
+ ["matambre de cerdo|matambrito|falda de cerdo|pork flank","matambrecerdo"],["pechito|costillas de cerdo|costillitas de cerdo|costine|spare ?ribs|pork ribs|baby back","pechito"],
+ ["carre|carré|costeleta de cerdo|chuleta de cerdo|braciola|bistecca di maiale|pork chop|lombata di maiale","carre"],["lomo de cerdo|lonza|pork loin","cerdo"],
+ ["panceta|pancetta|guanciale|bacon|beicon|tocino","panceta"],["jamon crudo|jamón crudo|jamon serrano|jamón serrano|jamon iberico|jamón ibérico|prosciutto crudo|prosciutto|cured ham","jamoncrudo"],["prosciutto cotto|jamon york","jamon"],
+ ["salame|salami|salchichon|salchichón|fuet","salame"],["salsiccia|salchicha parrillera|longaniza","chorizo"],["morcilla|blood sausage","morcilla"],
+ ["osobuco|ossobuco|osso buco|morcillo|jarrete|stinco|beef shank","osobuco"],["colita de cuadril|rabillo de cadera|tri-tip|tri tip","colita"],["tapa de cuadril|picana|picaña|picanha|rump cap","tapacuadril"],["cuadril|cadera|scamone|codone|rump","cuadril"],
+ ["tapa de nalga|babilla|top round","tapanalga"],["ojo de bife|bife ancho|lomo vetado|lomo veteado|lomo alto|entrecot de lomo alto|ribeye|rib eye|costata","bifeancho"],
+ ["bife de chorizo|bife angosto|lomo bajo|entrecot|contrafilete|controfiletto|striploin|strip loin|sirloin|new york strip","bifeangosto"],
+ ["costeleta|chuleton|chuletón|chuleta de ternera|chuleta de vaca|t-bone|t bone|fiorentina|bistecca","costeleta"],
+ ["filet de lomo|filet mignon|lomo|solomillo|filetto|tenderloin|chateaubriand","lomo"],["roast beef|roastbeef|rosbif|aguja de ternera|aguja de vaca|reale|chuck","roastbeef"],
+ ["palomita|paleta|espaldilla|llana|spalla|shoulder clod","paleta"],["carnaza|morcillo de paleta|girello di spalla","carnaza"],["vacio|vacío|bavette|bavetta|flank steak|flank","vacio"],["matambre|falda fina","matambre"],["entraña|entrana|skirt steak|diaframma","entrana"],
+ ["tapa de asado|tapa de costillar|rib cap","tapaasado"],["falda|pecho de ternera|punta di petto|brisket|bollito","falda"],["rabo|cola de vaca|coda alla vaccinara|oxtail","rabo"],
+ ["carne picada comun|carne picada común|picada comun|picada común|carne picada mixta|picada mixta|macinato misto","picadacomun"],["macinato|ground beef|carne molida","picada"],
+ ["peceto|redondo|girello|nalga|fesa|noce|cuadrada|bola de lomo|contra|polpa|top round|eye of round","carne"],
+ ["lengua|lingua|beef tongue","lengua"],["higado|hígado|fegato|liver","higado"],["mondongo|callos|trippa|tripe","mondongo"],["molleja|animelle|sweetbread","molleja"],["chinchulin|chinchulín|tripa gorda","chinchulin"],
+ ["cordero|agnello|lamb","cordero"],["chivito|cabrito|capretto","chivito"],["alitas|alas de pollo|ali di pollo|chicken wing","alitas"],["pollo con piel|pollo entero|cuarto de pollo|pata y muslo con piel|whole chicken","pollopiel"],["conejo|coniglio|rabbit","conejo"],
  ["noquis sin tacc|ñoquis sin tacc|noquis sin gluten|ñoquis sin gluten|gluten-free gnocchi","noquisst"],["noqui|ñoqui|gnocchi","noquis"],
  ["ravioles sin tacc|raviolis sin gluten|ravioles sin gluten|gluten-free ravioli","raviolesst"],
  ["ravioles de carne|ravioles de pollo|ravioles de verdura y carne|raviolis de carne|raviolis de pollo|meat ravioli|chicken ravioli","raviolescarne"],["raviol|ravioli","ravioles"],
