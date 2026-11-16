@@ -9,4 +9,4 @@ window.VITAL_FIREBASE_CONFIG = {
 };
 
 /* URL del cobrador (Apps Script de la carpeta /cobros). Vacío = los botones de pago abren WhatsApp. */
-window.VITAL_COBROS_URL = "";
+window.VITAL_COBROS_URL = "https://script.google.com/macros/s/AKfycbyXnKYmg5U6OGwMtVxhv9PwnAFN6uJ-j1_ZgTEUlaaVhmhDE-YqOrBsrBcN-KDzM_NOAw/exec";
