@@ -167,6 +167,12 @@ Valores nutricionales aproximados por 100 g.
 - La familia de Daniel tiene **cortesía** (sin vencimiento). Daniel administra todo desde **Perfil → 🛠 Panel de administrador**: buscar por mail, dar cortesía, sumar 1 mes o 1 año, o cortar el acceso.
 - Frases para Claudio: «Para pagar Vital: cuando termina la prueba aparece la pantalla de planes, o desde Perfil → Tu plan → Ver planes.» · «Si ya pagaste y no se activó, tocá Ya pagué: verificar.» · «Para que te cubra el plan de tu familia, pedí el código del grupo y tocá Unirme.»
 
+## Rutina armada: cómo se empieza (noviembre 2026)
+- Al tocar **✨ Generar rutina** se abre la lista de ejercicios. Arriba y abajo (siempre visible) está **▶ Empezar rutina**: arranca el reproductor con los ejercicios uno atrás del otro, los descansos, el muñeco 3D y la voz guía.
+- Desde la lista, **i** muestra cómo se hace cada ejercicio y **⇄** lo cambia por otro. En la ficha del ejercicio está **← Volver a la rutina**, y si tocás «Probarlo ahora», al terminar volvés a la misma rutina.
+- La rutina queda guardada para el día: en **Entrenar** aparece la tarjeta **Tu rutina de hoy** con «Ver ejercicios» y «▶ Empezar», sin tener que generarla de nuevo (no cambian los ejercicios). Cuando la completás y la guardás, la tarjeta desaparece.
+- Frase para Claudio: «Para hacer la rutina completa, tocá Empezar rutina: los ejercicios pasan solos uno atrás del otro con los descansos.»
+
 ## Actualizaciones
 - Web (iPhone): se actualiza sola para todos después de cada `firebase deploy`.
 - APK (Android): al abrirse, revisa si hay versión nueva en GitHub y muestra «Hay una versión nueva de Vital» con el botón «Descargar actualización»; se instala encima sin perder datos.

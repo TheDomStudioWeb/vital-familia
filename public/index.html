@@ -471,7 +471,7 @@ function spark(vals,color="#5eead4",w=300,h=70){if(vals.length<2)return `<div cl
 function rx(it){const e=EXM[it.id];if(e.u==="reps")return `${it.sets>1?it.sets+" × ":""}${it.reps} reps`;const s=it.secs>=120?Math.round(it.secs/60)+" min":it.secs+" seg";return `${it.sets>1?it.sets+" × ":""}${s}`}
 
 /* ---------- Vistas ---------- */
-let current="hoy", lastSession=null;
+let current="hoy", lastSession=null, RET_SES=false;
 function render(){
   document.body.classList.toggle("lite",!!S.settings.lite);
   if(CLOUD.boot&&!CLOUD.ready){$("#view").innerHTML=`<section class="glass org1" style="text-align:center;margin-top:30vh"><p class="mute">Conectando…</p></section>`;$("#tab").style.display="none";$("#who").style.visibility="hidden";return}
@@ -545,7 +545,10 @@ let focusSel="completo", minSel=null;
 function vEntrenar(){
   const p=P();minSel=minSel||p.minutes;
   const cats=Object.entries(CAT);
+  const sh=p.sesHoy&&p.sesHoy.k===TODAY()&&!p.sesHoy.done?p.sesHoy.s:null;if(sh&&!lastSession)lastSession=sh;
   return `<section><h1>Entrenar</h1><p class="mute">Registrá lo que hacés por tu cuenta, o usá rutinas que se arman solas según cómo estás.</p></section>
+  ${sh?`<section class="glass org1" style="border:1px solid rgba(94,234,212,.45)"><div class="row between"><div><b>Tu rutina de hoy</b><br><span class="xs mute">${esc(sh.title||"Entrenamiento")} · ≈ ${sh.minutes} min · ${sh.blocks.reduce((a,b)=>a+b.items.length,0)} ejercicios</span></div></div>
+    <div class="row" style="gap:8px;margin-top:10px"><button class="btn ghost" data-act="seshoy">Ver ejercicios</button><button class="btn" style="flex:1" data-act="seshoy-go">▶ Empezar</button></div></section>`:""}
   <section class="glass org3"><div class="row" style="gap:12px"><span style="font-size:30px">🏅</span><div style="flex:1"><b>¿Gimnasio, fútbol, running, pole, vóley…?</b><p class="xs mute" style="margin:2px 0 0">Registrá tu actividad: suma minutos, cuenta para tu etapa y para la recuperación muscular.</p></div></div><button class="btn block" style="margin-top:10px" data-act="aadd">＋ Registrar actividad</button>
   ${(p.sports||[]).length?`<div class="row wrap" style="gap:6px;margin-top:10px">${p.sports.filter(k=>DEP[k]).map(k=>`<button class="chip" data-act="acomp" data-v="${k}">${DEP[k][1]} Complemento para ${esc(DEP[k][0].split(" ")[0].toLowerCase())}</button>`).join("")}</div>`:""}</section>
   <section class="glass org1">
@@ -912,8 +915,8 @@ function drawCk(){sheet(`<h1>Check-in del día</h1><p class="mute sm">30 segundo
 
 /* Detalle de ejercicio */
 function openEx(id){const e=EXM[id];const p=P();const lim=e.a.filter(x=>p.limits.includes(x));
-  const anim=munecoOn(id);
-  sheet(`${anim?`<div class="mn" id="ex-mn"><span class="tag">MIRÁ EL MOVIMIENTO</span></div>`:""}<div class="row" style="gap:14px">${anim?"":`<span class="ico" style="width:64px;height:64px;font-size:34px;border-radius:22px 26px 20px 24px;display:grid;place-items:center;background:linear-gradient(140deg,rgba(94,234,212,.3),rgba(196,181,253,.2))">${e.i}</span>`}<div><h2 style="margin:0">${esc(e.n)}</h2><div class="sm mute">${CAT[e.c]} · nivel ${e.l}${e.e!=="ninguno"?" · "+EQUIP[e.e]:""}</div></div></div>
+  const anim=munecoOn(id);const vuelta=RET_SES&&lastSession?`<button class="btn ghost block" style="margin-bottom:10px" data-act="backses">← Volver a la rutina</button>`:"";
+  sheet(`${vuelta}${anim?`<div class="mn" id="ex-mn"><span class="tag">MIRÁ EL MOVIMIENTO</span></div>`:""}<div class="row" style="gap:14px">${anim?"":`<span class="ico" style="width:64px;height:64px;font-size:34px;border-radius:22px 26px 20px 24px;display:grid;place-items:center;background:linear-gradient(140deg,rgba(94,234,212,.3),rgba(196,181,253,.2))">${e.i}</span>`}<div><h2 style="margin:0">${esc(e.n)}</h2><div class="sm mute">${CAT[e.c]} · nivel ${e.l}${e.e!=="ninguno"?" · "+EQUIP[e.e]:""}</div></div></div>
   <div class="opts" style="margin:12px 0">${e.m.map(m=>`<span class="chip">${MUS[m]}</span>`).join("")}</div>
   <h3>Cómo se hace</h3><ol class="steps">${e.h.map(s=>`<li>${esc(s)}</li>`).join("")}</ol>
   <p class="note green" style="margin-top:10px">💡 ${esc(e.t)}</p>
@@ -922,10 +925,12 @@ function openEx(id){const e=EXM[id];const p=P();const lim=e.a.filter(x=>p.limits
   <button class="btn block" style="margin-top:12px" data-act="trysingle" data-v="${e.id}">Probarlo ahora</button>`);if(anim)mountMuneco("#ex-mn",id)}
 
 /* Vista previa de la rutina */
-function openSession(sess,title){lastSession=sess;sess.title=title||sess.title||"Entrenamiento de hoy";const md=MODES[sess.mode];
+function openSession(sess,title){lastSession=sess;sess.title=title||sess.title||"Entrenamiento de hoy";const md=MODES[sess.mode];RET_SES=true;
+  const p0=P();if(p0){p0.sesHoy={k:TODAY(),s:sess,done:false};save()}
   sheet(`<h1>${esc(sess.title)}</h1><div class="row wrap" style="gap:6px;margin:6px 0 4px"><span class="pill" style="color:${md.c}">${md.n}</span><span class="pill">≈ ${sess.minutes} min</span><span class="pill">${sess.blocks.reduce((a,b)=>a+b.items.length,0)} ejercicios</span></div>
+  <button class="btn block" style="margin:10px 0 4px" data-act="start">▶ Empezar rutina</button><p class="xs faint" style="margin:0 0 6px">Los ejercicios van uno atrás del otro, con los descansos y la voz guía. Tocá <b>i</b> para ver cómo se hace cada uno o <b>⇄</b> para cambiarlo.</p>
   ${sess.blocks.map((b,bi)=>`<div class="blockt">${b.n}</div>${b.items.map((it,ii)=>{const e=EXM[it.id];return `<div class="ex"><span class="ico">${e.i}</span><span class="t"><b>${esc(e.n)}</b><span>${rx(it)}${it.rest>10?" · descanso "+it.rest+" s":""}</span>${it.hint?`<span style="color:var(--lime);display:block">${esc(it.hint)}</span>`:""}</span><button class="iconbtn" title="Cambiar" data-act="swap" data-v="${bi}:${ii}">⇄</button><button class="iconbtn" data-act="exinfo" data-v="${e.id}">i</button></div>`}).join("")}`).join("")}
-  <div class="row" style="margin-top:16px"><button class="btn ghost" data-act="regen">↻ Otra</button><button class="btn" style="flex:1" data-act="start">▶ Empezar</button></div>`)}
+  <div class="row" style="margin-top:16px;position:sticky;bottom:-2px;padding:12px 0 4px;background:linear-gradient(transparent,var(--sheet-bg,rgba(8,30,36,.96)) 35%)"><button class="btn ghost" data-act="regen">↻ Otra</button><button class="btn" style="flex:1" data-act="start">▶ Empezar rutina</button></div>`)}
 function swapItem(bi,ii){const s=lastSession;const it=s.blocks[bi].items[ii];const e=EXM[it.id];const p=P();const eq=new Set(["ninguno",...p.equipment]);
   const used=new Set(s.blocks.flatMap(b=>b.items.map(x=>x.id)));
   const alt=EX.filter(x=>x.c===e.c&&(e.c!=="fuerza"||x.p===e.p)&&!used.has(x.id)&&eq.has(x.e)&&!x.a.some(a=>p.limits.includes(a))&&x.l<=p.level);
@@ -983,7 +988,10 @@ function savePlayer(){const p=P();const d=D(p.id);const mus={};
   Object.values(PL.done).forEach(r=>{EXM[r.id].m.forEach(m=>{if(EXM[r.id].c==="fuerza"||EXM[r.id].c==="cardio")mus[m]=(mus[m]||0)+r.sets})});
   d.workouts.push({id:uid(),ts:Date.now(),name:PL.s.title||"Entrenamiento",mode:PL.s.mode,min:PL.min,rpe:PL.rpe,mus,ex:Object.values(PL.done)});
   const notes=learn(p,PL);if(PL.s.title==="En familia")award(p,"familia");checkBadges(p);
-  save();PL=null;$("#layer").innerHTML="";location.hash="#hoy";render();
+  const ret=!!PL.s.ret;if(!ret&&p.sesHoy&&p.sesHoy.s&&lastSession===PL.s)p.sesHoy.done=true;
+  save();PL=null;$("#layer").innerHTML="";
+  if(ret&&lastSession){render();toast("Anotado · seguís con tu rutina");openSession(lastSession,lastSession.title);return}
+  location.hash="#hoy";render();
   sheet(`<h1>Guardado 💪</h1><p class="mute sm">${d.workouts[d.workouts.length-1].min} min · esfuerzo ${d.workouts[d.workouts.length-1].rpe}/10</p>${notes.length?`<h3 style="margin-top:12px">Lo que aprendí hoy</h3>${notes.map(n=>`<p class="sm">• ${esc(n)}</p>`).join("")}`:`<p class="sm">Todo según lo previsto: la próxima rutina mantiene la medida.</p>`}<button class="btn block" style="margin-top:12px" data-act="close">Genial</button>`)}
 
 /* ---------- Eventos ---------- */
@@ -1034,8 +1042,11 @@ document.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");i
   case "swap":{const [bi,ii]=v.split(":").map(Number);swapItem(bi,ii);break}
   case "quick":quick(v);break;
   case "libcat":libCat=v;render();break;
-  case "exinfo":openEx(v);break;
-  case "trysingle":{const e=EXM[v];preStart({title:e.n,mode:"constante",blocks:[{n:CAT[e.c],items:[{id:v,sets:e.c==="fuerza"?2:1,reps:e.u==="reps"?10:0,secs:e.u==="seg"?30:0,rest:30}]}]});break}
+  case "exinfo":RET_SES=!!(b.closest(".sheet")&&lastSession&&$("#layer").innerHTML.includes('data-act="regen"'))||(RET_SES&&!!b.closest(".sheet"));openEx(v);break;
+  case "seshoy":if(p.sesHoy&&p.sesHoy.s){lastSession=p.sesHoy.s;openSession(lastSession,lastSession.title)}break;
+  case "seshoy-go":if(p.sesHoy&&p.sesHoy.s){lastSession=p.sesHoy.s;preStart(lastSession)}break;
+  case "backses":if(lastSession)openSession(lastSession,lastSession.title);break;
+  case "trysingle":{const e=EXM[v];preStart({ret:RET_SES&&!!lastSession,title:e.n,mode:"constante",blocks:[{n:CAT[e.c],items:[{id:v,sets:e.c==="fuerza"?2:1,reps:e.u==="reps"?10:0,secs:e.u==="seg"?30:0,rest:30}]}]});break}
   case "start":preStart(lastSession);break;
   case "glu-go":{const val=parseFloat($("#glu").value);if(val){L(p.id).metrics.push({id:uid(),t:"glucosa",v:val,k:TODAY(),ts:Date.now(),pre:true});save()}
     if(val&&val<70){sheet(`<h2>Hoy no conviene entrenar</h2><p class="note red">Con ${val} mg/dL tenés la glucosa baja. Tratala como te indicó tu médico (por ejemplo, con hidratos de acción rápida), volvé a medir y, si se repite, consultá.</p><button class="btn block" style="margin-top:12px" data-act="close">Entendido</button>`);break}
@@ -1049,9 +1060,9 @@ document.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");i
   case "pl-add":PL.t+=15;$("#pl-time").textContent=fmt(PL.t);break;
   case "pl-plus":PL.reps++;drawPlayer();break;
   case "pl-minus":PL.reps=Math.max(0,PL.reps-1);drawPlayer();break;
-  case "pl-quit":if(Object.keys(PL.done).length){PL.i=PL.steps.length;finishPlayer()}else{clearInterval(PL.timer);killMuneco();PL=null;$("#layer").innerHTML="";try{speechSynthesis.cancel()}catch(e){}}break;
+  case "pl-quit":if(Object.keys(PL.done).length){PL.i=PL.steps.length;finishPlayer()}else{const ret=PL.s&&PL.s.ret;clearInterval(PL.timer);killMuneco();PL=null;$("#layer").innerHTML="";try{speechSynthesis.cancel()}catch(e){}if(ret&&lastSession)openSession(lastSession,lastSession.title)}break;
   case "pl-save":PL.rpe=+$("#rpe").value;savePlayer();break;
-  case "pl-discard":PL=null;$("#layer").innerHTML="";render();break;
+  case "pl-discard":{const ret=PL&&PL.s&&PL.s.ret;PL=null;$("#layer").innerHTML="";render();if(ret&&lastSession)openSession(lastSession,lastSession.title);break}
   case "mtab":metricTab=v;render();break;
   case "addmetric":{const m=MET[metricTab];sheet(`<h2>Registrar ${m.n.toLowerCase()}</h2>
     ${metricTab==="presion"?`<div class="grid2"><div><label class="f">Máxima (sistólica)</label><input class="in" id="mv" inputmode="numeric" placeholder="120"></div><div><label class="f">Mínima (diastólica)</label><input class="in" id="mv2" inputmode="numeric" placeholder="80"></div></div><p class="xs faint" style="margin-top:8px">Medila sentado, después de 5 minutos de reposo, brazo a la altura del corazón.</p>`
