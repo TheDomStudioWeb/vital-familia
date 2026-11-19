@@ -19,6 +19,9 @@ const LIC={doc:null,bloq:false,admin:false,familia:false,cargado:false};window.L
 const fmt$=n=>"$"+Math.round(n).toLocaleString("es-AR");
 const ms=t=>t&&t.toMillis?t.toMillis():(t&&t.seconds?t.seconds*1000:(+t||0));
 function vigente(d){return !!d&&(d.plan==="cortesia"||ms(d.vence)>Date.now())}
+// ¿Este plan cubre a una familia? (igual que las reglas: pago o cortesía; la prueba no cubre a otros)
+function cubreFam(d,n){return !!d&&(d.plan==="cortesia"||((d.plan==="mensual"||d.plan==="anual")&&vigente(d)&&n<=6))}
+const propioPago=d=>!!d&&(d.plan==="cortesia"||((d.plan==="mensual"||d.plan==="anual")&&vigente(d)));
 function diasRestan(d){return Math.max(0,Math.ceil((ms(d.vence)-Date.now())/864e5))}
 const PLAN_TXT={prueba:"Prueba gratis",mensual:"Plan mensual",anual:"Plan anual",cortesia:"Cortesía"};
 
@@ -29,17 +32,29 @@ async function asegurar(u){const db=CLOUD.db;const ref=db.collection("licencias"
   try{LIC.admin=(await db.collection("admins").doc(u.uid).get()).exists}catch(e){LIC.admin=false}}
 async function marcarFamilia(fid){if(!CLOUD.user||!fid)return;try{await CLOUD.db.collection("licencias").doc(CLOUD.user.uid).update({familia:fid});if(LIC.doc)LIC.doc.familia=fid}catch(e){console.warn("lic fam",e)}}
 window.licMarcarFamilia=marcarFamilia;
+/* Mira quién cubre a la familia. Si yo pago (o tengo cortesía) y no es mi grupo, me anoto como pagador. */
+async function revisarFamilia(){LIC.cubre=null;const fid=CLOUD.fid,u=CLOUD.user;if(!fid||!u)return;const db=CLOUD.db;
+  let f;try{f=await db.collection("families").doc(fid).get({source:"server"})}catch(e){try{f=await db.collection("families").doc(fid).get()}catch(e2){return}}
+  if(!f||!f.exists)return;const F=f.data(),n=(F.members||[]).length;
+  if(LIC.doc&&LIC.doc.familia!==fid)await marcarFamilia(fid);
+  if(propioPago(LIC.doc)){
+    if(F.owner!==u.uid&&F.pagador!==u.uid){let otro=false;for(const k of [F.owner,F.pagador]){if(!k||k===u.uid)continue;try{const x=await db.collection("licencias").doc(k).get();if(x.exists&&cubreFam(x.data(),n))otro=true}catch(e){}}
+      if(!otro){try{await db.collection("families").doc(fid).update({pagador:u.uid})}catch(e){console.warn("pagador",e)}}}
+    return}
+  for(const k of [F.pagador,F.owner]){if(!k||k===u.uid)continue;try{const x=await db.collection("licencias").doc(k).get();if(x.exists&&cubreFam(x.data(),n)){LIC.cubre={plan:x.data().plan,nombre:x.data().nombre||""};return}}catch(e){}}}
 
 /* ---------- Envolver la carga de la nube ---------- */
 const _cl=cloudLoad;
 cloudLoad=async function(u){await asegurar(u);
   try{await _cl(u);LIC.bloq=false}
   catch(e){if(/permission|insufficient/i.test(String((e&&(e.code||e.message))||e))){LIC.bloq=true;S=blank();return}throw e}
-  LIC.familia=!vigente(LIC.doc);   // si entró sin licencia propia vigente, la cubre su familia
-  const fid=S.profiles[0]&&S.profiles[0].familyId;if(fid&&LIC.doc&&LIC.doc.familia!==fid)marcarFamilia(fid)};
+  const fid=S.profiles[0]&&S.profiles[0].familyId;if(fid&&LIC.doc&&LIC.doc.familia!==fid)await marcarFamilia(fid);
+  await revisarFamilia();LIC.familia=!!LIC.cubre&&!propioPago(LIC.doc)};   // lo cubre el plan de su familia
 const _fc=famCreate,_fj=famJoin;
-famCreate=async function(){await _fc();marcarFamilia(CLOUD.fid)};
-famJoin=async function(){await _fj();marcarFamilia(CLOUD.fid)};
+async function trasFamilia(){if(!CLOUD.fid)return;await marcarFamilia(CLOUD.fid);await revisarFamilia();LIC.familia=!!LIC.cubre&&!propioPago(LIC.doc);
+  if(LIC.familia)toast("Te cubre el plan de tu familia ✓");render()}
+famCreate=async function(){await _fc();await trasFamilia()};
+famJoin=async function(){await _fj();await trasFamilia()};
 
 /* ---------- Pantalla de planes ---------- */
 function vPlanes(bloq){const d=LIC.doc||{};const em=(CLOUD.user&&CLOUD.user.email)||"";
@@ -63,7 +78,7 @@ const _render=render;
 render=function(){if(CLOUD.on&&CLOUD.user&&LIC.bloq){document.body.classList.toggle("lite",!!S.settings.lite);$("#tab").style.display="none";$("#who").style.visibility="hidden";$("#view").innerHTML=vPlanes(true);return}
   _render();if(current==="perfil"&&CLOUD.user&&LIC.cargado)inyectarPerfil()};
 function inyectarPerfil(){const v=$("#view");if(!v||v.querySelector(".lic-plan"))return;const d=LIC.doc||{};
-  const estado=LIC.familia?"Cubierto por el plan de tu familia":d.plan==="cortesia"?"Cortesía · sin vencimiento":vigente(d)?`${PLAN_TXT[d.plan]||"Plan"} · ${d.plan==="prueba"?"quedan "+diasRestan(d)+" días":"vence el "+new Date(ms(d.vence)).toLocaleDateString("es-AR")}`:"Vencido";
+  const estado=LIC.familia?`Cubierto por el plan de tu familia${LIC.cubre?" ("+(LIC.cubre.plan==="cortesia"?"cortesía":PLAN_TXT[LIC.cubre.plan].toLowerCase())+(LIC.cubre.nombre?" de "+esc(LIC.cubre.nombre.split(" ")[0]):"")+")":""}`:d.plan==="cortesia"?"Cortesía · sin vencimiento":vigente(d)?`${PLAN_TXT[d.plan]||"Plan"} · ${d.plan==="prueba"?"quedan "+diasRestan(d)+" días":"vence el "+new Date(ms(d.vence)).toLocaleDateString("es-AR")}`:"Vencido";
   const s=document.createElement("section");s.className="glass org3 lic-plan";
   s.innerHTML=`<h2>⭐ Tu plan</h2><div class="row between"><span class="sm">${estado}</span>${d.plan==="cortesia"||LIC.familia?"":`<button class="btn small" data-lic="planes">${d.plan==="prueba"?"Ver planes":"Renovar"}</button>`}</div>
     ${LIC.admin?`<button class="btn ghost block" style="margin-top:12px" data-lic="admin">🛠 Panel de administrador</button>`:""}`;
@@ -88,7 +103,7 @@ async function verificar(silencio){const u=CLOUD.user;if(!u)return;
 async function unirme(){const code=(($("#lic-code")||{}).value||"").trim().toUpperCase();if(code.length<6){toast("Revisá el código");return}
   const db=CLOUD.db,id=CLOUD.user.uid;
   try{const c=await db.collection("codes").doc(code).get();if(!c.exists){toast("Código no encontrado");return}const fid=c.data().fid;
-    await db.collection("families").doc(fid).update({members:firebase.firestore.FieldValue.arrayUnion(id)});await marcarFamilia(fid);
+    await db.collection("families").doc(fid).update({members:firebase.firestore.FieldValue.arrayUnion(id)});CLOUD.fid=fid;await marcarFamilia(fid);
     LIC.bloq=false;CLOUD.ready=false;await cloudLoad(CLOUD.user);CLOUD.ready=true;
     if(LIC.bloq){toast("Te sumaste, pero el plan de esa familia no está activo o ya tiene 6 personas")}
     else{const p=S.profiles[0];if(p){Object.assign(p,{familyId:fid,familyCode:code});CLOUD.fid=fid;famListen();save()}toast("¡Listo! Te cubre el plan de tu familia")}
@@ -100,15 +115,25 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState!==
 /* ---------- Panel de administrador ---------- */
 let ADM={lista:[],q:""};
 async function abrirAdmin(){if(!LIC.admin)return;sheet(`<h2>🛠 Licencias</h2><p class="xs mute">Cargando…</p>`);
-  try{const s=await CLOUD.db.collection("licencias").get();ADM.lista=s.docs.map(x=>({id:x.id,...x.data()})).sort((a,b)=>(a.plan==="cortesia")-(b.plan==="cortesia")||ms(a.vence)-ms(b.vence));dibAdmin()}catch(e){sheet(`<h2>🛠 Licencias</h2><p class="note">No se pudo leer: ${esc(e.code||e.message||"")}</p>`)}}
+  try{const s=await CLOUD.db.collection("licencias").get();ADM.lista=s.docs.map(x=>({id:x.id,...x.data()})).sort((a,b)=>(a.plan==="cortesia")-(b.plan==="cortesia")||ms(a.vence)-ms(b.vence));
+    // Familias: quién cubre a cada integrante
+    const fids=[...new Set(ADM.lista.map(x=>x.familia).filter(Boolean))];const fam={};
+    await Promise.all(fids.map(async f=>{try{const d=await CLOUD.db.collection("families").doc(f).get();if(d.exists)fam[f]=d.data()}catch(e){}}));
+    const porId=Object.fromEntries(ADM.lista.map(x=>[x.id,x]));
+    ADM.lista.forEach(x=>{x.cubre=null;const F=fam[x.familia];x.grupo=F?F.name:"";if(!F||!(F.members||[]).includes(x.id))return;
+      for(const k of [F.pagador,F.owner]){const o=k&&k!==x.id&&porId[k];if(o&&cubreFam(o,(F.members||[]).length)){x.cubre=o;break}}});
+    dibAdmin()}catch(e){sheet(`<h2>🛠 Licencias</h2><p class="note">No se pudo leer: ${esc(e.code||e.message||"")}</p>`)}}
 function dibAdmin(){const q=ADM.q.toLowerCase();const L=ADM.lista.filter(x=>!q||(x.email||"").toLowerCase().includes(q)||(x.nombre||"").toLowerCase().includes(q));
-  const cuenta=k=>ADM.lista.filter(x=>k==="activas"?vigente(x)&&x.plan!=="prueba":x.plan===k&&(k!=="prueba"||vigente(x))).length;
+  const porFam=x=>!!x.cubre&&!propioPago(x);
+  const cuenta=k=>ADM.lista.filter(x=>k==="familia"?porFam(x):x.plan===k&&!porFam(x)&&(k!=="prueba"||vigente(x))).length;
   sheet(`<h2>🛠 Licencias</h2>
   <div class="grid3" style="text-align:center"><div class="stat"><span class="xs mute">Pagas activas</span><b>${ADM.lista.filter(x=>vigente(x)&&(x.plan==="mensual"||x.plan==="anual")).length}</b></div><div class="stat"><span class="xs mute">En prueba</span><b>${cuenta("prueba")}</b></div><div class="stat"><span class="xs mute">Cortesía</span><b>${cuenta("cortesia")}</b></div></div>
+  <p class="xs mute" style="text-align:center;margin-top:6px">Cubiertos por su familia: <b>${cuenta("familia")}</b></p>
   <input class="in" id="adm-q" placeholder="Buscar por mail o nombre" value="${esc(ADM.q)}" autocomplete="off" style="margin-top:12px">
   ${L.map(x=>`<div class="glass" style="padding:12px 14px;margin-top:8px;border-radius:18px"><div class="row between"><div><b class="sm">${esc(x.nombre||"(sin nombre)")}</b><br><span class="xs mute">${esc(x.email||x.id)}</span></div>
-    <span class="pill" style="${vigente(x)?"background:rgba(94,234,212,.2)":"background:rgba(248,113,113,.2)"}">${PLAN_TXT[x.plan]||x.plan}</span></div>
-    <p class="xs mute" style="margin-top:6px">${x.plan==="cortesia"?"Sin vencimiento":(vigente(x)?"Vence ":"Venció ")+new Date(ms(x.vence)).toLocaleDateString("es-AR")}${x.familia?" · con familia":""}</p>
+    <span class="pill" style="${vigente(x)||porFam(x)?"background:rgba(94,234,212,.2)":"background:rgba(248,113,113,.2)"}">${porFam(x)?"👨‍👩‍👧 Familia":(PLAN_TXT[x.plan]||x.plan)}</span></div>
+    <p class="xs mute" style="margin-top:6px">${porFam(x)?`Lo cubre ${esc(x.cubre.nombre||x.cubre.email||"el titular")} (${PLAN_TXT[x.cubre.plan]||x.cubre.plan})${x.grupo?" · grupo "+esc(x.grupo):""}${x.plan==="prueba"&&vigente(x)?" · su prueba propia sigue corriendo":""}`
+      :(x.plan==="cortesia"?"Sin vencimiento":(vigente(x)?"Vence ":"Venció ")+new Date(ms(x.vence)).toLocaleDateString("es-AR"))+(x.familia?" · grupo "+esc(x.grupo||"(sin datos)")+(x.cubre?"":" · el grupo no tiene plan que lo cubra"):" · sin grupo")}</p>
     <div class="row wrap" style="gap:6px;margin-top:8px"><button class="chip" data-lic="adm" data-v="cortesia|${x.id}">🎁 Cortesía</button><button class="chip" data-lic="adm" data-v="mes|${x.id}">+1 mes</button><button class="chip" data-lic="adm" data-v="anio|${x.id}">+1 año</button><button class="chip" data-lic="adm" data-v="cortar|${x.id}">⛔ Cortar</button></div></div>`).join("")||`<p class="sm mute" style="margin-top:10px">Sin resultados.</p>`}`);
   const i=$("#adm-q");if(i){i.addEventListener("input",()=>{ADM.q=i.value;const pos=i.selectionStart;dibAdmin();const j=$("#adm-q");j.focus();j.setSelectionRange(pos,pos)})}}
 async function admAccion(v){const [acc,id]=v.split("|");const x=ADM.lista.find(y=>y.id===id);if(!x)return;const TS=firebase.firestore.Timestamp;let upd;

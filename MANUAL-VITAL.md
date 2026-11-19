@@ -199,3 +199,15 @@ Valores nutricionales aproximados por 100 g.
 - Ilustraciones o animaciones propias de cada ejercicio.
 - Perfiles a cargo (chicos o abuelos sin teléfono) dentro de la cuenta de otro integrante.
 - Retos familiares temáticos (ej.: semana de pasos).
+
+## Familia y plan: quién cubre a quién (actualización 18/11)
+- Un plan **mensual, anual o de cortesía** cubre a todo el grupo familiar. La prueba gratis de 14 días cubre solo a la persona, no a su familia.
+- Lo puede pagar quien creó el grupo **o cualquier integrante**: si alguien con plan pago o cortesía está en un grupo que no creó, Vital lo anota solo como «el que paga» y cubre a todos.
+- Los planes pagos cubren hasta 6 personas; la cortesía no tiene tope.
+- Al sumarse con el código, en Perfil → Tu plan aparece «Cubierto por el plan de tu familia (cortesía de Daniel)», aunque su prueba propia siga corriendo.
+- En el panel de administrador, los cubiertos por su familia aparecen con la etiqueta «👨‍👩‍👧 Familia» y dicen quién los cubre. Si alguien está en un grupo que no tiene plan que lo cubra, también se avisa.
+
+## Ingreso en iPhone
+- El ingreso con Google ahora se hace en el mismo dominio de la app (vital-familia.web.app). Antes Safari perdía el resultado y volvía a pedir la cuenta, sobre todo con la app instalada en la pantalla de inicio.
+- Mientras termina el ingreso aparece «Entrando con Google…».
+- En iPhone, la app instalada y Safari no comparten la sesión: hay que entrar una vez en cada uno.

@@ -6,23 +6,36 @@ service cloud.firestore {
     function lic(uid) { return /databases/$(database)/documents/licencias/$(uid); }
     function esAdmin() { return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
     function vigente(d) { return d.get('plan','') == 'cortesia' || (d.get('vence', null) is timestamp && d.vence > request.time); }
-    // La familia cubre si el que la creó tiene plan vigente (hasta 6 miembros; la cortesía no tiene tope)
+    // Un plan pago (mensual/anual) o de cortesía cubre a la familia. Lo puede pagar quien creó
+    // el grupo (owner) o cualquier integrante que se anote como pagador. Pago: hasta 6 miembros; cortesía: sin tope.
+    function cubre(uid, f) {
+      return uid is string && uid != '' && exists(lic(uid))
+        && ( get(lic(uid)).data.get('plan','') == 'cortesia'
+             || ( get(lic(uid)).data.get('plan','') in ['mensual','anual'] && vigente(get(lic(uid)).data) && f.members.size() <= 6 ) );
+    }
     function porFamilia(d) {
       let fid = d.get('familia', '');
       let fref = /databases/$(database)/documents/families/$(fid);
       return fid is string && fid != '' && exists(fref)
         && request.auth.uid in get(fref).data.members
-        && exists(lic(get(fref).data.owner))
-        && ( get(lic(get(fref).data.owner)).data.plan == 'cortesia'
-             || ( vigente(get(lic(get(fref).data.owner)).data) && get(fref).data.members.size() <= 6 ) );
+        && ( cubre(get(fref).data.owner, get(fref).data) || cubre(get(fref).data.get('pagador',''), get(fref).data) );
     }
     function cubierto() {
       return request.auth != null && exists(lic(request.auth.uid))
         && ( vigente(get(lic(request.auth.uid)).data) || porFamilia(get(lic(request.auth.uid)).data) );
     }
 
+    // Un integrante puede ver el plan de quien paga su familia (para mostrar «Te cubre tu familia»)
+    function veoPlanDeFamilia(lid) {
+      let fid = resource.data.get('familia', '');
+      let fref = /databases/$(database)/documents/families/$(fid);
+      return fid is string && fid != '' && exists(fref)
+        && request.auth.uid in get(fref).data.members
+        && ( get(fref).data.owner == lid || get(fref).data.get('pagador','') == lid );
+    }
+
     match /licencias/{lid} {
-      allow get: if request.auth != null && (request.auth.uid == lid || esAdmin());
+      allow get: if request.auth != null && (request.auth.uid == lid || esAdmin() || veoPlanDeFamilia(lid));
       allow list: if esAdmin();
       // Cada cuenta nueva puede crearse su prueba gratis de 14 días (una sola vez)
       allow create: if request.auth != null && request.auth.uid == lid
@@ -55,12 +68,19 @@ service cloud.firestore {
 
     // Grupos familiares
     match /families/{fid} {
-      allow get: if request.auth != null && request.auth.uid in resource.data.members;
+      allow get: if request.auth != null && (request.auth.uid in resource.data.members || esAdmin());
       allow create: if request.auth != null
         && request.resource.data.owner == request.auth.uid
         && request.resource.data.members == [request.auth.uid];
       allow update: if request.auth != null && (
         resource.data.owner == request.auth.uid ||
+        // Un integrante con plan pago propio se anota como el que paga la familia
+        ( request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pagador'])
+          && request.resource.data.pagador == request.auth.uid
+          && request.auth.uid in resource.data.members
+          && exists(lic(request.auth.uid))
+          && get(lic(request.auth.uid)).data.get('plan','') in ['mensual','anual','cortesia']
+          && vigente(get(lic(request.auth.uid)).data) ) ||
         ( request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members'])
           && request.resource.data.members.hasAll(resource.data.members)
           && request.resource.data.members.size() == resource.data.members.size() + 1
