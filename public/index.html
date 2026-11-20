@@ -212,6 +212,9 @@ const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && windo
 const APP_URL = "https://vital-familia.web.app/";
 const APK_URL = "https://github.com/TheDomStudioWeb/vital-familia/releases/latest/download/Vital.apk";
 const ANDROID_WEB = !NATIVE && /android/i.test(navigator.userAgent);
+// Portapapeles: en la app de Android el navegador interno no deja leerlo, así que se usa el plugin nativo
+function leerPP(){const c=nplug("Clipboard");if(c)return c.read().then(r=>(r&&r.value)||"");return navigator.clipboard.readText()}
+function copiarPP(t){const c=nplug("Clipboard");if(c)return c.write({string:String(t)});return navigator.clipboard.writeText(t)}
 const NP = {};function nplug(n){if(!NATIVE)return null;const C=window.Capacitor||{},X=window.capacitorExports||{};const reg=C.registerPlugin||X.registerPlugin;return NP[n]||(NP[n]=reg?reg(n):(C.Plugins||{})[n])}
 /* =========================================================
    VITAL — App de salud y ejercicio familiar
@@ -1082,7 +1085,7 @@ document.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");i
   case "delmetric":L(p.id).metrics=L(p.id).metrics.filter(m=>m.id!==v);save();render();break;
   case "toggle":S.settings[v]=!S.settings[v];save();render();break;
   case "export":{const txt=JSON.stringify(S);sheet(`<h2>Copia de seguridad</h2><p class="sm mute">Copiá este texto y guardalo (por ejemplo, mandátelo por WhatsApp o mail). Para restaurar, usá «Importar copia».</p><textarea class="in" rows="6" readonly id="exp">${esc(txt)}</textarea><div class="grid2" style="margin-top:12px"><button class="btn" data-act="copyexp">Copiar</button><button class="btn ghost" data-act="dlexp">Descargar archivo</button></div>`);break}
-  case "copyexp":try{navigator.clipboard.writeText($("#exp").value).then(()=>toast("Copiado ✓"),()=>{$("#exp").select();toast("Seleccioná y copiá a mano")})}catch(e){$("#exp").select()}break;
+  case "copyexp":try{copiarPP($("#exp").value).then(()=>toast("Copiado ✓"),()=>{$("#exp").select();toast("Seleccioná y copiá a mano")})}catch(e){$("#exp").select()}break;
   case "dlexp":try{const bl=new Blob([JSON.stringify(S)],{type:"application/json"});const u=URL.createObjectURL(bl);const aa=document.createElement("a");aa.href=u;aa.download="vital-copia-"+TODAY()+".json";document.body.appendChild(aa);aa.click();aa.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);toast("Si no se descargó, usá «Copiar»")}catch(e){toast("Usá «Copiar»")}break;
   case "import":sheet(`<h2>Importar copia</h2><p class="sm mute">Pegá el texto de la copia o elegí el archivo. Reemplaza los datos de este dispositivo.</p><textarea class="in" rows="6" id="imp" placeholder="Pegá acá…"></textarea><input type="file" accept=".json,application/json" id="impf" class="in" style="margin-top:8px"><button class="btn block" style="margin-top:12px" data-act="impgo">Importar</button>`);
     setTimeout(()=>{const f=$("#impf");f&&f.addEventListener("change",()=>{const r=new FileReader();r.onload=()=>{$("#imp").value=r.result};r.readAsText(f.files[0])})},100);break;
@@ -1107,7 +1110,7 @@ document.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");i
   case "famsetup":openFamilySetup();break;
   case "fam-create":famCreate();break;
   case "fam-join":famJoin();break;
-  case "copyinv":try{navigator.clipboard.writeText($("#inv").value).then(()=>toast("Invitación copiada ✓"),()=>$("#inv").select())}catch(e){$("#inv").select()}break;
+  case "copyinv":try{copiarPP($("#inv").value).then(()=>toast("Invitación copiada ✓"),()=>$("#inv").select())}catch(e){$("#inv").select()}break;
   case "delgo":delete S.logs[p.id];S.profiles=S.profiles.filter(x=>x.id!==p.id);S.activeId=S.profiles[0]?.id||null;save();closeSheet();location.hash="#hoy";render();break;
   }
 });

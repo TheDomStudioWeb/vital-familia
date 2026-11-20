@@ -211,3 +211,7 @@ Valores nutricionales aproximados por 100 g.
 - El ingreso con Google ahora se hace en el mismo dominio de la app (vital-familia.web.app). Antes Safari perdía el resultado y volvía a pedir la cuenta, sobre todo con la app instalada en la pantalla de inicio.
 - Mientras termina el ingreso aparece «Entrando con Google…».
 - En iPhone, la app instalada y Safari no comparten la sesión: hay que entrar una vez en cada uno.
+
+## Pegar en la app de Android (20/11)
+- El botón «Pegar» de la foto del plato y de importar receta ahora usa el portapapeles del teléfono directamente. Antes, en la app de Android, el navegador interno no lo dejaba leer y había que mantener apretado el cuadro.
+- Si algo falla, se puede pegar igual con el ícono de portapapeles del teclado de Samsung o manteniendo apretado el cuadro → Pegar.

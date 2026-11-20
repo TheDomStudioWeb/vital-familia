@@ -413,11 +413,11 @@ window.comerAct=function(a,v){const p=P();
   case "pgen":p.plan=armarPlan(p);save();render();toast("Plan armado con productos de temporada");return true;
   case "ppers":p.planPersonas=+v;save();render();return true;
   case "plista":mostrarLista();return true;
-  case "lcopy":{const t=$("#lst").value;try{navigator.clipboard.writeText(t).then(()=>toast("Lista copiada ✓"),()=>toast("No se pudo copiar"))}catch(e){toast("No se pudo copiar")}return true}
+  case "lcopy":{const t=$("#lst").value;try{copiarPP(t).then(()=>toast("Lista copiada ✓"),()=>toast("No se pudo copiar"))}catch(e){toast("No se pudo copiar")}return true}
   case "rnew":abrirReceta(null);return true;
   case "rimp":leerReceta();abrirImportar();return true;
-  case "rprompt":try{navigator.clipboard.writeText(PROMPT_REC).then(()=>toast("Texto copiado: pegalo en tu IA junto con la foto"),()=>toast("No se pudo copiar"))}catch(e){toast("No se pudo copiar")}return true;
-  case "rpaste":try{navigator.clipboard.readText().then(t=>{$("#rimp").value=t},()=>toast("Mantené apretado el cuadro y elegí «Pegar»"))}catch(e){toast("Mantené apretado el cuadro y elegí «Pegar»")}return true;
+  case "rprompt":try{copiarPP(PROMPT_REC).then(()=>toast("Texto copiado: pegalo en tu IA junto con la foto"),()=>toast("No se pudo copiar"))}catch(e){toast("No se pudo copiar")}return true;
+  case "rpaste":try{leerPP().then(t=>{$("#rimp").value=t},()=>toast("Mantené apretado el cuadro y elegí «Pegar»"))}catch(e){toast("Mantené apretado el cuadro y elegí «Pegar»")}return true;
   case "rimpgo":{const r=importarReceta($("#rimp").value);if(!r.ok.length&&!r.no.length){toast("No encontré ingredientes en el texto");return true}
     if(r.n)RED.n=r.n;if(r.por)RED.por=r.por;for(const [k,g] of Object.entries(r.i))RED.i[k]=(RED.i[k]||0)+g;RED.aviso=r;dibReceta();return true}
   case "redit":abrirReceta(v);return true;
