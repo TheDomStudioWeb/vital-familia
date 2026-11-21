@@ -142,7 +142,8 @@ function elegirNivel(k,titulo,txt){const p=P();NIVPEND=k;const q=NIVQ[k];const n
   sheet(`<h2>${ICO[k]||""} ${esc(titulo||NOMBRE[k])}</h2><p class="sm mute">${esc(txt||"Contale a Vital desde dónde arrancás.")}</p><label class="f">${q.q}</label>
   <div class="opts">${q.o.map((t,i)=>`<button class="opt ${n.l===i+1?"on":""}" data-act="pg-niv" data-v="${k}:${i+1}" style="text-align:left">${NIVN[i+1]}<br><span class="xs mute" style="font-weight:500">${t}</span></button>`).join("")}</div>
   <button class="opt ${n.ret?"on":""}" style="margin-top:8px" data-act="pg-nivr" data-v="${k}">↺ Estoy retomando después de una pausa</button>
-  <p class="xs faint" style="margin-top:8px">«Retomando» arranca un escalón más abajo. Podés cambiarlo cuando quieras.</p>`)}
+  <p class="xs faint" style="margin-top:8px">«Retomando» arranca un escalón más abajo. Podés cambiarlo cuando quieras.</p>
+  ${k==="running"&&window.estadoCarrera?`<button class="btn ghost block" style="margin-top:12px" data-act="pc-form">🏁 O prepará una carrera con fecha</button>`:""}`)}
 
 
 /* ---------- Sesiones automáticas (running, Tai Chi, elongación) ----------
@@ -158,7 +159,7 @@ tick=function(){if(!PL||!PL.s||!PL.s.auto)return _tick();clearInterval(PL.timer)
     const el=$("#pl-time");if(el)el.textContent=fmt(PL.t);if(PL.t<=0){beep(990,.25);nextStep()}},1000)};
 
 /* ---------- Al terminar: avanza, repite o propone subir según el esfuerzo ---------- */
-function alTerminar(pr,rpe){const p=P();const P2=prog(p);let h="";
+function alTerminar(pr,rpe){if(pr.k==="carrera"&&window.carreraTerminar)return carreraTerminar(pr,rpe);const p=P();const P2=prog(p);let h="";
   const facil=rpe<=4,duro=rpe>=9;
   if(pr.k==="running"){const r=P2.run;if(!r)return;
     if(duro){h=`<p class="sm">Marcaste esfuerzo ${rpe}/10: <b>repetimos esta salida</b> la próxima vez. Así se progresa sin lesionarse.</p><button class="btn ghost block" style="margin-top:8px" data-act="pg-run-avanzar">Prefiero avanzar igual</button>`}
@@ -231,7 +232,7 @@ function tarjetaProgramas(p){const r=runEstado(p);const g=gym(p);
   const b=(act,ico,t,sub,v)=>`<button class="stat" data-act="${act}" ${v?`data-v="${v}"`:""} style="text-align:left;border:1px solid var(--line)"><b>${ico} ${t}</b><span class="xs mute">${sub}</span></button>`;
   const nv=k=>nivDe(p,k)?" · "+NIVN[nivDe(p,k).l]:"";
   return `<section class="glass org2"><h2>Programas</h2><p class="xs mute" style="margin-top:-4px">Planes que avanzan con vos, según tu nivel.</p><div class="grid2">
-  ${b("pg-run","🏃","Running progresivo",r?(r.fin?"¡Plan terminado!":`Semana ${r.sem+1} · salida ${r.ses+1} · ${NIVN[r.l]}`):"Calentamiento, carrera y vuelta a la calma")}
+  ${window.estadoCarrera&&estadoCarrera(p)?b("pg-run","🏁","Running · "+estadoCarrera(p).t,estadoCarrera(p).sub):b("pg-run","🏃","Running progresivo",r?(r.fin?"¡Plan terminado!":`Semana ${r.sem+1} · salida ${r.ses+1} · ${NIVN[r.l]}`):"Calentamiento, carrera y vuelta a la calma")}
   ${b("pg-glu","🧘","Glúteo y fascia lata","Elongación + fuerza suave · ≈ "+sesionGlu(p).minutes+" min"+nv("elong"))}
   ${b("pg-cali","🤸","Calistenia","Con tu peso corporal"+nv("calistenia"))}
   ${b("pg-tai","☯️","Tai Chi","De pie o en silla"+nv("taichi"))}
@@ -287,7 +288,7 @@ function progAct(a,v){const p=S.profiles.length?P():null;if(!p||!a.startsWith("p
   return false}
 const _aa=window.actAct;
 window.actAct=function(a,v){return progAct(a,v)||(_aa?_aa(a,v):false)};
-window.VITAL_PROG={sesionRun,sesionGlu,sesionCali,sesionTai,sugerir,RUN,PLANT};
+window.VITAL_PROG={sesionRun,sesionGlu,sesionCali,sesionTai,sugerir,RUN,PLANT,it,apto,minDe,prog,CINTA};
 // el script principal ya dibujó la pantalla: se vuelve a dibujar con los programas
 try{if(S.profiles.length&&!document.querySelector("#layer .sheet"))render()}catch(e){}
 })();

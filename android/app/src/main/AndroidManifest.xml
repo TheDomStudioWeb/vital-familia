@@ -33,6 +33,12 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+
+        <!-- Metas para el widget de Vital del Launcher Noir (solo responde a Vital y al launcher) -->
+        <provider
+            android:name=".MetasProvider"
+            android:authorities="com.thedomstudio.vital.metas"
+            android:exported="true" />
     </application>
 
     <!-- Permissions -->

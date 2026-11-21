@@ -21,6 +21,7 @@ const ritmo=s=>!s||!isFinite(s)?"–:––":Math.floor(s/60)+":"+String(Math.ro
 const ritmoVoz=s=>{const m=Math.floor(s/60),x=Math.round(s%60);return m+(m===1?" minuto":" minutos")+(x?" "+x:"")};
 const kmTxt=k=>(Math.round(k*100)/100).toFixed(2).replace(".",",");
 window.ritmoTxt=ritmo;
+window.VITAL_RUN={records:p=>records(p),durTxt:s=>durTxt(s),kmTxt:k=>kmTxt(k)};
 
 /* ---------- GPS ---------- */
 function gpsDisponible(){return !!(nplug("BackgroundGeolocation")||navigator.geolocation)}
@@ -44,7 +45,7 @@ function pararGPS(){if(!G.on&&G.watch==null)return;G.on=false;const BG=nplug("Ba
   if(G.watch!=null){try{navigator.geolocation.clearWatch(G.watch)}catch(e){}G.watch=null}
   const km=G.dist/1000;G.sum=km>=.2?{km:Math.round(km*100)/100,mov:Math.round(G.mov),ritmo:Math.round(G.mov/km),splits:G.splits.map(Math.round),src:G.src}:null}
 
-const esRun=s=>!!(s&&s.prog&&s.prog.k==="running");
+const esRun=s=>!!(s&&s.prog&&(s.prog.k==="running"||s.prog.k==="carrera"));
 const _start=startPlayer;
 startPlayer=function(s){_start(s);if(esRun(s)&&gpsActivado(P())){arrancarGPS();if(PL)drawPlayer()}};
 const _fin=finishPlayer;
