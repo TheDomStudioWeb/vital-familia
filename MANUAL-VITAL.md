@@ -329,3 +329,10 @@ Inspirado en lo que hacen apps como adidas Running, pero simple.
 - **Widget de Vital para la pantalla de inicio** (cualquier launcher: Samsung, Motorola, etc.): se agrega manteniendo apretada la pantalla de inicio → Widgets → Vital. Muestra la cuenta regresiva a la carrera con la próxima salida y hasta 3 metas con su barra. Los días a la carrera se calculan solos; el progreso de las metas se actualiza cada vez que se abre Vital (arriba a la derecha dice hace cuánto). Tocándolo se abre Vital.
 - **Permisos del reloj:** si Vital no pidió el permiso nuevo (distancia), en la tarjeta del reloj el botón **«Permisos»** ahora vuelve a pedir los que falten. Si ya están todos, abre la configuración de Health Connect.
 - Frase para Claudio: «Para tener tus metas en la pantalla de inicio, mantené apretado un lugar vacío, tocá Widgets y elegí Vital.»
+
+## Foto del plato: ida y vuelta con la IA (21/11)
+- En la app de Android, el paso 2 muestra un botón por cada IA instalada en el teléfono (Claude, Gemini, ChatGPT o Copilot) y «Otra app». Al tocarlo se abre esa IA con el pedido ya escrito (también queda copiado, por si la IA no lo toma). Ahí se suma la foto y se envía.
+- Cuando la IA contesta, se toca **Compartir** en la respuesta (o se selecciona la tabla → Compartir) y se elige **Vital**. La tabla entra sola y Vital calcula el plato directamente, sin pasar por el portapapeles.
+- Si Android cerró Vital mientras tanto, Vital recuerda la comida, el día y el modo (plato o receta) que se estaban cargando, durante 6 horas.
+- Si la respuesta trae texto de más («Acá tenés la tabla…»), Vital se queda solo con las líneas de la tabla.
+- En la web sigue el botón «Copiar el texto para la IA» y el cuadro con «Pegar».

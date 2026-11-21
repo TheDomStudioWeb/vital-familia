@@ -226,3 +226,23 @@ Object.assign(window.I18N_EN=window.I18N_EN||{},{
  "Kilómetros corriendo":"Kilometers running","Kilómetros caminando, corriendo o en bici":"Kilometers walking, running or cycling","Entrenamientos":"Workouts","Minutos de actividad":"Active minutes","Pasos":"Steps","Kilómetros":"Kilometers","Minutos activos":"Active minutes",
  "esta semana":"this week","en enero":"in January","en febrero":"in February","en marzo":"in March","en abril":"in April","en mayo":"in May","en junio":"in June","en julio":"in July","en agosto":"in August","en septiembre":"in September","en octubre":"in October","en noviembre":"in November","en diciembre":"in December"
 });
+/* Ida y vuelta con la IA desde la foto del plato (21/11/2026) */
+Object.assign(window.I18N_TU=window.I18N_TU||{},{
+ "Elegí tu IA: se abre con el pedido ya escrito. Ahí le sumás la foto y lo enviás.":"Elige tu IA: se abre con el pedido ya escrito. Ahí le añades la foto y lo envías."
+,"Cuando te conteste, tocá":"Cuando te conteste, toca"
+,"en la respuesta (o seleccioná la tabla → Compartir) y elegí":"en la respuesta (o selecciona la tabla → Compartir) y elige"
+,": la tabla vuelve sola acá.":": la tabla vuelve sola aquí."
+,"Pegá el texto en la IA (ya está copiado) y sumale la foto":"Pega el texto en la IA (ya está copiado) y añádele la foto"
+,"Texto recibido de la IA: revisalo y seguí":"Texto recibido de la IA: revísalo y sigue"
+});
+Object.assign(window.I18N_EN=window.I18N_EN||{},{
+ "Elegí tu IA: se abre con el pedido ya escrito. Ahí le sumás la foto y lo enviás.":"Choose your AI: it opens with the request already written. Add the photo there and send it."
+,"Abrir en Claude":"Open in Claude","Abrir en Gemini":"Open in Gemini","Abrir en ChatGPT":"Open in ChatGPT","Abrir en Copilot":"Open in Copilot"
+,"Abrir mi IA":"Open my AI","Otra app":"Another app","¿Con qué IA lo abrís?":"Which AI do you want to use?"
+,"Cuando te conteste, tocá":"When it answers, tap",": la tabla vuelve sola acá.":": the table comes back here by itself."
+,"en la respuesta (o seleccioná la tabla → Compartir) y elegí":"on the answer (or select the table → Share) and choose"
+,"Compartir":"Share"
+,"Tabla recibida de la IA ✓":"Table received from the AI ✓","Texto recibido de la IA: revisalo y seguí":"Text received from the AI: check it and continue"
+,"Pegá el texto en la IA (ya está copiado) y sumale la foto":"Paste the text in the AI (it's already copied) and add the photo"
+,"No pude abrir la IA: el texto quedó copiado":"I couldn't open the AI: the text is copied"
+});

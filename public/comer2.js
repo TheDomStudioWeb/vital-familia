@@ -278,12 +278,42 @@ let FOTO=null;
 let FMODO="dia";
 function abrirFoto(modo){if(modo)FMODO=modo;const rec=FMODO==="receta";sheet(`<h2>📸 ${rec?"Receta desde la foto de un plato":"Foto del plato"}</h2>${rec?`<p class="sm mute">Ideal para las fotos de comidas que ya cocinaste: la IA estima un plato servido y después elegís cuántas porciones salen de la olla.</p>`:""}
   <ol class="steps"><li>Sacale una foto al plato desde arriba, con buena luz (si podés, con un cubierto al lado para que se entienda el tamaño).</li>
-  <li>Abrí tu asistente de IA (Claude, ChatGPT o Gemini), subí la foto y pegale el texto de este botón: <button class="btn small ghost" data-act="c2-fprompt">Copiar el texto para la IA</button></li>
-  <li>Copiá la tabla que te devuelve y pegala acá abajo.</li></ol>
+  ${NATIVE?`<li>Elegí tu IA: se abre con el pedido ya escrito. Ahí le sumás la foto y lo enviás.<div class="row" id="c2-ias" style="flex-wrap:wrap;gap:8px;margin-top:8px"><button class="btn small ghost" data-act="c2-iaotra">Abrir mi IA</button></div></li>
+  <li>Cuando te conteste, tocá <b>Compartir</b> en la respuesta (o seleccioná la tabla → Compartir) y elegí <b>Vital</b>: la tabla vuelve sola acá.</li></ol>`:`<li>Abrí tu asistente de IA (Claude, ChatGPT o Gemini), subí la foto y pegale el texto de este botón: <button class="btn small ghost" data-act="c2-fprompt">Copiar el texto para la IA</button></li>
+  <li>Copiá la tabla que te devuelve y pegala acá abajo.</li></ol>`}
   <textarea class="in" id="c2-ftxt" rows="7" placeholder="RECETA | Milanesa con puré | 1&#10;Carne vacuna magra | 150 | g&#10;Papa | 200 | g&#10;Aceite | 10 | g"></textarea>
   <div class="row" style="margin-top:10px"><button class="btn ghost" data-act="c2-fpaste">Pegar</button><button class="btn" style="flex:1" data-act="c2-fcalc">Calcular</button></div>
   <p class="xs faint" style="margin-top:8px">La IA estima a ojo: en el paso siguiente podés corregir los gramos. Si lo pesás, mejor.</p>
-  <div class="row" style="margin-top:8px"><button class="btn ghost" data-act="${rec?"rimp":"fadd"}">Volver</button></div>`)}
+  <div class="row" style="margin-top:8px"><button class="btn ghost" data-act="${rec?"rimp":"fadd"}">Volver</button></div>`);if(NATIVE)pintarIAs()}
+
+/* ---------- Ida y vuelta con la IA (app de Android) ----------
+   Ida: botón por cada IA instalada → se abre con el pedido escrito (y queda copiado por si la IA no lo toma).
+   Vuelta: en la IA, Compartir → Vital. El texto entra directo al cuadro, sin pasar por el portapapeles.
+   Si Android cerró Vital mientras tanto, se recuerda en qué comida, día y modo se estaba cargando. */
+const IAP=()=>nplug("VitalCompartir");
+function pintarIAs(){const c=IAP(),box=$("#c2-ias");if(!c||!box)return;
+  c.ias().then(r=>{const L=(r&&r.ias)||[];if(!$("#c2-ias"))return;
+    $("#c2-ias").innerHTML=L.map(x=>`<button class="btn small" data-act="c2-iaabrir" data-v="${esc(x.pkg)}">Abrir en ${esc(x.n)}</button>`).join("")+`<button class="btn small ghost" data-act="c2-iaotra">${L.length?"Otra app":"Abrir mi IA"}</button>`},()=>{})}
+function recordarIA(){try{localStorage.setItem("vital-ia",JSON.stringify({modo:FMODO,meal:FSEL&&FSEL.meal,dia:(window.diaSelC&&diaSelC()!==TODAY())?diaSelC():null,t:Date.now()}))}catch(e){}}
+function abrirIA(pkg){const c=IAP(),t=promptPlato();recordarIA();
+  if(!c){try{copiarPP(t)}catch(e){}toast("Texto copiado: pegalo en tu IA junto con la foto");return}
+  (pkg?c.abrir({pkg,texto:t}):c.elegir({texto:t,titulo:"¿Con qué IA lo abrís?"})).then(r=>{if(r&&r.modo==="copiado")setTimeout(()=>toast("Pegá el texto en la IA (ya está copiado) y sumale la foto"),400)},()=>{try{copiarPP(t)}catch(e){}toast("No pude abrir la IA: el texto quedó copiado")})}
+function recibirDeIA(t){t=String(t||"").trim();if(!t)return;
+  {const L=t.split(/\r?\n/),tab=L.filter(l=>l.includes("|"));if(tab.length>=2)t=tab.join("\n")} // solo la tabla: sin el «Acá tenés…» ni las marcas ``` de la IA
+  const poner=()=>{const el=$("#c2-ftxt")||$("#rimp");if(!el)return false;el.value=t;
+    if(el.id==="c2-ftxt"&&Object.keys(importarReceta(t).i).length){const b=$('[data-act="c2-fcalc"]');if(b){toast("Tabla recibida de la IA ✓");b.click();return true}}
+    toast("Texto recibido de la IA: revisalo y seguí");return true};
+  if(poner())return;
+  let ctx={};try{ctx=JSON.parse(localStorage.getItem("vital-ia")||"{}");if(Date.now()-(ctx.t||0)>6*3600e3)ctx={}}catch(e){}
+  if(location.hash!=="#comer")location.hash="#comer";
+  setTimeout(()=>{if(ctx.dia&&window.setDiaC)setDiaC(ctx.dia);if(typeof comerTab!=="undefined")comerTab="hoy";
+    FSEL={meal:ctx.meal||comidaSugerida(),q:""};FOTO=null;abrirFoto(ctx.modo||"dia");setTimeout(poner,60)},250)}
+document.addEventListener("DOMContentLoaded",function escucharIA(){if(typeof NATIVE==="undefined"||!NATIVE)return;let n=0;
+  const listo=()=>typeof S!=="undefined"&&S.profiles&&S.profiles.length&&document.querySelector("#view");
+  const arrancar=()=>{const c=IAP();if(!c)return;
+    c.addListener("compartido",e=>{const go=()=>listo()?(c.pendiente().catch(()=>{}),recibirDeIA(e&&e.texto)):(n++<60&&setTimeout(go,250));go()});
+    const pend=()=>listo()?c.pendiente().then(r=>{if(r&&r.texto)recibirDeIA(r.texto)},()=>{}):(n++<60&&setTimeout(pend,250));pend()};
+  arrancar()});
 function dibFoto(){const p=P();const ing=FOTO.i;const ad=adaptar(ing,p);const t=nutri(ad.ing);const q=calidad(t,"a");
   sheet(`<h2>${esc(FOTO.n||"Mi plato")}</h2><p class="xs mute">${COMIDAS[FSEL.meal]} · revisá y corregí los gramos</p>
   <label class="f">Nombre</label><input class="in" id="c2-fn" value="${esc(FOTO.n||"")}" placeholder="Mi plato" autocomplete="off">
@@ -357,6 +387,8 @@ window.comerAct=function(a,v){const p=P();
   case "c2-frec":leerFoto();fotoAReceta();return true;
   case "rpor":if(RED&&RED.foto){leerReceta();const n=+v,o=Math.max(1,RED.por);for(const k in RED.i)RED.i[k]=Math.round(RED.i[k]/o*n);RED.por=n;dibReceta();
     const sh=document.querySelector("#layer .sheet h2");if(sh){const x=document.createElement("p");x.className="note c2-fnota";x.style.marginTop="8px";x.textContent="Cantidades ajustadas para "+n+" porciones.";sh.after(x)}return true}return _ca(a,v);
+  case "c2-iaabrir":abrirIA(v);return true;
+  case "c2-iaotra":abrirIA(null);return true;
   case "c2-fprompt":{const t=promptPlato();try{copiarPP(t).then(()=>toast("Texto copiado: pegalo en tu IA junto con la foto"),()=>toast("No se pudo copiar"))}catch(e){toast("No se pudo copiar")}return true}
   case "c2-fpaste":try{leerPP().then(t=>{$("#c2-ftxt").value=t},()=>toast("Mantené apretado el cuadro y elegí «Pegar»"))}catch(e){toast("Mantené apretado el cuadro y elegí «Pegar»")}return true;
   case "c2-fcalc":{const r=importarReceta(($("#c2-ftxt")||{}).value||"");if(!Object.keys(r.i).length){toast("No encontré ingredientes: pegá la tabla que te dio la IA");return true}

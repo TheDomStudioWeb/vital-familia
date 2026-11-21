@@ -212,6 +212,7 @@ dibPorcion=function(){_dibPor();const p=P();const it={src:FSEL.src,ref:FSEL.ref}
 let CDIA=null;
 const DIAS_ATRAS=30;
 window.diaSelC=()=>CDIA||TODAY();
+window.setDiaC=k=>{CDIA=k&&k<TODAY()?k:null};
 const pasado=()=>!!CDIA&&CDIA!==TODAY();
 function nombreDia(k){if(k===TODAY())return "Hoy";if(k===addDays(TODAY(),-1))return "Ayer";
   const t=new Date(k+"T12:00").toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"short"});return t.charAt(0).toUpperCase()+t.slice(1)}

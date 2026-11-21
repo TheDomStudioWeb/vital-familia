@@ -9,6 +9,8 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         // Plugin propio de Vital: publica las metas para el widget del Launcher Noir
         registerPlugin(MetasPlugin.class);
+        // Ida y vuelta con las apps de IA (abrir con el texto y recibir lo que se comparte a Vital)
+        registerPlugin(CompartirPlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

@@ -22,6 +22,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Compartir → Vital: recibe el texto que devuelve la IA (la tabla del plato o la receta) -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+
         </activity>
 
         <provider
@@ -52,6 +59,18 @@
             android:authorities="com.thedomstudio.vital.metas"
             android:exported="true" />
     </application>
+
+    <!-- Apps de IA que Vital puede abrir (Android 11+ pide declararlas para saber si están instaladas) -->
+    <queries>
+        <package android:name="com.anthropic.claude" />
+        <package android:name="com.google.android.apps.bard" />
+        <package android:name="com.openai.chatgpt" />
+        <package android:name="com.microsoft.copilot" />
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="text/plain" />
+        </intent>
+    </queries>
 
     <!-- Permissions -->
 
