@@ -255,9 +255,6 @@ async function resolverCodigo(code){const a=await buscarCodigo(code);if(!a)retur
   if(a.nuevo){abrirMano({code:a.code,n:a.nombre||""});toast("No está en la base: cargalo una vez y queda guardado");return}
   abrirPorcion("alimento",a.id)}
 function abrirMano(pre){pre=pre||{};sheet(`<h2>✍️ Cargar un producto</h2><p class="sm mute">Copiá los datos de la tabla nutricional del envase (columna «por 100 g»). Queda guardado en este teléfono para la próxima.</p>
-  <label class="f">Pegar la tabla del envase (opcional)</label>
-  <textarea class="in" id="c2-mtab" rows="4" placeholder="Copiá la tabla con Google Lens o desde la web del producto y pegala acá: los casilleros se completan solos"></textarea>
-  <div class="row" style="margin-top:8px;margin-bottom:6px"><button class="btn ghost" data-act="c2-mtpaste">Pegar</button><button class="btn ghost" style="flex:1" data-act="c2-mtfill">Completar los datos</button></div>
   <label class="f">Nombre</label><input class="in" id="c2-mn" value="${esc(pre.n||"")}" placeholder="Ej.: Barrita de cereal marca X" autocomplete="off">
   <div class="grid2"><div><label class="f">Calorías (kcal)</label><input class="in" id="c2-mk" inputmode="decimal"></div><div><label class="f">Hidratos (g)</label><input class="in" id="c2-mh" inputmode="decimal"></div>
   <div><label class="f">Proteínas (g)</label><input class="in" id="c2-mp" inputmode="decimal"></div><div><label class="f">Grasas (g)</label><input class="in" id="c2-mg" inputmode="decimal"></div>
@@ -265,29 +262,6 @@ function abrirMano(pre){pre=pre||{};sheet(`<h2>✍️ Cargar un producto</h2><p 
   <div><label class="f">Una porción pesa (g)</label><input class="in" id="c2-mq" inputmode="decimal" placeholder="100"></div><div><label class="f">¿Ultraprocesado?</label><select class="in" id="c2-mu"><option value="otro">No</option><option value="ultra">Sí (golosina, snack, gaseosa…)</option></select></div></div>
   ${pre.code?`<p class="xs faint" style="margin-top:8px">Código ${esc(pre.code)}</p>`:""}
   <div class="row" style="margin-top:14px"><button class="btn ghost" data-act="fadd">Volver</button><button class="btn" style="flex:1" data-act="c2-mansave" data-v="${esc(pre.code||"")}">Guardar y registrar</button></div>`)}
-/* Lee una tabla nutricional pegada (envases argentinos «por porción», etiquetas «por 100 g» y en inglés) */
-function leerTablaNutri(t){t=String(t||"").replace(/\u00a0/g," ");const r={};
-  const n=s=>parseFloat(String(s).replace(",","."));
-  const buscar=(labels,unit)=>{for(const l of labels){const m=t.match(new RegExp(l+"[\\s\\S]{0,40}?(\\d+(?:[.,]\\d+)?)\\s*"+unit,"i"));if(m)return n(m[1])}return null};
-  r.k=buscar(["valor energ[eé]tico","energ[ií]a","calor[ií]as","calories","energy"],"(?:kcal|cal\\b)");
-  if(r.k==null){const m=t.match(/calor[ií](?:as?|es?)\s*:?\s*(\d+(?:[.,]\d+)?)\b(?!\s*(?:g|mg|kj)\b)/i);if(m)r.k=n(m[1])}
-  if(r.k==null){const kj=buscar(["valor energ[eé]tico","energ[ií]a","energy"],"kj");if(kj!=null)r.k=Math.round(kj/4.184)}
-  r.h=buscar(["hidratos de carbono","carbohidratos","glúcidos","glucidos","carbohydrates?","carbs"],"g");
-  r.p=buscar(["prote[ií]nas?","protein"],"g");
-  r.g=buscar(["grasas totales","l[ií]pidos","grasas?(?! saturadas| trans)","total fat","fat"],"g");
-  r.f=buscar(["fibra alimentaria","fibra diet[eé]tica","fibra","dietary fib(?:re|er)","fib(?:re|er)"],"g");
-  r.s=buscar(["sodio","sodium"],"mg");if(r.s==null){const sal=buscar(["sal\\b","salt"],"g");if(sal!=null)r.s=Math.round(sal*400)}
-  // ¿Los valores son por porción? (lo común en Argentina). Si la tabla no habla de 100 g, se pasan a 100 g.
-  const pm=t.match(/(?:porci[oó]n|serving size|per\b)[^\n]{0,30}?(\d+(?:[.,]\d+)?)\s*(g|ml)\b/i);
-  const por100=/(por|cada|per)\s*100\s*(g|ml)|100\s*(g|ml)\b/i.test(t);
-  r.q=pm?n(pm[1]):null;r.porPorcion=!!(r.q&&r.q!==100&&!por100);
-  if(r.porPorcion){const k=100/r.q;["k","h","p","g","f","s"].forEach(x=>{if(r[x]!=null)r[x]=Math.round(r[x]*k*10)/10})}
-  r.ok=["k","h","p","g"].filter(x=>r[x]!=null).length;return r}
-function llenarTablaNutri(){const r=leerTablaNutri(($("#c2-mtab")||{}).value);
-  if(!r.ok){toast("No encontré los datos: revisá que se vean calorías, hidratos, proteínas y grasas");return}
-  const set=(id,v)=>{if(v!=null&&$(id))$(id).value=String(v).replace(".",",")};
-  set("#c2-mk",r.k);set("#c2-mh",r.h);set("#c2-mp",r.p);set("#c2-mg",r.g);set("#c2-mf",r.f);set("#c2-ms",r.s);if(r.q)set("#c2-mq",r.q);
-  toast(r.porPorcion?"Listo: lo pasé de la porción a 100 g. Revisá los números":"Listo: revisá que los números coincidan con el envase")}
 function num(id){const v=parseFloat(String(($(id)||{}).value||"").replace(",","."));return isNaN(v)?0:v}
 
 /* ---------- Foto del plato con IA ---------- */
@@ -384,7 +358,7 @@ window.comerAct=function(a,v){const p=P();
   case "rpor":if(RED&&RED.foto){leerReceta();const n=+v,o=Math.max(1,RED.por);for(const k in RED.i)RED.i[k]=Math.round(RED.i[k]/o*n);RED.por=n;dibReceta();
     const sh=document.querySelector("#layer .sheet h2");if(sh){const x=document.createElement("p");x.className="note c2-fnota";x.style.marginTop="8px";x.textContent="Cantidades ajustadas para "+n+" porciones.";sh.after(x)}return true}return _ca(a,v);
   case "c2-fprompt":{const t=promptPlato();try{copiarPP(t).then(()=>toast("Texto copiado: pegalo en tu IA junto con la foto"),()=>toast("No se pudo copiar"))}catch(e){toast("No se pudo copiar")}return true}
-  case "c2-fpaste":pegarEn("#c2-ftxt");return true;
+  case "c2-fpaste":try{leerPP().then(t=>{$("#c2-ftxt").value=t},()=>toast("Mantené apretado el cuadro y elegí «Pegar»"))}catch(e){toast("Mantené apretado el cuadro y elegí «Pegar»")}return true;
   case "c2-fcalc":{const r=importarReceta(($("#c2-ftxt")||{}).value||"");if(!Object.keys(r.i).length){toast("No encontré ingredientes: pegá la tabla que te dio la IA");return true}
     const por=Math.max(1,r.por||1);const i={};for(const [k,g] of Object.entries(r.i))i[k]=g/por;FOTO={n:r.n,i,no:r.no.concat(r.sinq)};if(FMODO==="receta"){fotoAReceta();if(FOTO.no.length)toast("No reconocí: "+FOTO.no.join(", "));return true}dibFoto();return true}
   case "c2-fdel":leerFoto();delete FOTO.i[v];if(!Object.keys(FOTO.i).length){abrirFoto();return true}dibFoto();return true;
@@ -392,8 +366,6 @@ window.comerAct=function(a,v){const p=P();
   case "c2-cod":abrirCodigo();return true;
   case "c2-codbus":resolverCodigo(($("#c2-codnum")||{}).value||"");return true;
   case "c2-mano":abrirMano({});return true;
-  case "c2-mtpaste":pegarEn("#c2-mtab",()=>llenarTablaNutri());return true;
-  case "c2-mtfill":llenarTablaNutri();return true;
   case "c2-mansave":{const n=(($("#c2-mn")||{}).value||"").trim();const kc=num("#c2-mk");if(!n){toast("Ponele un nombre");return true}if(!kc){toast("Cargá las calorías cada 100 g");return true}
     const q=num("#c2-mq")||100;const x={id:v?"off"+v:"man"+uid(),code:v||"",n,c:($("#c2-mu")||{}).value||"otro",kcal:Math.round(kc),hc:num("#c2-mh"),p:num("#c2-mp"),g:num("#c2-mg"),fib:num("#c2-mf"),na:num("#c2-ms"),tacc:2,u:{porción:Math.round(q)},src:"mano"};
     prodGuardar(x);abrirPorcion("alimento",x.id);return true}

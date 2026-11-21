@@ -216,14 +216,6 @@ const APK_URL = "https://github.com/TheDomStudioWeb/vital-familia/releases/lates
 const ANDROID_WEB = !NATIVE && /android/i.test(navigator.userAgent);
 // Portapapeles: en la app de Android el navegador interno no deja leerlo, así que se usa el plugin nativo
 function leerPP(){const c=nplug("Clipboard");if(c)return c.read().then(r=>(r&&r.value)||"");return navigator.clipboard.readText()}
-/* Botón «Pegar»: lee el portapapeles del teléfono y, si no puede, explica por qué en vez de fallar en silencio */
-function pegarEn(sel,despues){const el=$(sel);const falla=m=>{toast(m);if(el)el.focus()};
-  if(NATIVE&&!nplug("Clipboard"))return falla("Esta versión de Vital no puede leer el portapapeles: actualizá la app");
-  let p;try{p=leerPP()}catch(e){return falla("No pude leer el portapapeles: mantené apretado el cuadro y elegí «Pegar»")}
-  Promise.resolve(p).then(t=>{t=String(t||"").trim();if(!t)return falla("El portapapeles está vacío: volvé a copiar la tabla en la app de IA");
-    if(t.startsWith("data:"))return falla("Lo copiado es una imagen: copiá el texto de la tabla");
-    if(el){el.value=t;el.dispatchEvent(new Event("input",{bubbles:true}))}toast("Pegado ✓");if(despues)despues(t)},
-    e=>falla("No pude leer el portapapeles"+(e&&e.message?" ("+String(e.message).slice(0,60)+")":"")+": mantené apretado el cuadro y elegí «Pegar»"))}
 function copiarPP(t){const c=nplug("Clipboard");if(c)return c.write({string:String(t)});return navigator.clipboard.writeText(t)}
 const NP = {};function nplug(n){if(!NATIVE)return null;const C=window.Capacitor||{},X=window.capacitorExports||{};const reg=C.registerPlugin||X.registerPlugin;return NP[n]||(NP[n]=reg?reg(n):(C.Plugins||{})[n])}
 /* =========================================================

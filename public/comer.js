@@ -417,7 +417,7 @@ window.comerAct=function(a,v){const p=P();
   case "rnew":abrirReceta(null);return true;
   case "rimp":leerReceta();abrirImportar();return true;
   case "rprompt":try{copiarPP(PROMPT_REC).then(()=>toast("Texto copiado: pegalo en tu IA junto con la foto"),()=>toast("No se pudo copiar"))}catch(e){toast("No se pudo copiar")}return true;
-  case "rpaste":pegarEn("#rimp");return true;
+  case "rpaste":try{leerPP().then(t=>{$("#rimp").value=t},()=>toast("Mantené apretado el cuadro y elegí «Pegar»"))}catch(e){toast("Mantené apretado el cuadro y elegí «Pegar»")}return true;
   case "rimpgo":{const r=importarReceta($("#rimp").value);if(!r.ok.length&&!r.no.length){toast("No encontré ingredientes en el texto");return true}
     if(r.n)RED.n=r.n;if(r.por)RED.por=r.por;for(const [k,g] of Object.entries(r.i))RED.i[k]=(RED.i[k]||0)+g;RED.aviso=r;dibReceta();return true}
   case "redit":abrirReceta(v);return true;
