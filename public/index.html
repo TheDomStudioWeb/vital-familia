@@ -1128,6 +1128,7 @@ try{speechSynthesis&&speechSynthesis.getVoices()}catch(e){}
 render();setTimeout(()=>hcSync(false),2500);
 if(FIREBASE_CONFIG)cloudInit().catch(()=>{CLOUD.on=false;CLOUD.boot=false;toast("No se pudo conectar: modo local");render()});
 </script>
+<script src="programas.js"></script>
 <script src="licencia.js"></script>
 </body>
 </html>

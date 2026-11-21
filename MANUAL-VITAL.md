@@ -259,3 +259,32 @@ Niveles: Inicial, Intermedio y Avanzado, más «Estoy retomando» para quien est
 - Al salir de Comer, la app vuelve sola al día de hoy, para no anotar en otro día sin querer.
 - Anotar una comida de un día pasado no corta el ayuno intermitente en curso.
 - Frase para Claudio: «Si te olvidaste de anotar, entrá a Comer y tocá la flechita de la izquierda para ir al día que querés».
+
+## Programas (segunda tanda, 20/11)
+En **Entrenar → Programas** hay cinco planes. Todos usan el nivel de cada persona y se ajustan con el esfuerzo que marca al terminar (de 1 a 10).
+
+**🏃 Running progresivo.** Cada salida tiene entrada en calor (caminata, balanceo de piernas, círculos de cadera, talones a la cola, rodillas arriba), la carrera y la vuelta a la calma (caminata y estiramientos de isquios, cuádriceps, gemelos, fascia lata y piriforme). Son 3 salidas por semana:
+- Inicial, «Empezar a correr» (8 semanas): alterna trote y caminata hasta correr 25 minutos seguidos.
+- Intermedio, «De 5 a 10 km» (6 semanas): rodaje continuo, intervalos y fondo largo.
+- Avanzado, «Mejorar tu 10K» (6 semanas): tempo, pasadas y fondo largo.
+Cada tramo arranca solo y la voz avisa qué sigue y cuánto dura, así no hay que tocar el teléfono corriendo. Con esfuerzo 9 o 10, se repite la salida (se puede avanzar igual). Con 3 salidas fáciles seguidas, Vital ofrece saltar una semana. También se puede marcar «Ya la hice por mi cuenta». Incluye el test del habla y velocidades de referencia para la cinta. Si la persona marcó rodillas, tobillos, corazón o embarazo, recomienda consultar antes de empezar.
+
+**🧘 Glúteo y fascia lata** (unos 10 minutos): círculos de cadera, fascia lata de pie, piriforme (o paloma en nivel intermedio, si tiene colchoneta), glúteo sentado en silla, torsión acostado y flexor de cadera, más fuerza suave de glúteo medio (almeja y elevación lateral). Con rodillo de espuma suma el rodillo en el costado del muslo y en el glúteo. El nivel se mide por hasta dónde llega con las manos (rodillas, tobillos o piso).
+
+**🤸 Calistenia** por nivel: de flexiones inclinadas y remo australiano bajo una mesa (inicial) a flexiones, dominadas, sentadilla a una pierna, flexión en pica, canoa y burpees (avanzado). Si falta la barra o hay que cuidar una zona, Vital cambia el ejercicio por uno equivalente.
+
+**☯️ Tai Chi**, de pie o en silla: apertura, respiración, empujar y manos de nube (inicial), más separar la crin del caballo y la grulla blanca (practicante). El muñeco muestra cada movimiento, también sentado. La versión en silla es para adultos mayores o para quien tiene poco equilibrio.
+
+**🏋️ Tu rutina de gimnasio** («Cargá tu rutina»): cada persona carga sus días y ejercicios, o empieza con una plantilla (inicial de 3 días, intermedio superior/inferior de 4 días, avanzado de 5 días) y la ajusta. En cada ejercicio anota las series con reps y kilos, y marca cómo salió: limpio, me costó o hubo dolor. Vital sugiere la próxima carga:
+- Con 3 sesiones limpias seguidas al mismo peso, sube un escalón (el escalón de cada máquina se configura: 1, 2,5 o 5 kg).
+- Si hubo dolor, baja un escalón y recomienda consultar si sigue.
+- Si no, mantiene el peso y busca completar las reps.
+El botón «Terminé este día» abre el registro de actividad de gimnasio.
+
+**Niveles.** Además de las actividades, ahora tienen nivel Running, Calistenia, Tai Chi y Elongación. En calistenia, Tai Chi y elongación: con 2 sesiones fáciles seguidas propone subir de nivel, y con esfuerzo 9 o 10 propone bajar.
+
+### Frases para Claudio (programas)
+- «Para empezar a correr, entrá a Entrenar → Programas → Running progresivo y elegí tu nivel.»
+- «Si una salida te costó muchísimo, marcá esfuerzo 9 o 10: Vital te la hace repetir.»
+- «Para la cintilla o el glúteo tenso, usá el programa Glúteo y fascia lata.»
+- «En Tu rutina de gimnasio anotá series, reps y kilos: Vital te dice cuándo subir de peso.»

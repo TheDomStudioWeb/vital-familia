@@ -84,6 +84,47 @@ ANIM["dead-bug"]={view:"side3q",dur:3.4,k:[
   P({root:[-90],hL:[-90],kL:[90],hR:[-15],kR:[5],sR:[-90],sL:[-175],flat:false,level:["shoulderL","pelvis"]}),
   P({root:[-90],h_:[-90],k_:[90],s_:[-90],flat:false,level:["shoulderL","pelvis"]})]};
 
+/* ---------- Tai Chi, elongación y running (nov 2026) ---------- */
+{const B={h_:[-16,0,8],k_:[26]};const TC={
+ "tc-apertura":{view:"front3q",dur:8,k:[{s_:[-6,0,6]},{s_:[-80,0,6],e_:[-8]},{...B,s_:[-30,0,8],e_:[-50]},{s_:[-6,0,6]}]},
+ "tc-respiracion":{view:"front",dur:9,k:[{s_:[-6,0,6]},{s_:[0,0,160],e_:[-10]},{...B,s_:[-20,0,10],e_:[-30]},{s_:[-6,0,6]}]},
+ "tc-empujar":{view:"side3q",dur:6,k:[{...B,s_:[-55,0,10],e_:[-110]},{h_:[-22,0,8],k_:[34],spine:[8],s_:[-85,0,8],e_:[-12]},{...B,s_:[-55,0,10],e_:[-110]}]},
+ "tc-nubes":{view:"front3q",dur:8,k:[
+   {...B,spine:[0,28,0],sL:[-70,0,20],eL:[-80],sR:[-15,0,-10],eR:[-40]},
+   {...B,spine:[0,-28,0],sR:[-70,0,-20],eR:[-80],sL:[-15,0,10],eL:[-40]},
+   {...B,spine:[0,28,0],sL:[-70,0,20],eL:[-80],sR:[-15,0,-10],eR:[-40]}]},
+ "tc-grulla":{view:"front3q",dur:7,k:[
+   {...B,s_:[-30,0,10],e_:[-60]},
+   {hL:[-10],kL:[12],hR:[-12],kR:[18],sR:[-160,0,-20],eR:[-20],sL:[-10,0,25],eL:[-30]},
+   {...B,s_:[-30,0,10],e_:[-60]},
+   {hR:[-10],kR:[12],hL:[-12],kL:[18],sL:[-160,0,20],eL:[-20],sR:[-10,0,-25],eR:[-30]},
+   {...B,s_:[-30,0,10],e_:[-60]}]},
+ "tc-crin":{view:"front3q",dur:8,k:[
+   {...B,sL:[-60,0,10],eL:[-90],sR:[-20,0,-10],eR:[-60]},
+   {spine:[0,25,0],hL:[-35,0,8],kL:[42],hR:[8,0,-8],kR:[10],sL:[-55,0,45],eL:[-25],sR:[5,0,-15],eR:[-15]},
+   {...B,sR:[-60,0,-10],eR:[-90],sL:[-20,0,10],eL:[-60]},
+   {spine:[0,-25,0],hR:[-35,0,-8],kR:[42],hL:[8,0,8],kL:[10],sR:[-55,0,-45],eR:[-25],sL:[5,0,15],eL:[-15]},
+   {...B,sL:[-60,0,10],eL:[-90],sR:[-20,0,-10],eR:[-60]}]}};
+ const LEG=/^(h|k|a)(_|L|R)$/;
+ for(const [id,a] of Object.entries(TC)){
+   ANIM[id]={view:a.view,dur:a.dur,k:a.k.map(o=>P(o))};
+   // versión en silla: mismo movimiento de brazos y tronco, sentado
+   const sen=a.k.map(o=>{const q={};for(const k in o)if(!LEG.test(k))q[k]=o[k];q.h_=[-90];q.k_=[90];q.spine=[(o.spine||[0])[0]+4,(o.spine||[0,0])[1]||0,0];return P(q)});
+   ANIM[id+"-silla"]={view:a.view==="front"?"front3q":a.view,dur:a.dur,chair:true,k:sen}}
+}
+ANIM["estir-tfl-pie"]={view:"front",dur:7,k:[P({s_:[-6,0,6]}),P({hR:[4,0,16],hL:[0,0,-4],spine:[0,0,-12],sR:[0,0,-165],eR:[-10],sL:[-6,0,10]}),P({hR:[4,0,16],hL:[0,0,-4],spine:[0,0,-15],sR:[0,0,-172],eR:[-10],sL:[-6,0,10]}),P({s_:[-6,0,6]})]};
+ANIM["piriforme"]={view:"side3q",dur:7,k:[
+  P({root:[-90],h_:[-60],k_:[100],s_:[-4,0,14],level:["shoulderL","heelR"]}),
+  P({root:[-90],hL:[-105,0,-22],kL:[115],hR:[-8],kR:[4],s_:[-4,0,14],level:["shoulderL","heelR"]}),
+  P({root:[-90],hL:[-110,0,-25],kL:[118],hR:[-8],kR:[4],s_:[-4,0,14],level:["shoulderL","heelR"]}),
+  P({root:[-90],h_:[-60],k_:[100],s_:[-4,0,14],level:["shoulderL","heelR"]})]};
+ANIM["trote"]={view:"side3q",dur:.8,k:[
+  P({spine:[6],hL:[-50],kL:[85],hR:[12],kR:[30],sR:[-40,0,6],sL:[30,0,6],e_:[-90]}),
+  P({spine:[6],hR:[-50],kR:[85],hL:[12],kL:[30],sL:[-40,0,6],sR:[30,0,6],e_:[-90],lift:.04}),
+  P({spine:[6],hL:[-50],kL:[85],hR:[12],kR:[30],sR:[-40,0,6],sL:[30,0,6],e_:[-90]})]};
+ANIM["ritmo-fuerte"]={...ANIM.trote,dur:.6};
+ANIM["talones-cola"]={view:"side3q",dur:1,k:[st({kL:[120],hL:[6],e_:[-90]}),st({e_:[-90]}),st({kR:[120],hR:[6],e_:[-90]}),st({e_:[-90]}),st({kL:[120],hL:[6],e_:[-90]})]};
+
 /* ---------- Construcción del maniquí ---------- */
 function build(THREE){
   const mat=new THREE.MeshPhysicalMaterial({color:0xa9eee2,roughness:.34,metalness:.05,clearcoat:1,clearcoatRoughness:.2,sheen:new THREE.Color(0x6d5bd0)});
