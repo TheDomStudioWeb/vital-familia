@@ -61,7 +61,7 @@ function prediccion(p,dist){const R=VR.records(p);const base=[[R.k10,10],[R.k5,5
   const t=base[0].v*Math.pow((dist===21?21.1:dist)/base[1],1.06);return {t,ritmo:t/(dist===21?21.1:dist)}}
 window.estadoCarrera=function(p){const c=car(p);if(!c)return null;const d=diasEntre(TODAY(),c.fecha);const hechas=c.ses.filter(s=>s.est==="hecha").length;
   if(d<0)return {t:(c.nombre||DIST[c.dist])+" terminada",sub:c.corrida?"¡Felicitaciones! Prepará la próxima":"¿Cómo te fue? Registrá tu carrera"};
-  return {t:"Preparando "+(c.nombre||DIST[c.dist]),sub:d===0?"¡Hoy es la carrera!":`Faltan ${d} ${d===1?"día":"días"} · ${hechas} ${hechas===1?"salida hecha":"salidas hechas"}`}};
+  return {t:"Preparando "+(c.nombre||DIST[c.dist]),sub:d===0?"¡Hoy es la carrera!":`${d} ${d===1?"día":"días"} para la carrera · ${hechas} ${hechas===1?"salida hecha":"salidas hechas"}`}};
 
 /* ---------- Vistas del plan ---------- */
 let FC=null;
@@ -93,7 +93,7 @@ function verCarrera(){const p=P();const c=car(p);if(!c)return formCarrera();
   else cuerpo=`<p class="sm" style="margin-top:12px">No quedan salidas antes de la carrera: descansá y llegá fresco.</p>`;
   const semAct=s?s.sem:null;const sems=[...new Set(c.ses.filter(x=>x.sem).map(x=>x.sem))];
   const fila=x=>{const pas=x.f<TODAY()&&!x.est;return `<span class="pill" title="${nombreSes(x,c.l)}" style="${x.est==="hecha"?"border-color:var(--mint);color:var(--mint)":x.est==="salteada"||pas?"opacity:.45":x===s?"border-color:var(--lime);color:var(--lime)":""}">${DIAS.find(dd=>dd[1]===dow(x.f))[2]} ${Number(x.f.slice(8))} · ${x.t==="calidad"?nomCal(c.l).split(" ")[0]:x.t==="fondo"?"fondo "+x.min+"′":x.t==="activacion"?"activación":(x.t==="suave"?"suave ":"rodaje ")+x.min+"′"}${x.est==="hecha"?" ✓":""}</span>`};
-  sheet(`<h2>🏁 ${esc(nom)}</h2><p class="xs mute">${DIST[c.dist]} · ${fechaTxt(c.fecha)} · ${d>0?`faltan ${d} ${d===1?"día":"días"}`:d===0?"es hoy":"ya pasó"} · nivel ${NIVN[c.l]}</p>
+  sheet(`<h2>🏁 ${esc(nom)}</h2><p class="xs mute">${DIST[c.dist]} · ${fechaTxt(c.fecha)} · ${d>0?`${d} ${d===1?"día":"días"} para la carrera`:d===0?"es hoy":"ya pasó"} · nivel ${NIVN[c.l]}</p>
   ${pr&&d>0?`<p class="sm" style="margin-top:8px">⏱️ Tiempo estimado hoy: <b>${VR.durTxt(pr.t)}</b> (${ritmoTxt(pr.ritmo)} /km), según tus récords.</p>`:""}
   ${c.W<MINSEM[c.dist]&&d>0?`<p class="note" style="margin-top:8px">Hay poco tiempo para ${DIST[c.dist]}: el plan prioriza llegar sano. Si en una salida aparece dolor, frená.</p>`:""}
   ${cuerpo}
@@ -104,7 +104,7 @@ function verCarrera(){const p=P();const c=car(p);if(!c)return formCarrera();
 window.carreraTerminar=function(pr,rpe){const p=P();const c=car(p);if(!c||!c.ses[pr.i])return;c.ses[pr.i].est="hecha";c.ses[pr.i].rpe=rpe;save();
   const i=actual(c),s=i>=0?c.ses[i]:null;const d=diasEntre(TODAY(),c.fecha);
   sheet(`<h1>Guardado 💪</h1><p class="sm">Esfuerzo ${rpe}/10.${rpe>=9?" Fue mucho: tomá la próxima salida más tranquila. Si se repite, bajá el nivel desde el plan.":""}</p>
-  ${s?`<p class="sm" style="margin-top:6px">Próxima: <b>${cuando(s.f).toLowerCase()}, ${nombreSes(s,c.l).toLowerCase()}</b>.</p>`:""}<p class="xs mute">Faltan ${d} ${d===1?"día":"días"} para ${esc(c.nombre||DIST[c.dist])}.</p>
+  ${s?`<p class="sm" style="margin-top:6px">Próxima: <b>${cuando(s.f).toLowerCase()}, ${nombreSes(s,c.l).toLowerCase()}</b>.</p>`:""}<p class="xs mute">${d} ${d===1?"día":"días"} para ${esc(c.nombre||DIST[c.dist])}.</p>
   <button class="btn block" style="margin-top:12px" data-act="close">Listo</button>`)};
 
 /* ---------- Metas ---------- */
@@ -123,7 +123,7 @@ function metas(p){p.metas=p.metas||[];return p.metas}
 function tarjetaMetas(p){const ms=metas(p);
   if(!ms.length)return `<section class="glass org2"><div class="row between"><h2 style="margin:0">🎯 Metas</h2><button class="btn small ghost" data-act="mt-nueva">＋ Meta</button></div><p class="xs mute" style="margin-top:6px">Por ejemplo: 50 km corriendo este mes o 3 entrenamientos por semana.</p></section>`;
   return `<section class="glass org2"><div class="row between"><h2 style="margin:0">🎯 Tus metas</h2>${ms.length<4?`<button class="btn small ghost" data-act="mt-nueva">＋</button>`:""}</div>
-  ${ms.map(m=>{const T=TIPOS[m.t],a=avance(p,m);return `<button class="ex" data-act="mt-edit" data-v="${m.id}" style="display:block;text-align:left"><div class="row between sm"><span>${T.i} ${T.c} ${a.P0.txt}</span><span class="mute">${a.pct>=100?"✓ cumplida":a.resta===0?"último día":"faltan "+a.resta+" días"}</span></div><div class="bar" style="margin:6px 0 4px"><i style="width:${Math.max(3,a.pct)}%;${a.pct>=100?"background:var(--lime)":""}"></i></div><div class="xs"><b>${fmtN(a.v,T.u)}</b> <span class="mute">de ${fmtN(m.v,T.u)}</span></div></button>`}).join("")}</section>`}
+  ${ms.map(m=>{const T=TIPOS[m.t],a=avance(p,m);return `<button class="ex" data-act="mt-edit" data-v="${m.id}" style="display:block;text-align:left"><div class="row between sm"><span>${T.i} ${T.c} ${a.P0.txt}</span><span class="mute">${a.pct>=100?"✓ cumplida":a.resta===0?"último día":a.resta+(a.resta===1?" día más":" días más")}</span></div><div class="bar" style="margin:6px 0 4px"><i style="width:${Math.max(3,a.pct)}%;${a.pct>=100?"background:var(--lime)":""}"></i></div><div class="xs"><b>${fmtN(a.v,T.u)}</b> <span class="mute">de ${fmtN(m.v,T.u)}</span></div></button>`}).join("")}</section>`}
 let MT=null;
 function editarMeta(id){const p=P();const m=id?metas(p).find(x=>x.id===id):null;MT=m?{...m}:{id:uid(),t:"km_run",per:"mes",v:TIPOS.km_run.def.mes,nueva:true};dibMeta()}
 function dibMeta(){const T=TIPOS[MT.t];
@@ -138,10 +138,10 @@ vHoy=function(){let h=_vH();const p=P();revisarCumplidas(p);const i=h.indexOf("A
 
 /* ---------- Para el widget del Launcher Noir (solo en la app de Android) ---------- */
 let ULT="";
-function publicar(){const PL0=nplug("VitalMetas");if(!PL0||!S.profiles.length)return;const p=P();
-  const ms=metas(p).map(m=>{const T=TIPOS[m.t],a=avance(p,m);return {i:T.i,n:T.c+" "+a.P0.txt,v:a.v,meta:m.v,u:T.u,pct:a.pct,resta:a.resta}});
-  const c=car(p);let cr=null;if(c){const d=diasEntre(TODAY(),c.fecha);if(d>=0){const i=actual(c),s=i>=0?c.ses[i]:null;cr={n:c.nombre||DIST[c.dist],dist:c.dist,dias:d,prox:s?cuando(s.f)+": "+nombreSes(s,c.l).toLowerCase():""}}}
-  const body=JSON.stringify({nombre:p.name,metas:ms,carrera:cr});if(body===ULT)return;ULT=body;
+function publicar(){const PL0=nplug("VitalMetas");if(!PL0||!S.profiles.length)return;const p=P();const t=window.T||(x=>x);
+  const ms=metas(p).map(m=>{const T=TIPOS[m.t],a=avance(p,m);return {i:T.i,n:t(T.c+" "+a.P0.txt),v:a.v,meta:m.v,u:T.u,pct:a.pct,resta:a.resta}});
+  const c=car(p);let cr=null;if(c){const d=diasEntre(TODAY(),c.fecha);if(d>=0){const i=actual(c),s=i>=0?c.ses[i]:null;cr={n:c.nombre||DIST[c.dist],dist:c.dist,dias:d,fecha:c.fecha,prox:s?t(cuando(s.f)+": "+nombreSes(s,c.l).toLowerCase()):""}}}
+  const txt={vacio:t("Poné tus metas en Vital y aparecen acá."),hoy:t("¡Hoy!"),dia:t("día"),dias:t("días"),hace:t("hace")};const body=JSON.stringify({nombre:p.name,metas:ms,carrera:cr,txt});if(body===ULT)return;ULT=body;
   try{PL0.publicar({json:JSON.stringify({v:1,ts:Date.now(),...JSON.parse(body)})}).catch(()=>{})}catch(e){}}
 let PT=0;const _render=render;
 render=function(){_render();clearTimeout(PT);PT=setTimeout(publicar,1500)};

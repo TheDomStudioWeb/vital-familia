@@ -23,6 +23,10 @@ public class MetasPlugin extends Plugin {
             ctx.getContentResolver().notifyChange(MetasProvider.URI, null);
         } catch (Exception ignored) {
         }
+        try {
+            VitalWidget.actualizarTodos(ctx);   // widget de la pantalla de inicio
+        } catch (Exception ignored) {
+        }
         call.resolve();
     }
 }

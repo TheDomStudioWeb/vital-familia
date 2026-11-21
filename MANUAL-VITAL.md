@@ -323,3 +323,9 @@ Inspirado en lo que hacen apps como adidas Running, pero simple.
 ### Frases para Claudio (objetivos)
 - «Para preparar una carrera, entrá a Entrenar → Running y tocá “Preparar una carrera con fecha”.»
 - «Las metas se ponen desde la tarjeta Metas en Hoy: por ejemplo, 50 km este mes.»
+
+## Traducciones, widget para cualquier teléfono y permisos del reloj (20/11)
+- **Traducciones:** todo lo nuevo de noviembre (alimentación, recetario, niveles, programas, running, carrera y metas) ya está en inglés y en español con «tú». El diccionario de las novedades está en `public/i18n-dic2.js`. En España también cambian algunos nombres: boniato, aguacate, calabaza, anacardos.
+- **Widget de Vital para la pantalla de inicio** (cualquier launcher: Samsung, Motorola, etc.): se agrega manteniendo apretada la pantalla de inicio → Widgets → Vital. Muestra la cuenta regresiva a la carrera con la próxima salida y hasta 3 metas con su barra. Los días a la carrera se calculan solos; el progreso de las metas se actualiza cada vez que se abre Vital (arriba a la derecha dice hace cuánto). Tocándolo se abre Vital.
+- **Permisos del reloj:** si Vital no pidió el permiso nuevo (distancia), en la tarjeta del reloj el botón **«Permisos»** ahora vuelve a pedir los que falten. Si ya están todos, abre la configuración de Health Connect.
+- Frase para Claudio: «Para tener tus metas en la pantalla de inicio, mantené apretado un lugar vacío, tocá Widgets y elegí Vital.»

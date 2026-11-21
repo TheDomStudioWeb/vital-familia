@@ -14,6 +14,7 @@
    ========================================================= */
 "use strict";
 (function(){
+const LCN=()=>(window.LOC&&LOC.nombres)||"ar";
 
 /* ---------- Alimentos nuevos (por 100 g) ----------
    [id, nombre, grupo, kcal, hidratos, proteínas, grasas, fibra, sodio mg, tacc (0 apto · 1 contiene · 2 verificar logo), unidades] */
@@ -182,6 +183,10 @@ window.RECETARIO=RECETARIO;
 RECETARIO.filter(r=>r.plan).forEach(r=>{const i={};for(const [k,g] of Object.entries(r.i))i[k]=Math.round(g/r.por);
   if(r.ens){i.lechuga=(i.lechuga||0)+50;i.tomate=(i.tomate||0)+80}
   const x={id:r.id,n:r.n+(r.ens?" con ensalada":""),t:r.plan,le:i.garbanzos||i.lentejas?1:0,i};PLATOS.push(x);PLATOM[x.id]=x});
+// Nombres para España y otros países de habla hispana (como hace comer2.js)
+if(LCN()==="es"){const N={hmaiz:"Harina de maíz",castanas:"Anacardos",mascabo:"Azúcar moreno",copos:"Copos de maíz sin azúcar (cereal)",rucula:"Rúcula"};for(const [k,n] of Object.entries(N))if(ALI[k])ALI[k].n=n;
+  const PN={"tostadas-palta":"Tostadas con aguacate y tomate","rv-pizza-batata":"Pizzetas de boniato con ensalada","rv-zapallo-relleno":"Calabaza rellena","rv-milas-berenjena":"Filetes de berenjena rebozados sin gluten con ensalada"};for(const [k,n] of Object.entries(PN))if(PLATOM[k])PLATOM[k].n=n;
+  const RN={"rv-pizza-batata":"Pizzetas de boniato","rv-zapallo-relleno":"Calabaza rellena","rv-milas-berenjena":"Filetes de berenjena rebozados sin gluten","rv-alfajores":"Alfajores sin gluten","rv-pancake":"Tortita sin gluten"};for(const [k,n] of Object.entries(RN))if(RECM[k])RECM[k].n=n}
 const _recPorId=recetaPorId;
 recetaPorId=function(id){return RECM[id]||_recPorId(id)};
 
