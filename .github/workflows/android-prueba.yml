@@ -1,0 +1,43 @@
+name: APK de prueba (ramas)
+
+# Compila el APK en las ramas que no son main, para verificar que todo compila
+# antes de publicar. No crea Releases ni avisa a los usuarios: el APK queda
+# como artefacto de la ejecución (sin firma ni ingreso con Google).
+on:
+  push:
+    branches-ignore: [main]
+    paths-ignore: ["**.md", ".firebaserc", "firebase.json", "firestore.rules"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Dependencias
+        run: npm ci
+
+      - name: Sincronizar la web con Android
+        run: npx cap sync android
+
+      - name: Compilar APK de prueba
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+          cp app/build/outputs/apk/debug/app-debug.apk ../Vital-prueba.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Vital-prueba-apk
+          path: Vital-prueba.apk

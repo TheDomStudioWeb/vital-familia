@@ -11,6 +11,7 @@
     "@capacitor/android": "8.6.2",
     "@capacitor/clipboard": "^8.0.1",
     "@capacitor/core": "8.6.2",
+    "@capgo/background-geolocation": "8.6.5",
     "@capgo/capacitor-health": "8.13.0",
     "firebase": "^12.6.0"
   },

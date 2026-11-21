@@ -834,7 +834,7 @@ setTimeout(checkUpdate,4000);
    RELOJ / HEALTH CONNECT (solo en el APK)
    ========================================================= */
 let HCLAST=0,HCBUSY=false;
-const HC_TYPES=["steps","heartRate","restingHeartRate","oxygenSaturation","sleep","weight","bloodPressure","bloodGlucose","workouts","calories"];const HC_VER=2;
+const HC_TYPES=["steps","distance","heartRate","restingHeartRate","oxygenSaturation","sleep","weight","bloodPressure","bloodGlucose","workouts","calories"];const HC_VER=3;
 const WK_ES={walking:"caminata",running:"carrera",runningTreadmill:"cinta",cycling:"bicicleta",bikingStationary:"bici fija",swimming:"natación",swimmingPool:"natación",hiking:"senderismo",yoga:"yoga",dancing:"baile",dance:"baile",strengthTraining:"fuerza",traditionalStrengthTraining:"fuerza",functionalStrengthTraining:"fuerza",highIntensityIntervalTraining:"HIIT",elliptical:"elíptico",pilates:"pilates",soccer:"fútbol",other:"actividad"};
 async function hcConnect(){const H=nplug("Health");if(!H)return;
   try{const a=await H.isAvailable();if(!a.available){sheet(`<h2>Falta Health Connect</h2><p class="sm">En Android 14 o más nuevo ya viene en Ajustes. En versiones anteriores, instalá <b>Health Connect</b> desde Play Store y volvé a tocar «Conectar».</p><button class="btn block" style="margin-top:12px" data-act="close">Entendido</button>`);return}
@@ -859,7 +859,7 @@ async function hcSync(force){const H=nplug("Health");if(!H||!S.settings.hc||HCBU
     const last=ss[ss.length-1];let v=last.value;if(v<=1)v*=100;D(pid).spo2={v:Math.round(v),ts:Date.parse(last.startDate)}});
   for(const [dt,t] of [["weight","peso"],["bloodGlucose","glucosa"],["bloodPressure","presion"]])await safe(async()=>{const r=await H.readSamples({dataType:dt,startDate:iso(dayStart(addDays(TODAY(),-30))),endDate:iso(now),limit:200});(r.samples||[]).forEach(s=>{const id=s.platformId||(dt+s.startDate);if(has(t,id))return;const m={id:uid(),t,v:Math.round((t==="peso"?s.value:s.systolic||s.value)*10)/10,k:dkey(new Date(s.startDate)),ts:Date.parse(s.startDate),hc:id};if(t==="presion"){m.v=Math.round(s.systolic||s.value);m.v2=Math.round(s.diastolic||0);if(!m.v2)return}M.push(m);if(t==="peso")p.weight=m.v})});
   await safe(async()=>{const y=dayStart(TODAY());y.setHours(-6);const r=await H.readSamples({dataType:"sleep",startDate:iso(y),endDate:iso(now),limit:50});let min=0;(r.samples||[]).forEach(s=>{if(!s.sleepState||["asleep","light","deep","rem"].includes(s.sleepState)||s.stages)min+=s.value||((Date.parse(s.endDate)-Date.parse(s.startDate))/6e4)});if(min>60)D(pid).sleepHc=Math.round(min/6)/10});
-  await safe(async()=>{const r=await H.queryWorkouts({startDate:iso(dayStart(addDays(TODAY(),-6))),endDate:iso(now),limit:50});(r.workouts||[]).forEach(w=>{if(/vital/i.test(w.sourceName||""))return;const k=dkey(new Date(w.startDate));const d=D(pid,k);d.ext=d.ext||[];const id=w.platformId||w.startDate;if(d.ext.some(x=>x.id===id)||(d.extLinked||[]).includes(id))return;const st=Date.parse(w.startDate);if(d.workouts.some(v=>v.src==="act"&&v.start&&Math.abs(v.start-st)<45*6e4))return;const min=Math.round((Date.parse(w.endDate)-Date.parse(w.startDate))/6e4);if(min<5)return;d.ext.push({id,name:WK_ES[w.workoutType]||"actividad",min,start:st,kcal:Math.round(w.totalEnergyBurned||0)})})});
+  await safe(async()=>{const r=await H.queryWorkouts({startDate:iso(dayStart(addDays(TODAY(),-6))),endDate:iso(now),limit:50});(r.workouts||[]).forEach(w=>{if(/vital/i.test(w.sourceName||""))return;const k=dkey(new Date(w.startDate));const d=D(pid,k);d.ext=d.ext||[];const id=w.platformId||w.startDate;if(d.ext.some(x=>x.id===id)||(d.extLinked||[]).includes(id))return;const st=Date.parse(w.startDate);if(d.workouts.some(v=>v.src==="act"&&v.start&&Math.abs(v.start-st)<45*6e4))return;const min=Math.round((Date.parse(w.endDate)-Date.parse(w.startDate))/6e4);if(min<5)return;d.ext.push({id,name:WK_ES[w.workoutType]||"actividad",min,start:st,kcal:Math.round(w.totalEnergyBurned||0),km:w.totalDistance>0?Math.round(w.totalDistance/10)/100:0})})});
   // pulso durante los entrenamientos hechos en Vital
   for(const k of [TODAY(),addDays(TODAY(),-1),addDays(TODAY(),-2)]){const d=L(pid).days[k];if(!d)continue;for(const w of d.workouts){if(w.hrAvg||Date.now()-w.ts<3*60e3)continue;
     await safe(async()=>{const r=await H.readSamples({dataType:"heartRate",startDate:iso(new Date((w.start||w.ts-w.min*60e3)-60e3)),endDate:iso(new Date(w.ts+60e3)),limit:3000});const v=(r.samples||[]).map(s=>s.value).filter(x=>x>30&&x<230);if(v.length>=3){w.hrAvg=Math.round(avg(v));w.hrMax=Math.round(Math.max(...v))}})}}
@@ -1128,6 +1128,8 @@ try{speechSynthesis&&speechSynthesis.getVoices()}catch(e){}
 render();setTimeout(()=>hcSync(false),2500);
 if(FIREBASE_CONFIG)cloudInit().catch(()=>{CLOUD.on=false;CLOUD.boot=false;toast("No se pudo conectar: modo local");render()});
 </script>
+<script src="programas.js"></script>
+<script src="carrera.js"></script>
 <script src="licencia.js"></script>
 </body>
 </html>

@@ -259,3 +259,48 @@ Niveles: Inicial, Intermedio y Avanzado, más «Estoy retomando» para quien est
 - Al salir de Comer, la app vuelve sola al día de hoy, para no anotar en otro día sin querer.
 - Anotar una comida de un día pasado no corta el ayuno intermitente en curso.
 - Frase para Claudio: «Si te olvidaste de anotar, entrá a Comer y tocá la flechita de la izquierda para ir al día que querés».
+
+## Programas (segunda tanda, 20/11)
+En **Entrenar → Programas** hay cinco planes. Todos usan el nivel de cada persona y se ajustan con el esfuerzo que marca al terminar (de 1 a 10).
+
+**🏃 Running progresivo.** Cada salida tiene entrada en calor (caminata, balanceo de piernas, círculos de cadera, talones a la cola, rodillas arriba), la carrera y la vuelta a la calma (caminata y estiramientos de isquios, cuádriceps, gemelos, fascia lata y piriforme). Son 3 salidas por semana:
+- Inicial, «Empezar a correr» (8 semanas): alterna trote y caminata hasta correr 25 minutos seguidos.
+- Intermedio, «De 5 a 10 km» (6 semanas): rodaje continuo, intervalos y fondo largo.
+- Avanzado, «Mejorar tu 10K» (6 semanas): tempo, pasadas y fondo largo.
+Cada tramo arranca solo y la voz avisa qué sigue y cuánto dura, así no hay que tocar el teléfono corriendo. Con esfuerzo 9 o 10, se repite la salida (se puede avanzar igual). Con 3 salidas fáciles seguidas, Vital ofrece saltar una semana. También se puede marcar «Ya la hice por mi cuenta». Incluye el test del habla y velocidades de referencia para la cinta. Si la persona marcó rodillas, tobillos, corazón o embarazo, recomienda consultar antes de empezar.
+
+**🧘 Glúteo y fascia lata** (unos 10 minutos): círculos de cadera, fascia lata de pie, piriforme (o paloma en nivel intermedio, si tiene colchoneta), glúteo sentado en silla, torsión acostado y flexor de cadera, más fuerza suave de glúteo medio (almeja y elevación lateral). Con rodillo de espuma suma el rodillo en el costado del muslo y en el glúteo. El nivel se mide por hasta dónde llega con las manos (rodillas, tobillos o piso).
+
+**🤸 Calistenia** por nivel: de flexiones inclinadas y remo australiano bajo una mesa (inicial) a flexiones, dominadas, sentadilla a una pierna, flexión en pica, canoa y burpees (avanzado). Si falta la barra o hay que cuidar una zona, Vital cambia el ejercicio por uno equivalente.
+
+**☯️ Tai Chi**, de pie o en silla: apertura, respiración, empujar y manos de nube (inicial), más separar la crin del caballo y la grulla blanca (practicante). El muñeco muestra cada movimiento, también sentado. La versión en silla es para adultos mayores o para quien tiene poco equilibrio.
+
+**🏋️ Tu rutina de gimnasio** («Cargá tu rutina»): cada persona carga sus días y ejercicios, o empieza con una plantilla (inicial de 3 días, intermedio superior/inferior de 4 días, avanzado de 5 días) y la ajusta. En cada ejercicio anota las series con reps y kilos, y marca cómo salió: limpio, me costó o hubo dolor. Vital sugiere la próxima carga:
+- Con 3 sesiones limpias seguidas al mismo peso, sube un escalón (el escalón de cada máquina se configura: 1, 2,5 o 5 kg).
+- Si hubo dolor, baja un escalón y recomienda consultar si sigue.
+- Si no, mantiene el peso y busca completar las reps.
+El botón «Terminé este día» abre el registro de actividad de gimnasio.
+
+**Niveles.** Además de las actividades, ahora tienen nivel Running, Calistenia, Tai Chi y Elongación. En calistenia, Tai Chi y elongación: con 2 sesiones fáciles seguidas propone subir de nivel, y con esfuerzo 9 o 10 propone bajar.
+
+### Frases para Claudio (programas)
+- «Para empezar a correr, entrá a Entrenar → Programas → Running progresivo y elegí tu nivel.»
+- «Si una salida te costó muchísimo, marcá esfuerzo 9 o 10: Vital te la hace repetir.»
+- «Para la cintilla o el glúteo tenso, usá el programa Glúteo y fascia lata.»
+- «En Tu rutina de gimnasio anotá series, reps y kilos: Vital te dice cuándo subir de peso.»
+
+## Distancia, ritmo, récords y zapatillas (running, 20/11)
+Inspirado en lo que hacen apps como adidas Running, pero simple.
+- **GPS en las salidas del programa.** En la ficha de Running progresivo está la opción «📍 Medir distancia y ritmo con GPS» (viene activada). En la app de Android mide con la pantalla apagada y el teléfono en el bolsillo; mientras mide aparece una notificación fija: «Vital está midiendo tu salida». La primera vez el teléfono pide permiso de ubicación. En iPhone y en la web mide solo con la pantalla prendida.
+- **Voz en cada kilómetro:** «Kilómetro 2. Ritmo 6 minutos 10 por kilómetro». En pantalla se ven los kilómetros y el ritmo en vivo.
+- **Pausa automática para el ritmo:** el tiempo parado (un semáforo, atarse las zapatillas) no cuenta para el ritmo.
+- **Privacidad:** se guarda solo la distancia, el tiempo y el ritmo por kilómetro, nunca el recorrido.
+- **Distancia del reloj:** cuando Vital sincroniza con Health Connect, busca la carrera que registró el reloj en el mismo horario y trae su distancia. Sirve para las salidas del programa y para los running registrados a mano. Si hay GPS y reloj, se usa el GPS y se guarda también el dato del reloj. Las carreras del reloj que aparecen para importar también traen los kilómetros. Algunos relojes genéricos (por ejemplo, los que usan GloryFitPro) mandan solo pasos y pulso: en ese caso la distancia sale del GPS.
+- **Al terminar la salida:** kilómetros, ritmo promedio, ritmo de cada kilómetro y aviso de récord.
+- **Récords personales:** mejor kilómetro, 5 km, 10 km, media maratón y salida más larga.
+- **Zapatillas:** se cargan los pares con los kilómetros que ya tienen. Cada salida suma al par en uso, y Vital avisa al llegar al 80 % de los 700 km recomendados.
+- En Evolución, las salidas del programa cuentan como Running y suman kilómetros.
+
+### Frases para Claudio (carrera)
+- «Si no tenés reloj, dejá activado el GPS en Running progresivo: Vital mide la distancia y te dice el ritmo en cada kilómetro.»
+- «Cargá tus zapatillas en Running progresivo y Vital te avisa cuándo cambiarlas.»
