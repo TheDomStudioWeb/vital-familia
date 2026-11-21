@@ -362,7 +362,7 @@ window.comerAct=function(a,v){const p=P();
   case "c2-fcalc":{const r=importarReceta(($("#c2-ftxt")||{}).value||"");if(!Object.keys(r.i).length){toast("No encontré ingredientes: pegá la tabla que te dio la IA");return true}
     const por=Math.max(1,r.por||1);const i={};for(const [k,g] of Object.entries(r.i))i[k]=g/por;FOTO={n:r.n,i,no:r.no.concat(r.sinq)};if(FMODO==="receta"){fotoAReceta();if(FOTO.no.length)toast("No reconocí: "+FOTO.no.join(", "));return true}dibFoto();return true}
   case "c2-fdel":leerFoto();delete FOTO.i[v];if(!Object.keys(FOTO.i).length){abrirFoto();return true}dibFoto();return true;
-  case "c2-fsave":{leerFoto();const it=itemLibre(FOTO.n,FOTO.i,p);it.meal=FSEL.meal;diaComida(p).push(it);if(p.ayuno&&it.kcal>15)terminarAyuno(p,true);save();closeSheet();comerTab="hoy";if(current!=="comer")location.hash="#comer";else render();toast("Anotado · calidad "+it.q);return true}
+  case "c2-fsave":{leerFoto();const it=itemLibre(FOTO.n,FOTO.i,p);it.meal=FSEL.meal;diaComida(p).push(it);if(p.ayuno&&it.kcal>15&&!(window.diaSelC&&diaSelC()!==TODAY()))terminarAyuno(p,true);save();closeSheet();comerTab="hoy";if(current!=="comer")location.hash="#comer";else render();toast("Anotado · calidad "+it.q);return true}
   case "c2-cod":abrirCodigo();return true;
   case "c2-codbus":resolverCodigo(($("#c2-codnum")||{}).value||"");return true;
   case "c2-mano":abrirMano({});return true;

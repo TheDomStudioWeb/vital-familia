@@ -258,13 +258,13 @@ function fmtPeso(g){if(g>=1000)return (Math.round(g/100)/10).toLocaleString("es-
 
 /* ---------- Vista ---------- */
 let comerTab="hoy";
-function vComer(){const p=P();const ref=kcalObjetivo(p);const r=resumenDia(p);const f=(L(p.id).days[TODAY()]||{}).food||[];
+function vComer(){const p=P();const ref=kcalObjetivo(p);const r=resumenDia(p);const f=(L(p.id).days[(window.diaSelC?diaSelC():TODAY())]||{}).food||[];
   const tabs=`<div class="tabs2">${[["hoy","Hoy"],["plan","Plan semanal"],["recetas","Recetas"]].map(([k,n])=>`<button class="chip" data-act="ctab" data-v="${k}" style="${comerTab===k?"border-color:var(--mint);background:rgba(94,234,212,.2)":""}">${n}</button>`).join("")}</div>`;
   let body="";
   if(comerTab==="hoy"){
     const porComida=Object.keys(COMIDAS).map(cm=>{const it=f.filter(x=>x.meal===cm);if(!it.length)return "";const hc=it.reduce((a,x)=>a+x.hc,0);
       return `<div class="blockt">${COMIDAS[cm]}${esDiabetico(p)?` · ${hc} g de hidratos`:""}</div>${it.map(x=>`<div class="ex"><span class="ico" style="background:${colorCal(x.q)}33;font-size:15px;font-weight:800">${x.q}</span><span class="t"><b>${esc(x.n)}</b><span>${fracTxt(x)}${esMenor(p)?"":" · "+x.kcal+" kcal"} · HC ${x.hc} g${x.tacc===1&&esCeliaco(p)?' · <span style="color:var(--bad)">⚠ contiene TACC</span>':""}${window.avisoItem?window.avisoItem(x,p):""}</span></span><button class="iconbtn" data-act="fdel" data-v="${x.id}">✕</button></div>`).join("")}`}).join("");
-    const plan=p.plan&&p.plan.dias.find(d=>d.k===TODAY());
+    const plan=p.plan&&p.plan.dias.find(d=>d.k===(window.diaSelC?diaSelC():TODAY()));
     body=`<section class="glass org1"><div class="row" style="gap:14px;justify-content:space-around;text-align:center">
       <div>${ring(r.q/100,colorCal(r.q),104,11,`<div style="font-size:26px;font-weight:800">${r.n?r.q:"–"}</div><div class="xs mute">calidad</div>`)}<div class="xs" style="margin-top:4px">${r.n?etiquetaQ(r.q):"Sin registros"}</div></div>
       ${ref?`<div>${ring(r.kcal/ref.kcal,"#fdba74",104,11,`<div style="font-size:22px;font-weight:800">${r.kcal}</div><div class="xs mute">/ ${ref.kcal} kcal</div>`)}<div class="xs" style="margin-top:4px">referencia</div></div>`:""}
@@ -408,8 +408,8 @@ window.comerAct=function(a,v){const p=P();
   case "fpick":{const [s,r]=v.split(":");abrirPorcion(s,r);return true}
   case "ffac":FSEL.f=+v;dibPorcion();return true;
   case "fsave":{const it=itemDesde(FSEL.src,FSEL.ref,FSEL.f,p);it.meal=FSEL.meal;diaComida(p).push(it);save();closeSheet();comerTab="hoy";if(current!=="comer")location.hash="#comer";else render();toast("Anotado · calidad "+it.q);return true}
-  case "fdel":{const d=D(p.id);d.food=(d.food||[]).filter(x=>x.id!==v);save();render();return true}
-  case "fplan":{const pl=p.plan.dias.find(d=>d.k===TODAY());const it=itemDesde("plato",pl[v],p.plan.factor,p);it.meal=v;diaComida(p).push(it);save();render();toast("Anotado: "+it.n);return true}
+  case "fdel":{const d=D(p.id,(window.diaSelC?diaSelC():TODAY()));d.food=(d.food||[]).filter(x=>x.id!==v);save();render();return true}
+  case "fplan":{const pl=p.plan.dias.find(d=>d.k===(window.diaSelC?diaSelC():TODAY()));const it=itemDesde("plato",pl[v],p.plan.factor,p);it.meal=v;diaComida(p).push(it);save();render();toast("Anotado: "+it.n);return true}
   case "pgen":p.plan=armarPlan(p);save();render();toast("Plan armado con productos de temporada");return true;
   case "ppers":p.planPersonas=+v;save();render();return true;
   case "plista":mostrarLista();return true;

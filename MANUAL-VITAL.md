@@ -251,3 +251,11 @@ Niveles: Inicial, Intermedio y Avanzado, más «Estoy retomando» para quien est
 1. Elongación de glúteo y fascia lata (cintilla iliotibial) y running progresivo con calentamiento, carrera y vuelta a la calma, que arranca según el nivel elegido.
 2. «Cargá tu rutina»: el que va al gimnasio carga su rutina, registra cargas y Vital le sugiere la próxima (regla: 3 sesiones limpias antes de subir).
 3. Calistenia, musculación y Tai Chi (también en silla).
+
+## Cargar comidas de días pasados (20/11)
+- En Comer → Hoy, arriba aparece el día con flechas ‹ y ›. Con ‹ se va a días anteriores (hasta 30 días atrás) para anotar lo que alguien se olvidó de cargar.
+- Mientras se mira un día pasado aparece el aviso «Lo que anotes ahora queda en …» y el botón «Volver a hoy». Al registrar también se ve «Se anota en: …».
+- Se pueden anotar y borrar comidas de ese día, y los anillos de calidad, calorías y hidratos muestran ese día.
+- Al salir de Comer, la app vuelve sola al día de hoy, para no anotar en otro día sin querer.
+- Anotar una comida de un día pasado no corta el ayuno intermitente en curso.
+- Frase para Claudio: «Si te olvidaste de anotar, entrá a Comer y tocá la flechita de la izquierda para ir al día que querés».

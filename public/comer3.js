@@ -200,6 +200,30 @@ dibPorcion=function(){_dibPor();const p=P();const it={src:FSEL.src,ref:FSEL.ref}
   const sh=document.querySelector("#layer .sheet");if(!m.length||!sh)return;const h2=sh.querySelector("h2");if(!h2)return;
   const n=document.createElement("p");n.className="note";n.style.marginTop="8px";n.style.borderColor="var(--bad)";n.innerHTML="⚠ Ojo: tiene "+esc(m.join(", "))+". Revisá antes de comerlo.";h2.after(n)};
 
+
+/* ---------- Cargar comidas de días pasados ----------
+   En Comer → Hoy se puede ir a días anteriores (hasta 30) y anotar lo que se olvidó.
+   Al salir de Comer vuelve solo al día de hoy, para no anotar en otro día sin querer. */
+let CDIA=null;
+const DIAS_ATRAS=30;
+window.diaSelC=()=>CDIA||TODAY();
+const pasado=()=>!!CDIA&&CDIA!==TODAY();
+function nombreDia(k){if(k===TODAY())return "Hoy";if(k===addDays(TODAY(),-1))return "Ayer";
+  const t=new Date(k+"T12:00").toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"short"});return t.charAt(0).toUpperCase()+t.slice(1)}
+window.addEventListener("hashchange",()=>{if(location.hash!=="#comer")CDIA=null});
+const _resDia=resumenDia;
+resumenDia=function(p,k){return _resDia(p,k||(location.hash==="#comer"?diaSelC():TODAY()))};
+const _dCom=diaComida;
+diaComida=function(p,k){return _dCom(p,k||diaSelC())};
+function barraDia(){const k=diaSelC();const min=addDays(TODAY(),-DIAS_ATRAS);
+  return `<div class="row between" style="margin:10px 0 4px;gap:8px"><button class="btn small ghost" data-act="cdia" data-v="-1" ${k<=min?"disabled":""} aria-label="Día anterior">‹</button>
+  <div style="text-align:center;flex:1"><b>${nombreDia(k)}</b>${pasado()?`<div class="xs mute">Cargando un día pasado</div>`:`<div class="xs mute">¿Te olvidaste de anotar? Tocá ‹</div>`}</div>
+  <button class="btn small ghost" data-act="cdia" data-v="1" ${k>=TODAY()?"disabled":""} aria-label="Día siguiente">›</button></div>
+  ${pasado()?`<p class="note" style="margin:6px 0 10px">📅 Lo que anotes ahora queda en <b>${nombreDia(k).toLowerCase()}</b>. <button class="chip" data-act="cdia" data-v="hoy">Volver a hoy</button></p>`:""}`}
+const _dReg=dibRegistrar;
+dibRegistrar=function(){_dReg();if(!pasado())return;const sh=document.querySelector("#layer .sheet");const h2=sh&&sh.querySelector("h2");if(!h2||sh.querySelector(".c3-dia"))return;
+  const n=document.createElement("p");n.className="note c3-dia";n.style.marginTop="8px";n.textContent="📅 Se anota en: "+nombreDia(diaSelC()).toLowerCase();h2.after(n)};
+
 /* ---------- Notas del plan y recetario ---------- */
 function notasPlan(p){const al=alergDe(p),out=[];
   const sacamos=al.filter(a=>a!=="lactosa").map(a=>a==="aplv"?"lácteos":ALERG[a].toLowerCase());
@@ -239,12 +263,16 @@ const _vC=vComer;
 vComer=function(){const p=P();let h=_vC();
   if(comerTab==="plan"&&p.plan){const n=notasPlan(p);if(n){const a=h.indexOf("Tu semana");const b=a>0?h.indexOf("</div>",a):-1;if(b>0)h=h.slice(0,b+6)+n+h.slice(b+6)}}
   if(comerTab==="plan"&&!p.plan){const n=notasPlan(p);if(n){const a=h.indexOf('data-act="pgen"');const b=a>0?h.indexOf("</button>",a):-1;if(b>0)h=h.slice(0,b+9)+n+h.slice(b+9)}}
+  if(comerTab==="hoy"){const a=h.indexOf('class="tabs2"');const b=a>0?h.indexOf("</div>",a):-1;if(b>0)h=h.slice(0,b+6)+barraDia()+h.slice(b+6);
+    if(pasado())h=h.replace("Hidratos de hoy","Hidratos del día").replace("Lo que comiste hoy","Lo que comiste el "+nombreDia(diaSelC()).toLowerCase())}
   if(comerTab==="recetas"){const a=h.indexOf("Recetas de casa");const b=a>0?h.indexOf("</section>",a):-1;if(b>0)h=h.slice(0,b+10)+secRecetario(p)+h.slice(b+10)}
   return h};
 
 const _ca=window.comerAct;
 window.comerAct=function(a,v){
   if(a==="rv"){verReceta(v);return true}
+  if(a==="cdia"){if(v==="hoy")CDIA=null;else{const k=addDays(diaSelC(),+v);CDIA=k>=TODAY()?null:(k<addDays(TODAY(),-DIAS_ATRAS)?addDays(TODAY(),-DIAS_ATRAS):k)}render();return true}
+  if((a==="fsave"||a==="c2-fsave")&&pasado()){const k=diaSelC();const r=_ca(a,v);comerTab="hoy";if(location.hash==="#comer")render();setTimeout(()=>toast("Anotado en "+nombreDia(k).toLowerCase()),50);return r}
   if(a==="rvan"){abrirRegistrar(comidaSugerida());abrirPorcion("receta",v);return true}
   return _ca(a,v)};
 })();
