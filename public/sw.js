@@ -1,4 +1,4 @@
-const C="vital-v18";const A=["./","./index.html","./config.js","./version.js","./i18n.js","./i18n-dic.js","./comer.js","./actividad.js","./comer2.js","./licencia.js","./manifest.json","./icon.svg","./muneco.js","./vendor/three.min.js","./vendor/capacitor.js","./vendor/firebase-app-compat.js","./vendor/firebase-auth-compat.js","./vendor/firebase-firestore-compat.js"];
+const C="vital-v19";const A=["./","./index.html","./config.js","./version.js","./i18n.js","./i18n-dic.js","./comer.js","./actividad.js","./comer2.js","./comer3.js","./licencia.js","./manifest.json","./icon.svg","./muneco.js","./vendor/three.min.js","./vendor/capacitor.js","./vendor/firebase-app-compat.js","./vendor/firebase-auth-compat.js","./vendor/firebase-firestore-compat.js"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(A)));self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim()});
 self.addEventListener("fetch",e=>{if(e.request.method!=="GET")return;const u=new URL(e.request.url);

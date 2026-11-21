@@ -124,14 +124,17 @@ Object.assign(SINTACC,{noquis:"noquisst",ravioles:"raviolesst",raviolescarne:"ra
 if(PLATOM.facturas)PLATOM.facturas.noveg=1;   // facturas: llevan grasa animal o manteca
 
 /* ---------- Dieta ---------- */
-const CARNE=new Set(["pechuga","muslo","carne","asado","picada","cerdo","merluza","atun","jamon","chorizo","salchicha","hambcong","salmon","pavo","raviolescarne","sorrentinos","capeletis",...CORTES.map(c=>c[0])]);
-const ANIMAL=new Set(["huevo","queso","muzza","rallado","untable","ricota","leche","lechedesc","yogur","manteca","mayonesa","miel","ddl","facturas","bizcochitos","alfajor","galledulce","caldo","noquis","noquisst","ravioles","raviolesst","agnolotis","canelones","tallarines","lasana"]);
+const PESC=new Set(["merluza","atun","salmon","langostinos","mariscos","sardinas"]);
+const CARNE=new Set(["langostinos","mariscos","sardinas","pechuga","muslo","carne","asado","picada","cerdo","merluza","atun","jamon","chorizo","salchicha","hambcong","salmon","pavo","raviolescarne","sorrentinos","capeletis",...CORTES.map(c=>c[0])]);
+const ANIMAL=new Set(["lechepolvo","lechesl","yogursl","huevo","queso","muzza","rallado","untable","ricota","leche","lechedesc","yogur","manteca","mayonesa","miel","ddl","facturas","bizcochitos","alfajor","galledulce","caldo","noquis","noquisst","ravioles","raviolesst","agnolotis","canelones","tallarines","lasana"]);
 function dietaDe(ing){const ks=Object.keys(ing);if(ks.some(k=>CARNE.has(k)))return "omni";if(ks.some(k=>ANIMAL.has(k)))return "veggie";return "vegano"}
 function apto(pl,p){const d=(p&&p.dieta)||"";const dd=dietaDe(pl.i);
+  if(d==="pesce"&&Object.keys(pl.i).some(k=>CARNE.has(k)&&!PESC.has(k)))return false;
   if(d==="veggie"&&dd==="omni")return false;if(d==="vegano"&&(dd!=="vegano"||pl.noveg))return false;return true}
 function enPais(pl){if(pl.solo&&!pl.solo.includes(LC.pais))return false;if(pl.x&&pl.x.includes(LC.pais))return false;return true}
 window.dietaDe=dietaDe;window.platoApto=apto;
-const DIETAS={"":"Como de todo",veggie:"Vegetariana",vegano:"Vegana"};window.DIETAS=DIETAS;
+const DIETAS={"":"Como de todo",flexi:"Flexitariana (poca carne)",medit:"Mediterránea",pesce:"Pescetariana (sin carne, con pescado)",veggie:"Vegetariana",vegano:"Vegana",prote:"Alta en proteína",lowcarb:"Baja en hidratos"};window.DIETAS=DIETAS;
+window.DIETA_ICO={flexi:"🌿 ",medit:"🫒 ",pesce:"🐟 ",veggie:"🌱 ",vegano:"🌱 ",prote:"💪 ",lowcarb:"🥗 "};
 function conPlatos(lista,fn){const bak=PLATOS.slice();PLATOS.length=0;PLATOS.push(...lista);try{return fn()}finally{PLATOS.length=0;PLATOS.push(...bak)}}
 
 /* ---------- Nombres por país e idioma ---------- */
@@ -335,10 +338,10 @@ setInterval(()=>{try{if(typeof current!=="undefined"&&current==="comer"&&comerTa
 /* ---------- Vista: agregados a Comer ---------- */
 const _vComer=vComer;
 vComer=function(){const p=P();let h=_vComer();
-  const dTxt={veggie:" vegetarianas",vegano:" veganas"}[p.dieta]||"";
+  const dTxt={veggie:" vegetarianas",vegano:" veganas",pesce:" pescetarianas",medit:" de estilo mediterráneo",flexi:" con poca carne",prote:" altas en proteína",lowcarb:" bajas en hidratos"}[p.dieta]||"";
   if(LC.pais!=="AR")h=h.replace("Comidas argentinas de todos los días, con verduras y frutas de temporada en Cuyo","Comidas caseras de todos los días, con verduras y frutas de temporada");
   if(dTxt)h=h.replace("Comidas argentinas de todos los días","Comidas argentinas"+dTxt+" de todos los días").replace("Comidas caseras de todos los días","Comidas caseras"+dTxt+" de todos los días");
-  if(comerTab==="plan"&&p.dieta){const nota=p.dieta==="vegano"?`<p class="note green" style="margin-top:10px">🌱 Plan vegano. La vitamina B12 no está en los alimentos vegetales: hace falta tomarla como suplemento. Consultá la dosis con tu médico o nutricionista.</p>`:`<p class="note green" style="margin-top:10px">🌱 Plan vegetariano: las legumbres, el huevo, los lácteos y la soja aportan las proteínas.</p>`;
+  if(comerTab==="plan"&&(p.dieta==="veggie"||p.dieta==="vegano")){const nota=p.dieta==="vegano"?`<p class="note green" style="margin-top:10px">🌱 Plan vegano. La vitamina B12 no está en los alimentos vegetales: hace falta tomarla como suplemento. Consultá la dosis con tu médico o nutricionista.</p>`:`<p class="note green" style="margin-top:10px">🌱 Plan vegetariano: las legumbres, el huevo, los lácteos y la soja aportan las proteínas.</p>`;
     const extra=(esMenor(p)||(p.limits||[]).includes("embarazo"))?`<p class="note" style="margin-top:8px">En chicos, adolescentes y durante el embarazo, una alimentación ${p.dieta==="vegano"?"vegana":"vegetariana"} conviene armarla con un nutricionista.</p>`:"";
     const i=h.indexOf("</h2>",h.indexOf('class="glass org1"'));if(i>0){const j=h.indexOf("</div>",i);const k=j>0&&j-i<200?j+6:i+5;h=h.slice(0,k)+nota+extra+h.slice(k)}}
   if(comerTab==="hoy"){const marca='<section class="glass org1">';const a=h.indexOf(marca);if(a>=0){const b=h.indexOf("</section>",a);if(b>0)h=h.slice(0,b+10)+ayunoCard(p)+h.slice(b+10)}}
@@ -359,7 +362,7 @@ window.comerAct=function(a,v){const p=P();
   case "c2-fcalc":{const r=importarReceta(($("#c2-ftxt")||{}).value||"");if(!Object.keys(r.i).length){toast("No encontré ingredientes: pegá la tabla que te dio la IA");return true}
     const por=Math.max(1,r.por||1);const i={};for(const [k,g] of Object.entries(r.i))i[k]=g/por;FOTO={n:r.n,i,no:r.no.concat(r.sinq)};if(FMODO==="receta"){fotoAReceta();if(FOTO.no.length)toast("No reconocí: "+FOTO.no.join(", "));return true}dibFoto();return true}
   case "c2-fdel":leerFoto();delete FOTO.i[v];if(!Object.keys(FOTO.i).length){abrirFoto();return true}dibFoto();return true;
-  case "c2-fsave":{leerFoto();const it=itemLibre(FOTO.n,FOTO.i,p);it.meal=FSEL.meal;diaComida(p).push(it);if(p.ayuno&&it.kcal>15)terminarAyuno(p,true);save();closeSheet();comerTab="hoy";if(current!=="comer")location.hash="#comer";else render();toast("Anotado · calidad "+it.q);return true}
+  case "c2-fsave":{leerFoto();const it=itemLibre(FOTO.n,FOTO.i,p);it.meal=FSEL.meal;diaComida(p).push(it);if(p.ayuno&&it.kcal>15&&!(window.diaSelC&&diaSelC()!==TODAY()))terminarAyuno(p,true);save();closeSheet();comerTab="hoy";if(current!=="comer")location.hash="#comer";else render();toast("Anotado · calidad "+it.q);return true}
   case "c2-cod":abrirCodigo();return true;
   case "c2-codbus":resolverCodigo(($("#c2-codnum")||{}).value||"");return true;
   case "c2-mano":abrirMano({});return true;

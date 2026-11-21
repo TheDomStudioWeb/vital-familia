@@ -236,11 +236,11 @@ function armarPlan(p){const m=mesActual();const ref=kcalObjetivo(p);const cel=es
   const evalPl=pl=>{const ad=adaptar(pl.i,p);const t=nutri(ad.ing);const q=calidad(t,pl.t);
     const prodTemp=Object.keys(pl.i).filter(k=>ALI[k]&&["verd","fruta","fecula"].includes(ALI[k].c)&&ALI[k].s);const temp=prodTemp.length?prodTemp.filter(k=>enTemporada(ALI[k],m)).length/prodTemp.length:1;
     let sc=q.s+(enTemporada(pl,m)?10:-25)+temp*15+Math.random()*12;
-    if(dia&&t.hc>65)sc-=25;if(p.goal==="peso"&&!men&&t.kcal>650)sc-=15;if(cel&&ad.cambios.some(c=>c.startsWith("sin ")))sc-=30;return {pl,t,q,sc,cambios:ad.cambios}};
+    if(dia&&t.hc>65)sc-=25;if(p.goal==="peso"&&!men&&t.kcal>650)sc-=15;if(cel&&ad.cambios.some(c=>c.startsWith("sin ")))sc-=30;if(window.ajustePlato)sc+=window.ajustePlato(pl,t,p,ad.ing);return {pl,t,q,sc,cambios:ad.cambios}};
   const almu=PLATOS.filter(x=>x.t==="a").map(evalPl).sort((a,b)=>b.sc-a.sc);
   const desa=PLATOS.filter(x=>x.t==="d").map(evalPl).filter(x=>!(dia&&x.pl.id==="facturas")).sort((a,b)=>b.sc-a.sc);
   const dias=[];const usados=[];let rojas=0,pesc=0,leg=0;
-  const elegir=(k)=>{for(const c of almu){if(usados.slice(-6).includes(c.pl.id))continue;if(c.pl.r&&rojas>=3)continue;usados.push(c.pl.id);if(c.pl.r)rojas++;if(c.pl.pe)pesc++;if(c.pl.le)leg++;return c}return almu[0]};
+  const elegir=(k)=>{for(const c of almu){if(usados.slice(-6).includes(c.pl.id))continue;if(c.pl.r&&rojas>=(window.maxRojas?window.maxRojas(p):3))continue;usados.push(c.pl.id);if(c.pl.r)rojas++;if(c.pl.pe)pesc++;if(c.pl.le)leg++;return c}return almu[0]};
   for(let i=0;i<7;i++){const k=addDays(TODAY(),i);
     let a=elegir(k),c=elegir(k);
     if(i===3&&pesc===0){const f=almu.find(x=>x.pl.pe);if(f){c=f;pesc++}}
@@ -258,13 +258,13 @@ function fmtPeso(g){if(g>=1000)return (Math.round(g/100)/10).toLocaleString("es-
 
 /* ---------- Vista ---------- */
 let comerTab="hoy";
-function vComer(){const p=P();const ref=kcalObjetivo(p);const r=resumenDia(p);const f=(L(p.id).days[TODAY()]||{}).food||[];
+function vComer(){const p=P();const ref=kcalObjetivo(p);const r=resumenDia(p);const f=(L(p.id).days[(window.diaSelC?diaSelC():TODAY())]||{}).food||[];
   const tabs=`<div class="tabs2">${[["hoy","Hoy"],["plan","Plan semanal"],["recetas","Recetas"]].map(([k,n])=>`<button class="chip" data-act="ctab" data-v="${k}" style="${comerTab===k?"border-color:var(--mint);background:rgba(94,234,212,.2)":""}">${n}</button>`).join("")}</div>`;
   let body="";
   if(comerTab==="hoy"){
     const porComida=Object.keys(COMIDAS).map(cm=>{const it=f.filter(x=>x.meal===cm);if(!it.length)return "";const hc=it.reduce((a,x)=>a+x.hc,0);
-      return `<div class="blockt">${COMIDAS[cm]}${esDiabetico(p)?` · ${hc} g de hidratos`:""}</div>${it.map(x=>`<div class="ex"><span class="ico" style="background:${colorCal(x.q)}33;font-size:15px;font-weight:800">${x.q}</span><span class="t"><b>${esc(x.n)}</b><span>${fracTxt(x)}${esMenor(p)?"":" · "+x.kcal+" kcal"} · HC ${x.hc} g${x.tacc===1&&esCeliaco(p)?' · <span style="color:var(--bad)">⚠ contiene TACC</span>':""}</span></span><button class="iconbtn" data-act="fdel" data-v="${x.id}">✕</button></div>`).join("")}`}).join("");
-    const plan=p.plan&&p.plan.dias.find(d=>d.k===TODAY());
+      return `<div class="blockt">${COMIDAS[cm]}${esDiabetico(p)?` · ${hc} g de hidratos`:""}</div>${it.map(x=>`<div class="ex"><span class="ico" style="background:${colorCal(x.q)}33;font-size:15px;font-weight:800">${x.q}</span><span class="t"><b>${esc(x.n)}</b><span>${fracTxt(x)}${esMenor(p)?"":" · "+x.kcal+" kcal"} · HC ${x.hc} g${x.tacc===1&&esCeliaco(p)?' · <span style="color:var(--bad)">⚠ contiene TACC</span>':""}${window.avisoItem?window.avisoItem(x,p):""}</span></span><button class="iconbtn" data-act="fdel" data-v="${x.id}">✕</button></div>`).join("")}`}).join("");
+    const plan=p.plan&&p.plan.dias.find(d=>d.k===(window.diaSelC?diaSelC():TODAY()));
     body=`<section class="glass org1"><div class="row" style="gap:14px;justify-content:space-around;text-align:center">
       <div>${ring(r.q/100,colorCal(r.q),104,11,`<div style="font-size:26px;font-weight:800">${r.n?r.q:"–"}</div><div class="xs mute">calidad</div>`)}<div class="xs" style="margin-top:4px">${r.n?etiquetaQ(r.q):"Sin registros"}</div></div>
       ${ref?`<div>${ring(r.kcal/ref.kcal,"#fdba74",104,11,`<div style="font-size:22px;font-weight:800">${r.kcal}</div><div class="xs mute">/ ${ref.kcal} kcal</div>`)}<div class="xs" style="margin-top:4px">referencia</div></div>`:""}
@@ -282,7 +282,7 @@ function vComer(){const p=P();const ref=kcalObjetivo(p);const r=resumenDia(p);co
       ${esCeliaco(p)?`<p class="note" style="margin-top:10px">🌾 Sin TACC: usá solo productos con el logo oficial. Cociná aparte lo sin TACC (tablas, utensilios, aceite y agua de cocción separados) para evitar la contaminación cruzada.</p>`:""}
       ${pl.dias.map((d,i)=>`<details ${i===Math.max(0,hoyI)?"open":""} style="margin-top:10px;padding:10px 12px;border-radius:18px;background:rgba(255,255,255,.05)"><summary class="sm"><b>${new Date(d.k+"T12:00").toLocaleDateString("es-AR",{weekday:"long",day:"numeric"})}</b>${d.k===TODAY()?' <span class="pill">hoy</span>':""}</summary>
         ${["desayuno","almuerzo","merienda","cena"].map(cm=>{const x=PLATOM[d[cm]];const ad=adaptar(x.i,p);const t=nutri(ad.ing);const q=calidad(t,x.t);const fac=(cm==="almuerzo"||cm==="cena")?pl.factor:1;
-          return `<div class="row between" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);gap:8px"><span class="sm"><span class="xs mute">${COMIDAS[cm]}</span><br>${esc(x.n)}${ad.cambios.length?`<br><span class="xs" style="color:var(--lime)">Sin TACC: ${esc(ad.cambios.join(", "))}</span>`:""}</span><span class="xs" style="text-align:right;white-space:nowrap"><b style="color:${colorCal(q.s)}">${q.s}</b>${esMenor(p)?"":"<br>"+Math.round(t.kcal*fac)+" kcal"}${esDiabetico(p)?"<br>HC "+Math.round(t.hc*fac)+" g":""}</span></div>`}).join("")}
+          return `<div class="row between" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);gap:8px"><span class="sm"><span class="xs mute">${COMIDAS[cm]}</span><br>${esc(x.n)}${ad.cambios.length?`<br><span class="xs" style="color:var(--lime)">${(p.alerg||[]).some(x=>x==="lactosa"||x==="aplv")?"Adaptado":"Sin TACC"}: ${esc(ad.cambios.join(", "))}</span>`:""}</span><span class="xs" style="text-align:right;white-space:nowrap"><b style="color:${colorCal(q.s)}">${q.s}</b>${esMenor(p)?"":"<br>"+Math.round(t.kcal*fac)+" kcal"}${esDiabetico(p)?"<br>HC "+Math.round(t.hc*fac)+" g":""}</span></div>`}).join("")}
       </details>`).join("")}</section>
       <section class="glass org2"><h2>🛒 Lista de compras</h2><label class="f">¿Para cuántas personas?</label><div class="opts">${[1,2,3,4,5,6].map(n=>`<button class="opt ${(p.planPersonas||2)===n?"on":""}" data-act="ppers" data-v="${n}">${n}</button>`).join("")}</div><button class="btn block" style="margin-top:12px" data-act="plista">Ver lista de la semana</button></section>`}}
   else{const rs=recetasTodas();
@@ -317,7 +317,7 @@ function dibPorcion(){const p=P();const it=itemDesde(FSEL.src,FSEL.ref,FSEL.f,p)
    ${esMenor(P())?"":`<div class="stat"><span class="xs mute">Calorías</span><b>${it.kcal}</b><span class="xs">kcal</span></div>`}
    <div class="stat"><span class="xs mute">Hidratos</span><b>${it.hc} g</b><span class="xs">${Math.round(it.hc/15*10)/10} porc. de 15 g</span></div></div>
   <p class="xs mute" style="margin-top:10px">Proteínas ${it.p} g · Grasas ${it.gr} g · Fibra ${it.fib} g · Sodio ${it.na} mg</p>
-  ${ad.cambios.length?`<p class="note green" style="margin-top:8px">🌾 Calculado en versión sin TACC: ${esc(ad.cambios.join(", "))}.</p>`:""}
+  ${ad.cambios.length?`<p class="note green" style="margin-top:8px">${(p.alerg||[]).some(x=>x==="lactosa"||x==="aplv")?"✓ Calculado en versión adaptada":"🌾 Calculado en versión sin TACC"}: ${esc(ad.cambios.join(", "))}.</p>`:""}
   ${it.tacc===2&&esCeliaco(P())?`<p class="note" style="margin-top:8px">Verificá que tenga el logo Sin TACC.</p>`:""}
   ${calidadTips(FSEL,P()).map(t=>`<p class="sm">💡 ${esc(t)}</p>`).join("")}
   <div class="row" style="margin-top:14px"><button class="btn ghost" data-act="fadd">Volver</button><button class="btn" style="flex:1" data-act="fsave">Agregar</button></div>`)}
@@ -408,8 +408,8 @@ window.comerAct=function(a,v){const p=P();
   case "fpick":{const [s,r]=v.split(":");abrirPorcion(s,r);return true}
   case "ffac":FSEL.f=+v;dibPorcion();return true;
   case "fsave":{const it=itemDesde(FSEL.src,FSEL.ref,FSEL.f,p);it.meal=FSEL.meal;diaComida(p).push(it);save();closeSheet();comerTab="hoy";if(current!=="comer")location.hash="#comer";else render();toast("Anotado · calidad "+it.q);return true}
-  case "fdel":{const d=D(p.id);d.food=(d.food||[]).filter(x=>x.id!==v);save();render();return true}
-  case "fplan":{const pl=p.plan.dias.find(d=>d.k===TODAY());const it=itemDesde("plato",pl[v],p.plan.factor,p);it.meal=v;diaComida(p).push(it);save();render();toast("Anotado: "+it.n);return true}
+  case "fdel":{const d=D(p.id,(window.diaSelC?diaSelC():TODAY()));d.food=(d.food||[]).filter(x=>x.id!==v);save();render();return true}
+  case "fplan":{const pl=p.plan.dias.find(d=>d.k===(window.diaSelC?diaSelC():TODAY()));const it=itemDesde("plato",pl[v],p.plan.factor,p);it.meal=v;diaComida(p).push(it);save();render();toast("Anotado: "+it.n);return true}
   case "pgen":p.plan=armarPlan(p);save();render();toast("Plan armado con productos de temporada");return true;
   case "ppers":p.planPersonas=+v;save();render();return true;
   case "plista":mostrarLista();return true;
