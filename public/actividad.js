@@ -32,8 +32,45 @@ const DEP = {
 const INTENS = [["suave","Suave","Podés charlar sin problema",4,.8],["moderada","Moderada","Respirás más rápido, pero hablás",6,1],["intensa","Intensa","Te cuesta hablar",8,1.15],["maxima","Al máximo","Competencia o a fondo",9.5,1.3]];
 const WK2DEP = {caminata:"caminata",carrera:"running",cinta:"running",bicicleta:"ciclismo","bici fija":"spinning",natación:"natacion",senderismo:"senderismo",yoga:"yoga",baile:"baile",fuerza:"gimnasio",HIIT:"funcional",elíptico:"otro",pilates:"pilates",fútbol:"futbol",actividad:"otro"};
 
+/* ---------- Nivel por actividad ----------
+   p.niv = {running:{l:1-3, ret:true/false}, …}. Cada actividad se mide a su manera.
+   «Retomando» = venías de ese nivel pero estuviste parado: arranca un escalón abajo. */
+const NIVN=["","Inicial","Intermedio","Avanzado"];
+const NIVQ={
+ fuerza:{q:"¿Hace cuánto entrenás con pesas?",o:["Menos de 6 meses","De 6 meses a 2 años, 3 o más veces por semana","Más de 2 años seguidos y manejás progresiones de carga"]},
+ running:{q:"¿Cuánto podés correr sin parar?",o:["Menos de 10 minutos, o alternando con caminata","Entre 20 y 40 minutos (unos 5 km)","10 km o más"]},
+ caminata:{q:"¿Cuánto caminás seguido sin cansarte?",o:["Hasta 30 minutos","De 30 a 60 minutos","Más de una hora a buen ritmo"]},
+ ciclismo:{q:"¿Cuánto pedaleás en una salida?",o:["Hasta 15 km","De 15 a 50 km","Más de 50 km o con subidas"]},
+ natacion:{q:"¿Cuánto nadás seguido?",o:["Menos de 200 m","De 200 a 1000 m","Más de 1 km"]},
+ senderismo:{q:"¿Qué salidas hacés?",o:["Caminatas de hasta 2 horas","Medio día con algo de subida","Día completo o con mucho desnivel"]},
+ clase:{q:"¿Hace cuánto lo practicás?",o:["Recién empiezo (menos de 6 meses)","De 6 meses a 3 años","Más de 3 años o compito"]}
+};
+const NIVTIPO={gimnasio:"fuerza",funcional:"fuerza",running:"running",caminata:"caminata",ciclismo:"ciclismo",natacion:"natacion",senderismo:"senderismo"};
+function nivDe(p,dep){const n=((p&&p.niv)||{})[dep];return n&&n.l?n:null}
+function nivEf(p,dep){const n=nivDe(p,dep);return n?Math.max(1,n.l-(n.ret?1:0)):1}
+function nivTxt(p,dep){const n=nivDe(p,dep);return n?NIVN[n.l]+(n.ret?" · retomando":""):"sin nivel"}
+window.nivDe=nivDe;window.nivEf=nivEf;window.nivTxtP=nivTxt;
+// Bloque de preguntas de nivel. obj: perfil o borrador · pre: prefijo de la acción (o = onboarding, p = perfil)
+function nivBloque(obj,pre,deps){if(!deps.length)return "";
+  return deps.map(k=>{const q=NIVQ[NIVTIPO[k]||"clase"];const n=(obj.niv||{})[k]||{};
+    return `<div style="margin:10px 0;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.05)"><p class="sm"><b>${DEP[k][1]} ${esc(DEP[k][0])}</b> · ${q.q}</p><div class="opts" style="margin-top:6px">${q.o.map((t,i)=>`<button class="opt ${n.l===i+1?"on":""}" data-act="${pre}-niv" data-v="${k}:${i+1}" style="text-align:left">${NIVN[i+1]}<br><span class="xs mute" style="font-weight:500">${t}</span></button>`).join("")}<button class="opt ${n.ret?"on":""}" data-act="${pre}-nivr" data-v="${k}">↺ Estoy retomando</button></div></div>`}).join("")}
+window.nivOnb=function(d){const deps=(d.sports||[]).filter(k=>DEP[k]&&k!=="otro");if(!deps.length)return "";
+  return `<label class="f">¿En qué nivel estás en cada una?</label><p class="xs faint">Así Vital no te hace arrancar de cero si ya tenés experiencia. «Retomando» es para cuando estuviste un tiempo parado.</p>${nivBloque(d,"o",deps)}`};
+function setNiv(obj,v){const [k,l]=v.split(":");obj.niv=obj.niv||{};const n=obj.niv[k]||{};n.l=+l;obj.niv[k]=n}
+function togRet(obj,k){obj.niv=obj.niv||{};const n=obj.niv[k]||{l:0};n.ret=!n.ret;obj.niv[k]=n}
+function abrirNiveles(){const p=P();const deps=depDe(p).filter(k=>k!=="otro");
+  sheet(`<h2>Tu nivel en cada actividad</h2><p class="xs mute">Podés cambiarlo cuando quieras. Vital también te avisa cuando parece que estás para subir.</p>${nivBloque(p,"p",deps)||'<p class="sm mute">Primero elegí tus actividades en el perfil.</p>'}<button class="btn block" style="margin-top:12px" data-act="close">Listo</button>`)}
+// Si las últimas 3 sesiones de una actividad fueron suaves y largas, propone subir
+function sugerenciaNivel(p){for(const k of depDe(p)){if(k==="otro")continue;const n=nivDe(p,k);if(!n||n.l>=3)continue;
+    const ws=[];for(let i=0;i<28&&ws.length<3;i++){const d=L(p.id).days[addDays(TODAY(),-i)];if(d)d.workouts.filter(w=>w.src==="act"&&w.dep===k).sort((a,b)=>b.ts-a.ts).forEach(w=>ws.length<3&&ws.push(w))}
+    if(ws.length===3&&ws.every(w=>w.rpe<=4&&w.min>=30)&&!(p.nivAviso||{})[k+n.l])return {k,n};}
+  return null}
+
 function depDe(p){return (p.sports||[]).filter(s=>DEP[s])}
-function kcalAct(p,dep,min,intens){const w=+p.weight||70;const f=(INTENS.find(x=>x[0]===intens)||INTENS[1])[4];return Math.round(DEP[dep][2]*f*w*min/60)}
+function kcalAct(p,dep,min,intens){const w=+p.weight||70;const f=(INTENS.find(x=>x[0]===intens)||INTENS[1])[4];
+  // a la misma sensación de esfuerzo, quien tiene más nivel va más rápido y gasta más
+  const nf=["running","ciclismo","natacion"].includes(NIVTIPO[dep])&&nivDe(p,dep)?[1,.85,1,1.15][nivEf(p,dep)]:1;
+  return Math.round(DEP[dep][2]*f*nf*w*min/60)}
 function consejoPropio(p){const rd=readiness(p.id);if(!rd)return "Hacé el check-in y te digo cómo encarar tu entrenamiento de hoy.";
   const rec=recovery(p.id);const deps=depDe(p);let extra="";
   if(deps.length){const mus=new Set();deps.forEach(d=>(DEP[d][3]||[]).forEach(m=>mus.add(m)));const bajos=[...mus].filter(m=>rec[m]<55);if(bajos.length)extra=" "+bajos.map(m=>MUS[m]).join(" y ")+(bajos.length>1?" todavía están":" todavía está")+" al "+Math.min(...bajos.map(m=>rec[m]))+"% de recuperación.";}
@@ -49,6 +86,7 @@ function dibActividad(){const p=P();const deps=depDe(p);const orden=[...deps,...
   const musSel=ACT.dep==="gimnasio";
   sheet(`<h2>Registrar actividad</h2><p class="xs mute">Lo que hacés por tu cuenta suma igual que las rutinas de Vital.</p>
   <label class="f">¿Qué hiciste?</label><div class="opts">${orden.map(k=>`<button class="opt ${ACT.dep===k?"on":""}" data-act="adep" data-v="${k}">${DEP[k][1]} ${DEP[k][0]}</button>`).join("")}</div>
+  ${ACT.dep!=="otro"?`<div class="row wrap" style="gap:6px;margin-top:8px"><span class="xs mute">Tu nivel:</span>${[1,2,3].map(l=>`<button class="chip" data-act="aniv" data-v="${l}" style="${(nivDe(p,ACT.dep)||{}).l===l?"border-color:var(--mint);background:rgba(94,234,212,.2)":""}">${NIVN[l]}</button>`).join("")}<button class="chip" data-act="anivr" style="${(nivDe(p,ACT.dep)||{}).ret?"border-color:var(--mint);background:rgba(94,234,212,.2)":""}">↺ retomando</button></div>`:""}
   <div class="grid2"><div><label class="f">Día</label><div class="opts">${[[TODAY(),"Hoy"],[addDays(TODAY(),-1),"Ayer"]].map(([k,n])=>`<button class="opt ${ACT.dia===k?"on":""}" data-act="adia" data-v="${k}">${n}</button>`).join("")}</div></div>
    <div><label class="f">Empezó a las</label><input class="in" type="time" id="ahora" value="${ACT.hora}"></div></div>
   <label class="f">Duración</label><div class="opts">${[20,30,45,60,90,120].map(m=>`<button class="opt ${ACT.min===m?"on":""}" data-act="amin" data-v="${m}">${m<60?m+" min":(m/60)+" h"}</button>`).join("")}<input class="in" style="width:110px;padding:9px" inputmode="numeric" id="aminx" placeholder="otro (min)" value="${[20,30,45,60,90,120].includes(ACT.min)?"":ACT.min}"></div>
@@ -81,6 +119,8 @@ function tarjetaPropia(p){const deps=depDe(p);if(!deps.length)return "";const d=
   return `<section class="glass org2"><div class="row between"><h2 style="margin:0">Tu entrenamiento</h2><span class="xs mute">${deps.map(k=>DEP[k][1]).join(" ")}</span></div>
    <p class="sm" style="margin-top:8px">${esc(consejoPropio(p))}</p>
    ${hoy.length?`<p class="note green" style="margin-top:8px">✓ Hoy: ${hoy.map(w=>esc(w.name)+" "+w.min+" min").join(", ")}</p>`:""}
+   ${(()=>{const sin=deps.filter(k=>k!=="otro"&&!nivDe(p,k));if(sin.length)return `<p class="note" style="margin-top:8px">Contale a Vital tu nivel en ${sin.map(k=>DEP[k][0].toLowerCase()).join(", ")} para que no te trate como principiante. <button class="chip" data-act="nivsheet">Elegir nivel</button></p>`;
+     const sg=sugerenciaNivel(p);return sg?`<p class="note green" style="margin-top:8px">Tus últimas 3 sesiones de ${esc(DEP[sg.k][0].toLowerCase())} fueron suaves. ¿Estás para pasar a <b>${NIVN[sg.n.l+1]}</b>? <button class="chip" data-act="nivsube" data-v="${sg.k}">Subir</button> <button class="chip" data-act="nivno" data-v="${sg.k}">Todavía no</button></p>`:""})()}
    <button class="btn block" style="margin-top:10px" data-act="aadd">＋ Registrar actividad</button>
    <div class="row wrap" style="gap:6px;margin-top:10px"><span class="xs mute">Complementos opcionales:</span>${deps.slice(0,3).map(k=>`<button class="chip" data-act="acomp" data-v="${k}">${DEP[k][1]} para ${esc(DEP[k][0].split(" ")[0].toLowerCase())}</button>`).join("")}</div></section>`}
 
@@ -101,6 +141,15 @@ window.actAct=function(a,v){
   case "asave":guardarActividad();return true;
   case "acomp":complemento(v);return true;
   case "aext":{const p=P();const d=D(p.id);const x=(d.ext||[]).find(e=>e.id===v);if(!x)return true;abrirActividad({dep:WK2DEP[x.name]||"otro",min:x.min,extId:x.id,hora:x.start?new Date(x.start).toTimeString().slice(0,5):null});return true}
+  case "o-niv":setNiv(draft,v);drawOnb();return true;
+  case "o-nivr":togRet(draft,v);drawOnb();return true;
+  case "p-niv":setNiv(P(),v);save();abrirNiveles();return true;
+  case "p-nivr":togRet(P(),v);save();abrirNiveles();return true;
+  case "nivsheet":abrirNiveles();return true;
+  case "nivsube":{const p=P();const n=nivDe(p,v);if(n){n.l=Math.min(3,n.l+1);n.ret=false;save();render();toast(DEP[v][1]+" Nivel "+NIVN[n.l]+" 💪")}return true}
+  case "nivno":{const p=P();const n=nivDe(p,v);p.nivAviso=p.nivAviso||{};if(n)p.nivAviso[v+n.l]=1;save();render();return true}
+  case "aniv":{leerAct();const p=P();setNiv(p,ACT.dep+":"+v);save();dibActividad();return true}
+  case "anivr":{leerAct();const p=P();togRet(p,ACT.dep);save();dibActividad();return true}
   case "o-sport":{const s=new Set(draft.sports||[]);s.has(v)?s.delete(v):s.add(v);draft.sports=[...s];drawOnb();return true}
   }
   return false};

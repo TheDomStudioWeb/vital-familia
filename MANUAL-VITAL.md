@@ -215,3 +215,39 @@ Valores nutricionales aproximados por 100 g.
 ## Pegar en la app de Android (20/11)
 - El botón «Pegar» de la foto del plato y de importar receta ahora usa el portapapeles del teléfono directamente. Antes, en la app de Android, el navegador interno no lo dejaba leer y había que mantener apretado el cuadro.
 - Si algo falla, se puede pegar igual con el ícono de portapapeles del teclado de Samsung o manteniendo apretado el cuadro → Pegar.
+
+## Alimentación ampliada, recetario sin TACC y niveles (20/11)
+Pedido de usuarios: más tipos de alimentación y que quien ya entrena no arranque como principiante.
+
+**Formas de comer** (se elige una, en Perfil → Editar → «¿Cómo comés?»): Como de todo, Flexitariana (poca carne: carne roja una vez por semana), Mediterránea (más pescado, legumbres y aceite de oliva), Pescetariana (sin carne, con pescado y mariscos), Vegetariana, Vegana, Alta en proteína y Baja en hidratos (no es keto).
+
+**Condiciones de salud nuevas:** colesterol alto (menos carnes grasas, embutidos y manteca; carne roja hasta 2 veces por semana) y embarazo o lactancia (sin fiambres crudos, hígado ni alcohol). La presión alta ahora también elige platos con menos sodio.
+
+**Alergias e intolerancias** (se pueden marcar varias): intolerancia a la lactosa, alergia a la leche, huevo, frutos secos, maní, pescado, mariscos y soja.
+- El plan semanal saca los platos que las tienen.
+- Con lactosa, la leche y el yogur pasan a deslactosados. Con alergia a la leche, a bebida y yogur vegetal.
+- Si alguien registra algo que tiene un alérgeno, aparece «⚠ Ojo: tiene huevo» (o lo que corresponda).
+- Arriba del plan aparece un cuadro con lo que Vital está cuidando y el aviso de que no reemplaza al médico ni al nutricionista.
+
+**Recetario sin TACC** (Comer → Recetas, debajo de las recetas de casa): 16 recetas aptas para celíacos, como pizzetas de batata, risotto, pancitos de quinoa, bizcochitos de queso, hamburguesas de garbanzos, wraps de espinaca, crackers, brownies, alfajores y zapallo relleno. Cada una tiene ingredientes, pasos, calorías y calidad por porción, y un botón «Anotar una porción». Algunas entran también al plan semanal. Se basan en ideas del recetario de Natural.nu (Lic. Carolina Maggi), reescritas y corregidas:
+- Pancitos de quinoa: la avena se cambió por harina de arroz, porque en Argentina la avena no se considera apta.
+- Hamburguesas de garbanzos: se sacó el germen de trigo, que tiene TACC.
+- Crackers: los copos de maíz tienen que tener el logo Sin TACC, porque los comunes suelen llevar malta de cebada.
+
+**Nivel por actividad.** Cuando alguien marca una actividad (running, gimnasio, natación, etc.), Vital le pregunta su nivel con una medida propia de cada actividad:
+- Pesas: hace cuánto entrena y si maneja progresiones de carga.
+- Running: cuánto corre sin parar (menos de 10 minutos / unos 5 km / 10 km o más).
+- Caminata, bici, natación y trekking: tiempo o distancia.
+- Deportes y clases: hace cuánto lo practica.
+Niveles: Inicial, Intermedio y Avanzado, más «Estoy retomando» para quien estuvo parado (arranca un escalón abajo). Se cambia en el perfil (botón «Niveles»), en la tarjeta «Tu entrenamiento» o al registrar una actividad. En running, bici y natación, el nivel ajusta las calorías estimadas. Si las últimas 3 sesiones de una actividad fueron suaves y de 30 minutos o más, Vital propone subir de nivel; se puede aceptar o decir «Todavía no».
+
+### Frases para Claudio (20/11)
+- «Para elegir tu forma de comer, entrá a Perfil, tocá Editar y bajá hasta “¿Cómo comés?”.»
+- «Las alergias se marcan en el mismo lugar: el plan saca lo que no podés comer.»
+- «El recetario sin TACC está en Comer → Recetas, abajo de todo.»
+- «Si ya entrenás, contale a Vital tu nivel: así no te trata como principiante.»
+
+### Próxima tanda (acordada)
+1. Elongación de glúteo y fascia lata (cintilla iliotibial) y running progresivo con calentamiento, carrera y vuelta a la calma, que arranca según el nivel elegido.
+2. «Cargá tu rutina»: el que va al gimnasio carga su rutina, registra cargas y Vital le sugiere la próxima (regla: 3 sesiones limpias antes de subir).
+3. Calistenia, musculación y Tai Chi (también en silla).

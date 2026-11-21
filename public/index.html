@@ -204,6 +204,7 @@ details summary::-webkit-details-marker{display:none}
 <script src="comer.js"></script>
 <script src="actividad.js"></script>
 <script src="comer2.js"></script>
+<script src="comer3.js"></script>
 <script>
 "use strict";
 /* >>> Para activar la nube familiar, pegá acá la configuración de tu proyecto Firebase (Configuración del proyecto → Tus apps → Web). Con null, Vital funciona en modo local. <<< */
@@ -298,7 +299,7 @@ const MUS = {piernas:"Piernas",gluteos:"Glúteos",pecho:"Pecho",espalda:"Espalda
 const CAT = {cal:"Calentamiento",mov:"Movilidad",fuerza:"Fuerza",cardio:"Cardio",equi:"Equilibrio",estir:"Estiramiento"};
 const GOALS = {salud:"Salud general",fuerza:"Ganar fuerza",peso:"Bajar de peso",movilidad:"Movilidad y dolor",resistencia:"Resistencia"};
 const EQUIP = {silla:"Silla",mancuernas:"Mancuernas",banda:"Banda elástica",barra:"Barra de dominadas",colchoneta:"Colchoneta"};
-const COND = {diabetes:"Diabetes",insulina:"Uso insulina",celiaquia:"Celiaquía",hta:"Presión alta"};
+const COND = {diabetes:"Diabetes",insulina:"Uso insulina",celiaquia:"Celiaquía",hta:"Presión alta",colesterol:"Colesterol alto",embarazo:"Embarazo o lactancia"};
 const LIMITS = {rodilla:"Rodillas",espalda:"Espalda baja",hombro:"Hombros",codo:"Codos",muneca:"Muñecas",cuello:"Cuello",cadera:"Cadera",tobillo:"Tobillos / pies",cardio:"Corazón / presión",embarazo:"Embarazo"};
 // clave interna de muñeca sin ñ para evitar líos
 EX.forEach(e=>{e.a=e.a.map(x=>x==="muñeca"?"muneca":x)});
@@ -658,7 +659,7 @@ function vPerfil(){const p=P();
   return `<section><h1>Perfil y ajustes</h1></section>
   <section class="glass org1"><div class="fam"><span class="av" style="width:56px;height:56px;font-size:30px;background:${p.color}33">${p.emoji}</span><div style="flex:1"><h2 style="margin:0">${esc(p.name)}</h2><div class="sm mute">${age(p)} años · ${p.height||"?"} cm · ${GOALS[p.goal]}</div></div><button class="btn small ghost" data-act="editprofile">Editar</button></div>
   <div class="grid2" style="margin-top:12px"><div class="stat"><span class="xs mute">Nivel</span><b>${["","Inicial","Intermedio","Avanzado"][p.level]}</b></div><div class="stat"><span class="xs mute">Rutina</span><b>${p.minutes} min</b></div></div>
-  <p class="sm" style="margin-top:10px"><span class="mute">En casa:</span> ${p.equipment.length?p.equipment.map(x=>EQUIP[x]).join(", "):"solo peso corporal"}<br>${(p.sports||[]).length?`<span class="mute">Actividades:</span> ${p.sports.filter(k=>DEP[k]).map(k=>DEP[k][1]+" "+DEP[k][0]).join(", ")}<br>`:""}<span class="mute">Cuidar:</span> ${p.limits.length?p.limits.map(x=>LIMITS[x]).join(", "):"nada en especial"}${(p.cond||[]).length?`<br><span class="mute">Condiciones:</span> ${p.cond.map(x=>COND[x]).join(", ")}`:""}${p.dieta&&window.DIETAS?`<br><span class="mute">Alimentación:</span> 🌱 ${DIETAS[p.dieta]}`:""}</p>
+  <p class="sm" style="margin-top:10px"><span class="mute">En casa:</span> ${p.equipment.length?p.equipment.map(x=>EQUIP[x]).join(", "):"solo peso corporal"}<br>${(p.sports||[]).length?`<span class="mute">Actividades:</span> ${p.sports.filter(k=>DEP[k]).map(k=>DEP[k][1]+" "+DEP[k][0]+(k!=="otro"&&window.nivTxtP?" ("+nivTxtP(p,k)+")":"")).join(", ")} <button class="chip" data-act="nivsheet">Niveles</button><br>`:""}<span class="mute">Cuidar:</span> ${p.limits.length?p.limits.map(x=>LIMITS[x]).join(", "):"nada en especial"}${(p.cond||[]).length?`<br><span class="mute">Condiciones:</span> ${p.cond.map(x=>COND[x]).join(", ")}`:""}${(p.alerg||[]).length&&window.ALERG?`<br><span class="mute">Alergias e intolerancias:</span> ${p.alerg.map(x=>ALERG[x]).join(", ")}`:""}${p.dieta&&window.DIETAS?`<br><span class="mute">Alimentación:</span> ${(window.DIETA_ICO||{})[p.dieta]||""}${DIETAS[p.dieta]}`:""}</p>
   ${p.parqFlag?`<p class="note">Marcaste alguna respuesta del cuestionario de salud. Antes de entrenar intenso, consultá a tu médico. La intensidad máxima queda en «Constante».</p>`:""}</section>
   ${NATIVE?`<section class="glass org1"><h2>⌚ Reloj y Health Connect</h2>${S.settings.hc?`<p class="sm">Conectado. Vital lee pasos, pulso, oxígeno, sueño, peso, presión, glucosa y actividades de tu reloj.${HCLAST?`<br><span class="xs faint">Última lectura: ${new Date(HCLAST).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})}</span>`:""}</p>${(()=>{const d=L(P().id).days[TODAY()]||{},hr=d.hr,ox=d.spo2,hm=t=>new Date(t).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});
     return hr||ox?`<div class="grid2" style="margin:10px 0">${hr?`<div class="glass" style="padding:12px"><div class="xs faint">❤️ PULSO</div><div style="font-size:24px;font-weight:700">${hr.last} <span class="xs">lpm</span></div><div class="xs faint">a las ${hm(hr.ts)} · hoy ${hr.min}–${hr.max}</div></div>`:""}${ox?`<div class="glass" style="padding:12px"><div class="xs faint">🫁 OXÍGENO</div><div style="font-size:24px;font-weight:700">${ox.v}<span class="xs">%</span></div><div class="xs faint">a las ${hm(ox.ts)}</div></div>`:""}</div>`:`<p class="xs faint" style="margin:8px 0">Todavía no llegó pulso ni oxígeno del reloj hoy.</p>`})()}
@@ -891,14 +892,17 @@ function drawOnb(){const d=draft;const st=d._step;let h="";
     ${d._edit?"":`<p class="note green" style="margin-top:12px">Arrancás en la <b>Etapa ${({1:1,2:3,3:5})[d.level]} · ${STAGES[({1:1,2:3,3:5})[d.level]-1].n}</b>: ${STAGES[({1:1,2:3,3:5})[d.level]-1].min} min, ${STAGES[({1:1,2:3,3:5})[d.level]-1].days} días por semana. Vital te va a ir subiendo a medida que avances.</p>`}
     <label class="f">¿Ya hacés alguna actividad? (opcional, podés elegir varias)</label><div class="opts">${Object.entries(DEP).filter(([k])=>k!=="otro").map(([k,x])=>`<button class="opt ${(d.sports||[]).includes(k)?"on":""}" data-act="o-sport" data-v="${k}">${x[1]} ${x[0]}</button>`).join("")}</div>
     ${(d.sports||[]).length?`<p class="note green" style="margin-top:8px">Perfecto: registrás lo que ya hacés y las rutinas de Vital quedan como complemento opcional.</p>`:""}
+    ${window.nivOnb?nivOnb(d):""}
     <label class="f">Meta de pasos diarios</label><div class="opts">${[5000,7000,8000,10000].map(m=>`<button class="opt ${d.stepsGoal===m?"on":""}" data-act="o-steps" data-v="${m}">${m.toLocaleString("es-AR")}</button>`).join("")}</div>`;
   if(st===2)h=`<h2>Tu casa y tu cuerpo</h2>${dots}
     <label class="f">¿Qué tenés para entrenar? (el peso corporal siempre está)</label><div class="opts">${Object.entries(EQUIP).map(([k,n])=>`<button class="opt ${d.equipment.includes(k)?"on":""}" data-act="o-eq" data-v="${k}">${n}</button>`).join("")}</div>
     <label class="f">¿Algo que haya que cuidar?</label><div class="opts">${Object.entries(LIMITS).map(([k,n])=>`<button class="opt ${d.limits.includes(k)?"on":""}" data-act="o-lim" data-v="${k}">${n}</button>`).join("")}</div>
     <p class="xs faint" style="margin-top:10px">Vital saca automáticamente los ejercicios que cargan esas zonas y te muestra alternativas.</p>
     <label class="f">Condiciones de salud (opcional, queda privado)</label><div class="opts">${Object.entries(COND).map(([k,n])=>`<button class="opt ${(d.cond||[]).includes(k)?"on":""}" data-act="o-cond" data-v="${k}">${n}</button>`).join("")}</div>
-    <p class="xs faint" style="margin-top:8px">Con diabetes, Vital te pide medir la glucosa antes de entrenar. Con presión alta, cuida la intensidad.</p>
-    <label class="f">¿Cómo comés?</label><div class="opts">${Object.entries(window.DIETAS||{}).map(([k,n])=>`<button class="opt ${(d.dieta||"")===k?"on":""}" data-act="o-dieta" data-v="${k}">${k?"🌱 ":""}${n}</button>`).join("")}</div>
+    <p class="xs faint" style="margin-top:8px">Con diabetes, Vital te pide medir la glucosa antes de entrenar. Con presión alta, cuida la intensidad y la sal de las comidas.</p>
+    <label class="f">Alergias o intolerancias (opcional)</label><div class="opts">${Object.entries(window.ALERG||{}).map(([k,n])=>`<button class="opt ${(d.alerg||[]).includes(k)?"on":""}" data-act="o-alerg" data-v="${k}">${n}</button>`).join("")}</div>
+    <p class="xs faint" style="margin-top:8px">El plan de comidas saca lo que no podés comer y te avisa si registrás algo que lo tiene.</p>
+    <label class="f">¿Cómo comés?</label><div class="opts">${Object.entries(window.DIETAS||{}).map(([k,n])=>`<button class="opt ${(d.dieta||"")===k?"on":""}" data-act="o-dieta" data-v="${k}">${(window.DIETA_ICO||{})[k]||""}${n}</button>`).join("")}</div>
     <p class="xs faint" style="margin-top:8px">El plan de comidas y las sugerencias se arman según tu forma de comer.</p>`;
   if(st===3){const qs=[["corazon","¿Algún médico te dijo que tenés un problema cardíaco o de presión?"],["pecho","¿Sentís dolor en el pecho al hacer actividad física?"],["mareo","¿Perdiste el equilibrio por mareos o te desmayaste en el último año?"],["hueso","¿Tenés un problema de huesos o articulaciones que empeore con el ejercicio?"],["medica","¿Tomás medicación para la presión o el corazón?"]];
     h=`<h2>Chequeo rápido de seguridad</h2>${dots}<p class="sm mute">Basado en el cuestionario PAR-Q. Si respondés «sí» a algo, no pasa nada: Vital cuida la intensidad y te recomienda consultar.</p>
@@ -1026,6 +1030,7 @@ document.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");i
   case "o-eq":{const s=new Set(draft.equipment);s.has(v)?s.delete(v):s.add(v);draft.equipment=[...s];drawOnb();break}
   case "o-lim":{const s=new Set(draft.limits);s.has(v)?s.delete(v):s.add(v);draft.limits=[...s];drawOnb();break}
   case "o-dieta":draft.dieta=v||"";drawOnb();break;
+  case "o-alerg":{const s=new Set(draft.alerg||[]);s.has(v)?s.delete(v):s.add(v);if(v==="aplv"&&s.has("aplv"))s.delete("lactosa");if(v==="lactosa"&&s.has("lactosa"))s.delete("aplv");draft.alerg=[...s];drawOnb();break}
   case "o-cond":{const s=new Set(draft.cond||[]);s.has(v)?s.delete(v):s.add(v);if(v==="insulina"&&s.has("insulina"))s.add("diabetes");draft.cond=[...s];drawOnb();break}
   case "o-parq":{const [k,x]=v.split(":");draft.parq[k]=x==="1";drawOnb();break}
   case "o-back":readOnbInputs();draft._step--;drawOnb();break;
