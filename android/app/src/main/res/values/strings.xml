@@ -5,4 +5,5 @@
     <string name="package_name">com.thedomstudio.vital</string>
     <string name="custom_url_scheme">com.thedomstudio.vital</string>
     <string name="health_connect_privacy_policy_url">https://vital-familia.web.app/privacidad.html</string>
+    <string name="widget_descripcion">Tus metas y la cuenta regresiva a tu carrera</string>
 </resources>

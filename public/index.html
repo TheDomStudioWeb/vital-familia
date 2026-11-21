@@ -201,6 +201,7 @@ details summary::-webkit-details-marker{display:none}
 <script src="version.js"></script>
 <script src="i18n.js"></script>
 <script src="i18n-dic.js"></script>
+<script src="i18n-dic2.js"></script>
 <script src="comer.js"></script>
 <script src="actividad.js"></script>
 <script src="comer2.js"></script>
@@ -845,7 +846,7 @@ async function hcSync(force){const H=nplug("Health");if(!H||!S.settings.hc||HCBU
   const safe=async f=>{try{await f()}catch(e){console.warn("HC",e)}};
   await safe(async()=>{const r=await H.queryAggregated({dataType:"steps",startDate:iso(dayStart(addDays(TODAY(),-6))),endDate:iso(now),bucket:"day",aggregation:"sum"});(r.samples||[]).forEach(b=>{const k=dkey(new Date(b.startDate));const v=Math.round(b.value||0);if(v>0){const d=D(pid,k);d.steps=v;d.stepsSrc="hc"}})});
   await safe(async()=>{const r=await H.readSamples({dataType:"restingHeartRate",startDate:iso(dayStart(addDays(TODAY(),-6))),endDate:iso(now),limit:50});(r.samples||[]).forEach(s=>{const k=dkey(new Date(s.startDate));const id="rhr"+k;if(!has("fc",id)&&!M.some(m=>m.t==="fc"&&m.k===k))M.push({id:uid(),t:"fc",v:Math.round(s.value),k,ts:Date.parse(s.startDate),hc:id})})});
-  if((S.settings.hcv||1)<HC_VER){await safe(async()=>{await H.requestAuthorization({read:HC_TYPES})});S.settings.hcv=HC_VER}
+  if((S.settings.hcv||1)<HC_VER){await safe(async()=>{await H.requestAuthorization({read:HC_TYPES});S.settings.hcv=HC_VER;save()})}
   // pulso del reloj: último valor y rango del día; si el reloj no manda "pulso en reposo", se estima con los valores más bajos del día
   for(const k of [TODAY(),addDays(TODAY(),-1)])await safe(async()=>{const st=dayStart(k),en=k===TODAY()?now:dayStart(addDays(k,1));
     const r=await H.readSamples({dataType:"heartRate",startDate:iso(st),endDate:iso(en),limit:5000});
@@ -1098,7 +1099,7 @@ document.addEventListener("click",ev=>{const b=ev.target.closest("[data-act]");i
   case "delprofile":sheet(`<h2>¿Borrar el perfil de ${esc(p.name)}?</h2><p class="sm mute">Se borran sus registros y entrenamientos de este dispositivo. No se puede deshacer.</p><div class="grid2" style="margin-top:12px"><button class="btn ghost" data-act="close">Cancelar</button><button class="btn warm" data-act="delgo">Borrar</button></div>`);break;
   case "hcconnect":hcConnect();break;
   case "hcsync":hcSync(true).then(()=>toast("Datos del reloj actualizados ⌚"));break;
-  case "hcsettings":try{nplug("Health").openHealthConnectSettings()}catch(e){}break;
+  case "hcsettings":(async()=>{const H=nplug("Health");if(!H)return;try{const st=await H.requestAuthorization({read:HC_TYPES});S.settings.hcv=HC_VER;save();const n=((st&&st.readAuthorized)||[]).length;if(n>=HC_TYPES.length)H.openHealthConnectSettings();else{toast("⌚ Permisos: "+n+" de "+HC_TYPES.length+" tipos de datos");hcSync(true)}}catch(e){try{H.openHealthConnectSettings()}catch(_){}}})();break;
   case "cloudtest":cloudTest();break;
   case "noapk":S.settings.noApkBanner=true;save();render();break;
   case "goperfil":closeSheet();location.hash="#perfil";break;

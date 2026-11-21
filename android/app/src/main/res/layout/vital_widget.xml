@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget de Vital para la pantalla de inicio: metas y cuenta regresiva a la carrera -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/w_raiz"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_fondo"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="VITAL" android:letterSpacing="0.18" android:textColor="#5EEAD4" android:textSize="12sp" android:textStyle="bold" />
+        <TextView android:id="@+id/w_nombre" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="8dp" android:maxLines="1" android:ellipsize="end" android:textColor="#99FFFFFF" android:textSize="12sp" />
+        <TextView android:id="@+id/w_act" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#66FFFFFF" android:textSize="10sp" />
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/w_carrera" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="vertical" android:visibility="gone">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+            <TextView android:id="@+id/w_carrera_n" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:maxLines="1" android:ellipsize="end" android:textColor="#FFFFFF" android:textSize="14sp" android:textStyle="bold" />
+            <TextView android:id="@+id/w_carrera_d" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#A3E635" android:textSize="16sp" android:textStyle="bold" />
+        </LinearLayout>
+        <TextView android:id="@+id/w_carrera_p" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="1" android:ellipsize="end" android:textColor="#99FFFFFF" android:textSize="11sp" />
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/w_meta1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="vertical" android:visibility="gone">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <TextView android:id="@+id/w_meta1_n" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:maxLines="1" android:ellipsize="end" android:textColor="#D9FFFFFF" android:textSize="12sp" />
+            <TextView android:id="@+id/w_meta1_v" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" />
+        </LinearLayout>
+        <ProgressBar android:id="@+id/w_meta1_b" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="4dp" android:max="100" android:progressDrawable="@drawable/widget_barra" />
+    </LinearLayout>
+    <LinearLayout android:id="@+id/w_meta2" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="vertical" android:visibility="gone">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <TextView android:id="@+id/w_meta2_n" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:maxLines="1" android:ellipsize="end" android:textColor="#D9FFFFFF" android:textSize="12sp" />
+            <TextView android:id="@+id/w_meta2_v" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" />
+        </LinearLayout>
+        <ProgressBar android:id="@+id/w_meta2_b" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="4dp" android:max="100" android:progressDrawable="@drawable/widget_barra" />
+    </LinearLayout>
+    <LinearLayout android:id="@+id/w_meta3" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="vertical" android:visibility="gone">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <TextView android:id="@+id/w_meta3_n" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:maxLines="1" android:ellipsize="end" android:textColor="#D9FFFFFF" android:textSize="12sp" />
+            <TextView android:id="@+id/w_meta3_v" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" />
+        </LinearLayout>
+        <ProgressBar android:id="@+id/w_meta3_b" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="4dp" android:max="100" android:progressDrawable="@drawable/widget_barra" />
+    </LinearLayout>
+
+    <TextView android:id="@+id/w_vacio" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Poné tus metas en Vital y aparecen acá." android:textColor="#B3FFFFFF" android:textSize="12sp" android:visibility="gone" />
+</LinearLayout>
