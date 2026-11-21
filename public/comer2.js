@@ -384,7 +384,7 @@ window.comerAct=function(a,v){const p=P();
   case "rpor":if(RED&&RED.foto){leerReceta();const n=+v,o=Math.max(1,RED.por);for(const k in RED.i)RED.i[k]=Math.round(RED.i[k]/o*n);RED.por=n;dibReceta();
     const sh=document.querySelector("#layer .sheet h2");if(sh){const x=document.createElement("p");x.className="note c2-fnota";x.style.marginTop="8px";x.textContent="Cantidades ajustadas para "+n+" porciones.";sh.after(x)}return true}return _ca(a,v);
   case "c2-fprompt":{const t=promptPlato();try{copiarPP(t).then(()=>toast("Texto copiado: pegalo en tu IA junto con la foto"),()=>toast("No se pudo copiar"))}catch(e){toast("No se pudo copiar")}return true}
-  case "c2-fpaste":try{leerPP().then(t=>{$("#c2-ftxt").value=t},()=>toast("Mantené apretado el cuadro y elegí «Pegar»"))}catch(e){toast("Mantené apretado el cuadro y elegí «Pegar»")}return true;
+  case "c2-fpaste":pegarEn("#c2-ftxt");return true;
   case "c2-fcalc":{const r=importarReceta(($("#c2-ftxt")||{}).value||"");if(!Object.keys(r.i).length){toast("No encontré ingredientes: pegá la tabla que te dio la IA");return true}
     const por=Math.max(1,r.por||1);const i={};for(const [k,g] of Object.entries(r.i))i[k]=g/por;FOTO={n:r.n,i,no:r.no.concat(r.sinq)};if(FMODO==="receta"){fotoAReceta();if(FOTO.no.length)toast("No reconocí: "+FOTO.no.join(", "));return true}dibFoto();return true}
   case "c2-fdel":leerFoto();delete FOTO.i[v];if(!Object.keys(FOTO.i).length){abrirFoto();return true}dibFoto();return true;
@@ -392,7 +392,7 @@ window.comerAct=function(a,v){const p=P();
   case "c2-cod":abrirCodigo();return true;
   case "c2-codbus":resolverCodigo(($("#c2-codnum")||{}).value||"");return true;
   case "c2-mano":abrirMano({});return true;
-  case "c2-mtpaste":try{leerPP().then(t=>{$("#c2-mtab").value=t;if(t)llenarTablaNutri()},()=>toast("Mantené apretado el cuadro y elegí «Pegar»"))}catch(e){toast("Mantené apretado el cuadro y elegí «Pegar»")}return true;
+  case "c2-mtpaste":pegarEn("#c2-mtab",()=>llenarTablaNutri());return true;
   case "c2-mtfill":llenarTablaNutri();return true;
   case "c2-mansave":{const n=(($("#c2-mn")||{}).value||"").trim();const kc=num("#c2-mk");if(!n){toast("Ponele un nombre");return true}if(!kc){toast("Cargá las calorías cada 100 g");return true}
     const q=num("#c2-mq")||100;const x={id:v?"off"+v:"man"+uid(),code:v||"",n,c:($("#c2-mu")||{}).value||"otro",kcal:Math.round(kc),hc:num("#c2-mh"),p:num("#c2-mp"),g:num("#c2-mg"),fib:num("#c2-mf"),na:num("#c2-ms"),tacc:2,u:{porción:Math.round(q)},src:"mano"};

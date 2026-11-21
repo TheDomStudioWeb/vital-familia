@@ -241,3 +241,16 @@ Object.assign(window.I18N_EN=window.I18N_EN||{},{
 ,"Listo: lo pasé de la porción a 100 g. Revisá los números":"Done: I converted it from the serving to 100 g. Check the numbers"
 ,"No encontré los datos: revisá que se vean calorías, hidratos, proteínas y grasas":"I couldn't find the data: make sure calories, carbs, protein and fat are visible"
 });
+Object.assign(window.I18N_TU=window.I18N_TU||{},{
+ "Esta versión de Vital no puede leer el portapapeles: actualizá la app":"Esta versión de Vital no puede leer el portapapeles: actualiza la app"
+,"No pude leer el portapapeles: mantené apretado el cuadro y elegí «Pegar»":"No pude leer el portapapeles: mantén pulsado el cuadro y elige «Pegar»"
+,"El portapapeles está vacío: volvé a copiar la tabla en la app de IA":"El portapapeles está vacío: vuelve a copiar la tabla en la app de IA"
+,"Lo copiado es una imagen: copiá el texto de la tabla":"Lo copiado es una imagen: copia el texto de la tabla"
+});
+Object.assign(window.I18N_EN=window.I18N_EN||{},{
+ "Esta versión de Vital no puede leer el portapapeles: actualizá la app":"This version of Vital can't read the clipboard: update the app"
+,"No pude leer el portapapeles: mantené apretado el cuadro y elegí «Pegar»":"I couldn't read the clipboard: press and hold the box and choose «Paste»"
+,"El portapapeles está vacío: volvé a copiar la tabla en la app de IA":"The clipboard is empty: copy the table again in the AI app"
+,"Lo copiado es una imagen: copiá el texto de la tabla":"What you copied is an image: copy the table's text"
+,"Pegado ✓":"Pasted ✓"
+});
