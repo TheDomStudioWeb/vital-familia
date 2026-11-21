@@ -99,6 +99,7 @@ function verRunning(){const p=P();const r=runEstado(p);
   <section class="glass" style="margin-top:12px;padding:14px"><b>Hoy: semana ${r.sem+1} · salida ${r.ses+1} de 3</b><p class="sm mute" style="margin:4px 0">${TIPO_SES[r.l][r.ses]} · ≈ ${sx.minutes} min con calentamiento y vuelta a la calma</p>
    <p class="sm">${resumenTramos(sx.blocks[1].items)}</p></section>
   <p class="note" style="margin-top:8px">🗣️ Test del habla: en el trote suave tenés que poder hablar con frases completas. Si no podés, bajá el ritmo.<br>🏃 En cinta (referencia): ${CINTA[r.l]} Inclinación 1 %.</p>
+  ${window.extraRunning?extraRunning(p):""}
   <button class="btn block" style="margin-top:12px" data-act="pg-run-go">▶ Empezar la salida de hoy</button>
   <div class="row" style="gap:8px;margin-top:8px"><button class="btn ghost" style="flex:1" data-act="pg-run-hecho">Ya la hice por mi cuenta</button><button class="btn ghost" style="flex:1" data-act="pg-nivel" data-v="running">Cambiar nivel</button></div>
   <p class="xs faint" style="margin-top:10px">Vital te guía con voz en cada tramo. Al terminar, el esfuerzo que marques decide si avanzás o repetís.</p>`)}

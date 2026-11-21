@@ -125,7 +125,7 @@ function tarjetaPropia(p){const deps=depDe(p);if(!deps.length)return "";const d=
    <div class="row wrap" style="gap:6px;margin-top:10px"><span class="xs mute">Complementos opcionales:</span>${deps.slice(0,3).map(k=>`<button class="chip" data-act="acomp" data-v="${k}">${DEP[k][1]} para ${esc(DEP[k][0].split(" ")[0].toLowerCase())}</button>`).join("")}</div></section>`}
 
 /* ---------- Resumen por deporte (Evolución) ---------- */
-function resumenDeportes(p){const tot={};for(let i=0;i<28;i++){const d=L(p.id).days[addDays(TODAY(),-i)];if(!d)continue;d.workouts.forEach(w=>{const k=w.src==="act"?w.dep:"vital";tot[k]=(tot[k]||{min:0,n:0,km:0});tot[k].min+=w.min;tot[k].n++;tot[k].km+=w.km||0});(d.ext||[]).forEach(x=>{const k=WK2DEP[x.name]||"otro";tot[k]=(tot[k]||{min:0,n:0,km:0});tot[k].min+=x.min;tot[k].n++})}
+function resumenDeportes(p){const tot={};for(let i=0;i<28;i++){const d=L(p.id).days[addDays(TODAY(),-i)];if(!d)continue;d.workouts.forEach(w=>{const k=(w.src==="act"||w.dep)&&DEP[w.dep]?w.dep:"vital";tot[k]=(tot[k]||{min:0,n:0,km:0});tot[k].min+=w.min;tot[k].n++;tot[k].km+=w.km||0});(d.ext||[]).forEach(x=>{const k=WK2DEP[x.name]||"otro";tot[k]=(tot[k]||{min:0,n:0,km:0});tot[k].min+=x.min;tot[k].n++})}
   const arr=Object.entries(tot).sort((a,b)=>b[1].min-a[1].min);if(!arr.length)return "";const mx=arr[0][1].min;
   return `<section class="glass org3"><h2>Tus actividades · últimas 4 semanas</h2>${arr.map(([k,v])=>{const n=k==="vital"?["Rutinas de Vital","🌿"]:[DEP[k][0],DEP[k][1]];return `<div style="margin:10px 0"><div class="row between sm"><span>${n[1]} ${esc(n[0])}</span><span class="mute">${v.n} ${v.n===1?"vez":"veces"} · <b style="color:var(--ink)">${v.min>=120?Math.round(v.min/6)/10+" h":v.min+" min"}</b>${v.km?` · ${Math.round(v.km*10)/10} km`:""}</span></div><div class="bar" style="margin-top:5px"><i style="width:${Math.max(3,v.min/mx*100)}%"></i></div></div>`}).join("")}</section>`}
 
@@ -140,7 +140,7 @@ window.actAct=function(a,v){
   case "amus":leerAct();if(v==="todo")ACT.mus=ACT.mus.length===7?[]:Object.keys(MUS);else ACT.mus=ACT.mus.includes(v)?ACT.mus.filter(m=>m!==v):ACT.mus.concat(v);dibActividad();return true;
   case "asave":guardarActividad();return true;
   case "acomp":complemento(v);return true;
-  case "aext":{const p=P();const d=D(p.id);const x=(d.ext||[]).find(e=>e.id===v);if(!x)return true;abrirActividad({dep:WK2DEP[x.name]||"otro",min:x.min,extId:x.id,hora:x.start?new Date(x.start).toTimeString().slice(0,5):null});return true}
+  case "aext":{const p=P();const d=D(p.id);const x=(d.ext||[]).find(e=>e.id===v);if(!x)return true;abrirActividad({dep:WK2DEP[x.name]||"otro",min:x.min,km:x.km?String(x.km).replace(".",","):"",extId:x.id,hora:x.start?new Date(x.start).toTimeString().slice(0,5):null});return true}
   case "o-niv":setNiv(draft,v);drawOnb();return true;
   case "o-nivr":togRet(draft,v);drawOnb();return true;
   case "p-niv":setNiv(P(),v);save();abrirNiveles();return true;
