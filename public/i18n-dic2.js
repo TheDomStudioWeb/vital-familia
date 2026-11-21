@@ -226,3 +226,18 @@ Object.assign(window.I18N_EN=window.I18N_EN||{},{
  "Kilómetros corriendo":"Kilometers running","Kilómetros caminando, corriendo o en bici":"Kilometers walking, running or cycling","Entrenamientos":"Workouts","Minutos de actividad":"Active minutes","Pasos":"Steps","Kilómetros":"Kilometers","Minutos activos":"Active minutes",
  "esta semana":"this week","en enero":"in January","en febrero":"in February","en marzo":"in March","en abril":"in April","en mayo":"in May","en junio":"in June","en julio":"in July","en agosto":"in August","en septiembre":"in September","en octubre":"in October","en noviembre":"in November","en diciembre":"in December"
 });
+/* Cargar un producto: pegar la tabla del envase (21/11/2026) */
+Object.assign(window.I18N_TU=window.I18N_TU||{},{
+ "Copiá la tabla con Google Lens o desde la web del producto y pegala acá: los casilleros se completan solos":"Copia la tabla con Google Lens o desde la web del producto y pégala aquí: las casillas se completan solas"
+,"Listo: revisá que los números coincidan con el envase":"Listo: revisa que los números coincidan con el envase"
+,"Listo: lo pasé de la porción a 100 g. Revisá los números":"Listo: lo pasé de la porción a 100 g. Revisa los números"
+,"No encontré los datos: revisá que se vean calorías, hidratos, proteínas y grasas":"No encontré los datos: revisa que se vean calorías, hidratos, proteínas y grasas"
+});
+Object.assign(window.I18N_EN=window.I18N_EN||{},{
+ "Pegar la tabla del envase (opcional)":"Paste the label's nutrition table (optional)"
+,"Copiá la tabla con Google Lens o desde la web del producto y pegala acá: los casilleros se completan solos":"Copy the table with Google Lens or from the product's website and paste it here: the boxes fill in by themselves"
+,"Completar los datos":"Fill in the data"
+,"Listo: revisá que los números coincidan con el envase":"Done: check that the numbers match the label"
+,"Listo: lo pasé de la porción a 100 g. Revisá los números":"Done: I converted it from the serving to 100 g. Check the numbers"
+,"No encontré los datos: revisá que se vean calorías, hidratos, proteínas y grasas":"I couldn't find the data: make sure calories, carbs, protein and fat are visible"
+});
