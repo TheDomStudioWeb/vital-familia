@@ -304,3 +304,22 @@ Inspirado en lo que hacen apps como adidas Running, pero simple.
 ### Frases para Claudio (carrera)
 - «Si no tenés reloj, dejá activado el GPS en Running progresivo: Vital mide la distancia y te dice el ritmo en cada kilómetro.»
 - «Cargá tus zapatillas en Running progresivo y Vital te avisa cuándo cambiarlas.»
+
+## Plan hacia una carrera y metas (20/11)
+**🏁 Plan hacia una carrera con fecha** (Entrenar → Programas → Running → «Preparar una carrera con fecha»):
+- Se elige la distancia (5K, 10K o 21K), el nombre (opcional, por ejemplo «Luján Corre»), la fecha y de 2 a 4 días por semana para correr.
+- Vital arma cada salida con su fecha hasta la carrera, según el nivel de running: rodajes, una salida de calidad por semana (cambios de ritmo, intervalos o tempo según el nivel) y el fondo largo el último día de la semana. El fondo crece semana a semana, con una semana más liviana cada cuatro y una descarga antes de la carrera (activación el día anterior).
+- En nivel inicial, los trotes llevan pausas de caminata que se van achicando.
+- Cada salida se hace con el reproductor: calentamiento, carrera y vuelta a la calma, con GPS, voz por kilómetro y tramos automáticos. También se puede marcar como hecha o saltear. Las salidas que pasaron sin hacerse no se acumulan.
+- Si hay récords de 5K o 10K, muestra un tiempo estimado para la carrera.
+- El día de la carrera muestra consejos (no acelerar al principio, no estrenar nada, hidratarse) y el botón para registrarla.
+- La carrera dura como máximo 16 semanas de plan. Si falta poco tiempo para la distancia, avisa que el plan prioriza llegar sano.
+- En Programas, la tarjeta de Running muestra «Preparando Luján Corre · faltan 58 días». El plan por semanas sin fecha sigue disponible.
+
+**🎯 Metas** (tarjeta en Hoy, hasta 4): kilómetros corriendo, kilómetros caminando/corriendo/en bici, entrenamientos, minutos de actividad o pasos, por semana o por mes. Muestra la barra de progreso y cuántos días faltan, y avisa con vibración al cumplirla.
+
+**Widget en el Launcher Noir:** la app de Android publica las metas y la cuenta regresiva de la carrera, y el widget de Vital del Launcher Noir las muestra debajo de los pasos. Solo el Launcher Noir puede leer esos datos (proveedor nativo MetasProvider, que responde únicamente a Vital y al launcher).
+
+### Frases para Claudio (objetivos)
+- «Para preparar una carrera, entrá a Entrenar → Running y tocá “Preparar una carrera con fecha”.»
+- «Las metas se ponen desde la tarjeta Metas en Hoy: por ejemplo, 50 km este mes.»
