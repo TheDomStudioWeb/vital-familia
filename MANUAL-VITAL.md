@@ -336,3 +336,7 @@ Inspirado en lo que hacen apps como adidas Running, pero simple.
 - Si Android cerró Vital mientras tanto, Vital recuerda la comida, el día y el modo (plato o receta) que se estaban cargando, durante 6 horas.
 - Si la respuesta trae texto de más («Acá tenés la tabla…»), Vital se queda solo con las líneas de la tabla.
 - En la web sigue el botón «Copiar el texto para la IA» y el cuadro con «Pegar».
+
+## Manual de uso para clientes (PDF, 21/11)
+- Está en la app: Perfil y ajustes → Manual de uso. Es el archivo public/manual-vital.pdf (49 páginas).
+- Actualizado con: prueba gratis de 14 días y planes (capítulo 14), foto del plato, código de barras, ayuno intermitente, formas de comer (vegetariana, vegana y otras), alergias, idioma y país, botón «Empezar rutina» y la tarjeta «Tu rutina de hoy», cobertura familiar del plan y preguntas nuevas (login en iPhone, pegar, prueba vencida).
